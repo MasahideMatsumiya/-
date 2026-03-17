@@ -184,3 +184,25 @@ async def get_order(order_number: str, session: AsyncSession = Depends(get_sessi
     if not order:
         raise HTTPException(404, "Order not found")
     return order
+
+
+@router.post("/orders/{order_id}/pay-test")
+async def pay_test(order_id: int, session: AsyncSession = Depends(get_session)):
+    """
+    テスト用・手動決済完了エンドポイント。
+    Stripe未設定時のみ有効。本番環境（stripe_secret_key設定済み）では403を返す。
+    """
+    if settings.stripe_secret_key:
+        raise HTTPException(403, "Stripe設定済みの環境ではこのエンドポイントは使用できません")
+    order = await session.get(Order, order_id)
+    if not order:
+        raise HTTPException(404, "Order not found")
+    if order.status == OrderStatus.PAID:
+        raise HTTPException(409, "Already paid")
+    await _fulfill_order(order, session)
+    return {
+        "status": "paid",
+        "order_number": order.order_number,
+        "download_token": order.download_token,
+        "download_url": f"/marketplace/download/{order.download_token}",
+    }
