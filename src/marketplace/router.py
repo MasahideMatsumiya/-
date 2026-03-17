@@ -1,0 +1,171 @@
+"""取引所API - 注文・決済・ダウンロード"""
+import secrets
+from datetime import datetime, timedelta
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
+
+from src.config import settings
+from src.database import get_session
+from src.marketplace.models import Coupon, DownloadLog, Order, OrderStatus, PaymentMethod
+from src.marketplace.schemas import CheckoutRequest, CheckoutResponse, OrderPublic
+from src.products.models import Product
+
+router = APIRouter(prefix="/marketplace", tags=["marketplace"])
+
+
+def generate_order_number() -> str:
+    from datetime import date
+    today = date.today().strftime("%Y%m%d")
+    rand = secrets.token_hex(3).upper()
+    return f"ORD-{today}-{rand}"
+
+
+@router.post("/checkout", response_model=CheckoutResponse)
+async def create_checkout(
+    data: CheckoutRequest,
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+):
+    """Stripe決済セッション作成"""
+    product = await session.get(Product, data.product_id)
+    if not product:
+        raise HTTPException(404, "Product not found")
+
+    subtotal = product.price_usd
+    discount = 0.0
+
+    # クーポン適用
+    if data.coupon_code:
+        result = await session.execute(
+            select(Coupon).where(Coupon.code == data.coupon_code, Coupon.is_active)
+        )
+        coupon = result.scalar_one_or_none()
+        if coupon and (not coupon.valid_until or coupon.valid_until > datetime.utcnow()):
+            if coupon.discount_type == "percent":
+                discount = subtotal * coupon.discount_value / 100
+            else:
+                discount = min(coupon.discount_value, subtotal)
+            coupon.used_count += 1
+            session.add(coupon)
+
+    tax = (subtotal - discount) * settings.tax_rate_jp
+    total = subtotal - discount + tax
+    platform_fee = total * settings.platform_fee_percent / 100
+    seller_revenue = total - platform_fee
+
+    order = Order(
+        order_number=generate_order_number(),
+        customer_id=data.customer_id,
+        product_id=data.product_id,
+        subtotal_usd=subtotal,
+        discount_usd=discount,
+        tax_usd=tax,
+        total_usd=total,
+        platform_fee_usd=platform_fee,
+        seller_revenue_usd=seller_revenue,
+        payment_method=PaymentMethod.STRIPE,
+        coupon_code=data.coupon_code,
+        ip_address=request.client.host if request.client else None,
+    )
+    session.add(order)
+    await session.commit()
+    await session.refresh(order)
+
+    # Stripe Payment Intent 作成
+    stripe_client_secret = None
+    if settings.stripe_secret_key:
+        import stripe
+        stripe.api_key = settings.stripe_secret_key
+        intent = stripe.PaymentIntent.create(
+            amount=int(total * 100),  # cents
+            currency=settings.currency,
+            metadata={"order_id": order.id, "order_number": order.order_number},
+        )
+        order.stripe_payment_intent_id = intent.id
+        session.add(order)
+        await session.commit()
+        stripe_client_secret = intent.client_secret
+
+    return CheckoutResponse(
+        order_id=order.id,
+        order_number=order.order_number,
+        total_usd=total,
+        stripe_client_secret=stripe_client_secret,
+    )
+
+
+@router.post("/webhook/stripe")
+async def stripe_webhook(request: Request, session: AsyncSession = Depends(get_session)):
+    """Stripe Webhook - 決済確認"""
+    payload = await request.body()
+    sig = request.headers.get("stripe-signature", "")
+
+    if settings.stripe_webhook_secret and settings.stripe_secret_key:
+        import stripe
+        stripe.api_key = settings.stripe_secret_key
+        try:
+            event = stripe.Webhook.construct_event(payload, sig, settings.stripe_webhook_secret)
+        except Exception:
+            raise HTTPException(400, "Invalid signature")
+
+        if event["type"] == "payment_intent.succeeded":
+            pi_id = event["data"]["object"]["id"]
+            result = await session.execute(
+                select(Order).where(Order.stripe_payment_intent_id == pi_id)
+            )
+            order = result.scalar_one_or_none()
+            if order:
+                await _fulfill_order(order, session)
+    return {"status": "ok"}
+
+
+async def _fulfill_order(order: Order, session: AsyncSession):
+    """注文確定・商品配信"""
+    order.status = OrderStatus.PAID
+    order.paid_at = datetime.utcnow()
+    order.download_token = secrets.token_urlsafe(32)
+    order.download_expires_at = datetime.utcnow() + timedelta(days=30)
+
+    # 商品販売数更新
+    product = await session.get(Product, order.product_id)
+    if product:
+        product.sales_count += 1
+        session.add(product)
+
+    session.add(order)
+    await session.commit()
+
+
+@router.get("/download/{token}")
+async def download_product(
+    token: str, request: Request, session: AsyncSession = Depends(get_session)
+):
+    """購入後ダウンロード"""
+    result = await session.execute(select(Order).where(Order.download_token == token))
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(404, "Invalid download token")
+    if order.download_expires_at and order.download_expires_at < datetime.utcnow():
+        raise HTTPException(410, "Download link expired")
+    if order.download_count >= order.max_downloads:
+        raise HTTPException(429, "Download limit reached")
+
+    product = await session.get(Product, order.product_id)
+    order.download_count += 1
+    log = DownloadLog(order_id=order.id, ip_address=request.client.host if request.client else "")
+    session.add(order)
+    session.add(log)
+    await session.commit()
+
+    return {"download_url": product.download_url, "product_name": product.name}
+
+
+@router.get("/orders/{order_number}", response_model=OrderPublic)
+async def get_order(order_number: str, session: AsyncSession = Depends(get_session)):
+    result = await session.execute(select(Order).where(Order.order_number == order_number))
+    order = result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(404, "Order not found")
+    return order
