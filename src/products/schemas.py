@@ -12,7 +12,10 @@ class ProductCreate(BaseModel):
     category: ProductCategory
     price_usd: float = 10.0
     compare_price_usd: Optional[float] = None
+    status: ProductStatus = ProductStatus.DRAFT
     preview_content: Optional[str] = None
+    download_url: Optional[str] = None
+    file_size_kb: Optional[int] = None
     tags: str = ""
     ai_models: str = ""
     language: str = "ja"
