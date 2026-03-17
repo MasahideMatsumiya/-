@@ -1,12 +1,15 @@
 """取引所API - 注文・決済・ダウンロード"""
+import logging
 import secrets
 from datetime import datetime, timedelta
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
+
+logger = logging.getLogger(__name__)
 
 from src.config import settings
 from src.database import get_session
@@ -101,25 +104,46 @@ async def create_checkout(
 @router.post("/webhook/stripe")
 async def stripe_webhook(request: Request, session: AsyncSession = Depends(get_session)):
     """Stripe Webhook - 決済確認"""
+    if not settings.stripe_secret_key:
+        raise HTTPException(503, "Stripe not configured")
+
+    import stripe
+    stripe.api_key = settings.stripe_secret_key
+
     payload = await request.body()
     sig = request.headers.get("stripe-signature", "")
 
-    if settings.stripe_webhook_secret and settings.stripe_secret_key:
-        import stripe
-        stripe.api_key = settings.stripe_secret_key
+    # 署名検証（webhook_secret設定済みの場合は必須）
+    if settings.stripe_webhook_secret:
         try:
             event = stripe.Webhook.construct_event(payload, sig, settings.stripe_webhook_secret)
-        except Exception:
+        except stripe.SignatureVerificationError:
+            logger.warning("Stripe webhook signature verification failed")
             raise HTTPException(400, "Invalid signature")
+        except Exception as e:
+            logger.error(f"Stripe webhook error: {e}")
+            raise HTTPException(400, "Webhook error")
+    else:
+        # 開発環境：署名なしで処理（本番では必ずwebhook_secretを設定すること）
+        import json
+        try:
+            event = json.loads(payload)
+            logger.warning("Stripe webhook received without signature verification (dev mode)")
+        except Exception:
+            raise HTTPException(400, "Invalid payload")
 
-        if event["type"] == "payment_intent.succeeded":
-            pi_id = event["data"]["object"]["id"]
-            result = await session.execute(
-                select(Order).where(Order.stripe_payment_intent_id == pi_id)
-            )
-            order = result.scalar_one_or_none()
-            if order:
-                await _fulfill_order(order, session)
+    if event["type"] == "payment_intent.succeeded":
+        pi_id = event["data"]["object"]["id"]
+        result = await session.execute(
+            select(Order).where(Order.stripe_payment_intent_id == pi_id)
+        )
+        order = result.scalar_one_or_none()
+        if order and order.status != OrderStatus.PAID:
+            await _fulfill_order(order, session)
+            logger.info(f"Order fulfilled: {order.order_number}")
+        elif order:
+            logger.info(f"Order already fulfilled: {order.order_number}")
+
     return {"status": "ok"}
 
 
