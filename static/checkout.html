@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>購入 - AI Marketplace</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .card { background: white; border-radius: 12px; padding: 32px; max-width: 480px; width: 100%; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+    h1 { font-size: 1.4rem; margin-bottom: 8px; color: #111; }
+    .price { font-size: 2rem; font-weight: bold; color: #0070f3; margin-bottom: 4px; }
+    .desc { color: #666; font-size: 0.9rem; margin-bottom: 24px; }
+    .divider { border: none; border-top: 1px solid #eee; margin: 20px 0; }
+    label { display: block; font-size: 0.85rem; font-weight: 500; color: #444; margin-bottom: 6px; margin-top: 14px; }
+    input { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+    input:focus { border-color: #0070f3; }
+    #payment-element { margin-top: 8px; }
+    button { width: 100%; padding: 14px; background: #0070f3; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 24px; transition: background 0.2s; }
+    button:hover:not(:disabled) { background: #0058cc; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    #message { margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 0.9rem; display: none; }
+    #message.error { background: #fff0f0; color: #d00; border: 1px solid #fcc; }
+    #message.success { background: #f0fff4; color: #080; border: 1px solid #9f9; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .product-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <div id="step-form">
+    <div id="product-info">
+      <div class="price" id="display-price">$10.00</div>
+      <h1 id="display-name">商品を読み込み中...</h1>
+      <div class="desc" id="display-desc"></div>
+    </div>
+    <hr class="divider">
+
+    <label>お名前</label>
+    <input type="text" id="customer-name" placeholder="山田 太郎" required>
+
+    <label>メールアドレス</label>
+    <input type="email" id="customer-email" placeholder="you@example.com" required>
+
+    <hr class="divider">
+
+    <div id="payment-element"></div>
+
+    <button id="pay-btn" disabled>支払う</button>
+    <div id="message"></div>
+  </div>
+
+  <div id="step-success" style="display:none; text-align:center; padding: 20px 0;">
+    <div style="font-size:3rem; margin-bottom:16px;">✅</div>
+    <h2 style="margin-bottom:8px; color:#111;">購入完了！</h2>
+    <p style="color:#666; margin-bottom:24px;">確認メールを送信しました。</p>
+    <a id="download-link" href="#" style="display:inline-block; padding:12px 28px; background:#0070f3; color:white; text-decoration:none; border-radius:8px; font-weight:600;">ダウンロード</a>
+  </div>
+</div>
+
+<script>
+  // URLパラメータから product_id を取得
+  const params = new URLSearchParams(location.search);
+  const productId = params.get('product_id') || 1;
+  let stripe, elements, orderId;
+
+  async function init() {
+    // 1. 商品情報取得
+    const prodRes = await fetch(`/products/`);
+    const products = await prodRes.json();
+    // product_id で絞り込み
+    let product = null;
+    if (productId) {
+      const allRes = await fetch(`/products/?limit=100`);
+      const all = await allRes.json();
+      product = all.find(p => String(p.id) === String(productId)) || all[0];
+    }
+    if (product) {
+      document.getElementById('display-name').textContent = product.name;
+      document.getElementById('display-price').textContent = `$${product.price_usd.toFixed(2)}`;
+      document.getElementById('display-desc').textContent = product.short_description;
+    }
+
+    // 2. publishable_key を取得してStripeを初期化
+    const cfgRes = await fetch('/marketplace/config');
+    const cfg = await cfgRes.json();
+    stripe = Stripe(cfg.publishable_key);
+
+    document.getElementById('pay-btn').disabled = false;
+  }
+
+  document.getElementById('pay-btn').addEventListener('click', async () => {
+    const name = document.getElementById('customer-name').value.trim();
+    const email = document.getElementById('customer-email').value.trim();
+    if (!name || !email) { showMsg('名前とメールを入力してください', 'error'); return; }
+
+    const btn = document.getElementById('pay-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>処理中...';
+
+    try {
+      // 3. 顧客を作成（または既存取得）
+      const custRes = await fetch('/crm/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, display_name: name }),
+      });
+      let customer;
+      if (custRes.status === 409) {
+        // already exists - 再取得
+        const listRes = await fetch(`/crm/customers/by-email?email=${encodeURIComponent(email)}`);
+        customer = await listRes.json();
+      } else {
+        customer = await custRes.json();
+      }
+
+      // 4. チェックアウト（PaymentIntent作成）
+      const checkoutRes = await fetch('/marketplace/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: Number(productId), customer_id: customer.id }),
+      });
+      const checkout = await checkoutRes.json();
+      orderId = checkout.order_id;
+
+      // 5. Stripe Payment Element をマウント
+      elements = stripe.elements({ clientSecret: checkout.stripe_client_secret });
+      const paymentElement = elements.create('payment');
+      paymentElement.mount('#payment-element');
+      paymentElement.on('ready', () => {
+        btn.disabled = false;
+        btn.textContent = '今すぐ支払う';
+        btn.onclick = confirmPayment;
+      });
+    } catch (e) {
+      showMsg('エラーが発生しました: ' + e.message, 'error');
+      btn.disabled = false;
+      btn.textContent = '支払う';
+    }
+  });
+
+  async function confirmPayment() {
+    const btn = document.getElementById('pay-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>決済処理中...';
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: { return_url: location.href + '&paid=1' },
+      redirect: 'if_required',
+    });
+
+    if (error) {
+      showMsg(error.message, 'error');
+      btn.disabled = false;
+      btn.textContent = '今すぐ支払う';
+    } else {
+      // webhookを少し待つ
+      await new Promise(r => setTimeout(r, 2000));
+      await pollOrderStatus();
+    }
+  }
+
+  async function pollOrderStatus(retries = 6) {
+    for (let i = 0; i < retries; i++) {
+      const res = await fetch(`/marketplace/orders/by-id/${orderId}`);
+      const order = await res.json();
+      if (order.status === 'paid' && order.download_token) {
+        document.getElementById('step-form').style.display = 'none';
+        document.getElementById('step-success').style.display = 'block';
+        document.getElementById('download-link').href = `/marketplace/download/${order.download_token}`;
+        return;
+      }
+      await new Promise(r => setTimeout(r, 1500));
+    }
+    showMsg('決済は完了しましたが確認に時間がかかっています。メールをご確認ください。', 'success');
+  }
+
+  function showMsg(text, type) {
+    const el = document.getElementById('message');
+    el.textContent = text;
+    el.className = type;
+    el.style.display = 'block';
+  }
+
+  init();
+</script>
+</body>
+</html>

@@ -2,10 +2,13 @@
 AI Marketplace - メインアプリ
 AIコミュニティ向けデジタル商材販売プラットフォーム ($10/商材)
 """
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from src.accounting.router import router as accounting_router
 from src.agent.router import router as agent_router
@@ -70,6 +73,18 @@ async def root():
     }
 
 
+@app.get("/checkout")
+async def checkout_page():
+    """Stripe決済フォームページ"""
+    return FileResponse(os.path.join(os.path.dirname(__file__), "../static/checkout.html"))
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+# 静的ファイル（最後にマウントして他ルートを上書きしない）
+_static_dir = os.path.join(os.path.dirname(__file__), "../static")
+if os.path.isdir(_static_dir):
+    app.mount("/static", StaticFiles(directory=_static_dir), name="static")

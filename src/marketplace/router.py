@@ -177,6 +177,22 @@ async def download_product(
     return {"download_url": product.download_url, "product_name": product.name}
 
 
+@router.get("/config")
+async def get_config():
+    """フロントエンド用設定（Stripe publishable_key）"""
+    if not settings.stripe_publishable_key:
+        raise HTTPException(503, "Stripe not configured")
+    return {"publishable_key": settings.stripe_publishable_key}
+
+
+@router.get("/orders/by-id/{order_id}", response_model=OrderPublic)
+async def get_order_by_id(order_id: int, session: AsyncSession = Depends(get_session)):
+    order = await session.get(Order, order_id)
+    if not order:
+        raise HTTPException(404, "Order not found")
+    return order
+
+
 @router.get("/orders/{order_number}", response_model=OrderPublic)
 async def get_order(order_number: str, session: AsyncSession = Depends(get_session)):
     result = await session.execute(select(Order).where(Order.order_number == order_number))

@@ -24,6 +24,15 @@ async def create_customer(data: CustomerCreate, session: AsyncSession = Depends(
     return customer
 
 
+@router.get("/customers/by-email", response_model=CustomerPublic)
+async def get_customer_by_email(email: str, session: AsyncSession = Depends(get_session)):
+    result = await session.execute(select(Customer).where(Customer.email == email))
+    customer = result.scalar_one_or_none()
+    if not customer:
+        raise HTTPException(404, "Customer not found")
+    return customer
+
+
 @router.get("/customers/{customer_id}", response_model=CustomerPublic)
 async def get_customer(customer_id: int, session: AsyncSession = Depends(get_session)):
     customer = await session.get(Customer, customer_id)
