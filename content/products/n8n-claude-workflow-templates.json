@@ -1,0 +1,389 @@
+{
+  "product": "n8n × Claude ワークフローテンプレート集",
+  "version": "1.0.0",
+  "description": "n8nとClaude APIを連携した実務自動化ワークフロー10本。コピペで即使える。",
+  "license": "Personal Use / 個人利用",
+  "requirements": {
+    "n8n_version": ">=1.0.0",
+    "required_credentials": [
+      "Anthropic API Key",
+      "各ワークフローで使用するサービスのAPI Key"
+    ]
+  },
+  "workflows": [
+    {
+      "id": "wf-001",
+      "name": "メール自動要約＆返信ドラフト",
+      "description": "Gmailの未読メールをClaudeが要約し、返信ドラフトをSlackに送信",
+      "trigger": "5分ごとのスケジュール",
+      "integrations": ["Gmail", "Claude API", "Slack"],
+      "use_case": "メール対応時間を70%削減",
+      "estimated_time_saved": "1日30分〜2時間",
+      "nodes": [
+        {
+          "type": "Schedule Trigger",
+          "config": {"interval": 5, "unit": "minutes"}
+        },
+        {
+          "type": "Gmail",
+          "operation": "getAll",
+          "config": {"labelIds": ["INBOX", "UNREAD"], "maxResults": 10}
+        },
+        {
+          "type": "Anthropic Claude",
+          "operation": "message",
+          "system_prompt": "あなたはメールアシスタントです。受信したメールを分析し、以下を提供してください：\n1. 3行要約\n2. 緊急度（高/中/低）\n3. 必要なアクション\n4. 返信ドラフト（もし返信が必要な場合）",
+          "user_message": "メール件名: {{$json.subject}}\n送信者: {{$json.from}}\n本文:\n{{$json.body}}"
+        },
+        {
+          "type": "Slack",
+          "operation": "postMessage",
+          "config": {
+            "channel": "#email-digest",
+            "message": "📧 *新着メール要約*\n\n件名: {{$node['Gmail'].json.subject}}\n送信者: {{$node['Gmail'].json.from}}\n\n{{$node['Claude'].json.content[0].text}}"
+          }
+        }
+      ],
+      "setup_guide": [
+        "1. n8nでGmail OAuth2認証を設定",
+        "2. Anthropic APIキーをCredentialsに追加",
+        "3. Slack Bot TokenをCredentialsに追加",
+        "4. Slackチャンネル名を変更（#email-digest）",
+        "5. ワークフローをActivateして動作確認"
+      ]
+    },
+    {
+      "id": "wf-002",
+      "name": "社内Q&A自動応答Bot",
+      "description": "Slackで特定チャンネルに投稿された質問をClaudeが社内ドキュメントを参照して回答",
+      "trigger": "Slackメッセージ受信（Webhook）",
+      "integrations": ["Slack", "Claude API", "Notion（知識ベース）"],
+      "use_case": "社内ヘルプデスクの負荷を50%削減",
+      "nodes": [
+        {
+          "type": "Slack Trigger",
+          "config": {"event": "message", "channel": "#q-and-a"}
+        },
+        {
+          "type": "Notion",
+          "operation": "search",
+          "config": {"query": "{{$json.text}}"}
+        },
+        {
+          "type": "Anthropic Claude",
+          "system_prompt": "あなたは社内のITサポートエキスパートです。提供された社内ドキュメントを参照して質問に回答してください。\n\n参照ドキュメント:\n{{$node['Notion'].json}}\n\nドキュメントに答えがない場合は、「担当部署に確認が必要です」と案内してください。"
+        },
+        {
+          "type": "Slack",
+          "operation": "replyToThread",
+          "config": {"ts": "{{$json.ts}}"}
+        }
+      ]
+    },
+    {
+      "id": "wf-003",
+      "name": "競合情報モニタリング＆レポート",
+      "description": "競合サイトの更新をRSSで監視し、ClaudeがビジネスインパクトをGoogleスプレッドシートに記録",
+      "trigger": "毎朝9:00",
+      "integrations": ["RSS Feed", "Claude API", "Google Sheets", "Slack"],
+      "use_case": "競合調査を完全自動化",
+      "nodes": [
+        {
+          "type": "Schedule Trigger",
+          "config": {"cronExpression": "0 9 * * 1-5"}
+        },
+        {
+          "type": "RSS Feed",
+          "urls": ["競合サイト1のRSSURL", "競合サイト2のRSSURL"]
+        },
+        {
+          "type": "Anthropic Claude",
+          "system_prompt": "競合情報アナリストとして、以下の記事を分析してください：\n\n1. 要約（100字）\n2. 自社への影響度（1-10）\n3. 脅威か機会か\n4. 推奨アクション\n5. 緊急度\n\nJSON形式で出力：\n{\"summary\": \"\", \"impact_score\": 0, \"type\": \"\", \"action\": \"\", \"urgency\": \"\"}"
+        },
+        {
+          "type": "Google Sheets",
+          "operation": "appendRow",
+          "config": {
+            "sheetId": "YOUR_SHEET_ID",
+            "columns": ["日付", "競合名", "タイトル", "要約", "影響度", "タイプ", "アクション", "緊急度"]
+          }
+        },
+        {
+          "type": "IF",
+          "condition": "{{$json.urgency}} == '高'",
+          "trueBranch": "Slack通知"
+        }
+      ]
+    },
+    {
+      "id": "wf-004",
+      "name": "カスタマーレビュー分析＆対応",
+      "description": "新着レビューをClaudeが分析し、ネガティブレビューには自動的にドラフト返信を生成してCRMに登録",
+      "trigger": "Webhook（EC/レビューサイトから）",
+      "integrations": ["Webhook", "Claude API", "HubSpot CRM", "Gmail"],
+      "use_case": "レビュー管理の完全自動化",
+      "nodes": [
+        {
+          "type": "Webhook",
+          "path": "/review-webhook"
+        },
+        {
+          "type": "Anthropic Claude",
+          "system_prompt": "カスタマーサクセスエキスパートとして以下を分析してください：\n\nレビュー: {{$json.review_text}}\n評価: {{$json.rating}}/5\n\n出力（JSON）：\n{\n  \"sentiment\": \"positive/negative/neutral\",\n  \"main_issue\": \"主要な問題点\",\n  \"urgency\": \"high/medium/low\",\n  \"response_draft\": \"返信ドラフト（丁寧な日本語）\",\n  \"escalate\": true/false\n}"
+        },
+        {
+          "type": "Switch",
+          "cases": [
+            {"condition": "sentiment == 'negative'", "output": "ネガティブ処理"},
+            {"condition": "sentiment == 'positive'", "output": "ポジティブ処理"}
+          ]
+        },
+        {
+          "type": "HubSpot",
+          "operation": "createTicket",
+          "config": {
+            "subject": "レビュー対応: {{$json.main_issue}}",
+            "priority": "{{$json.urgency}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "wf-005",
+      "name": "週次レポート自動生成",
+      "description": "各サービスのKPIデータを収集し、ClaudeがPDF形式の週次レポートを生成してメール配信",
+      "trigger": "毎週月曜8:00",
+      "integrations": ["Google Analytics", "Stripe", "Claude API", "Gmail"],
+      "use_case": "週次報告書作成を完全自動化（毎週2時間節約）",
+      "nodes": [
+        {
+          "type": "Schedule Trigger",
+          "config": {"cronExpression": "0 8 * * 1"}
+        },
+        {
+          "type": "Google Analytics",
+          "operation": "getData",
+          "config": {"period": "last_7_days", "metrics": ["sessions", "users", "conversions"]}
+        },
+        {
+          "type": "Stripe",
+          "operation": "listPaymentIntents",
+          "config": {"created": {"gte": "last_week_start"}}
+        },
+        {
+          "type": "Anthropic Claude",
+          "system_prompt": "データアナリストとして、以下のKPIデータから週次レポートを作成してください。\n\n分析データ：\nGA4: {{$node['Google Analytics'].json}}\nStripe: {{$node['Stripe'].json}}\n\nレポート構成：\n1. エグゼクティブサマリー（3行）\n2. 主要KPIの前週比較\n3. 注目すべきトレンド（良い点・悪い点各2つ）\n4. 来週のアクションアイテム（優先度付き）\n5. 懸念事項（もしあれば）\n\nMarkdown形式で出力してください。"
+        },
+        {
+          "type": "Gmail",
+          "operation": "send",
+          "config": {
+            "to": "team@yourcompany.com",
+            "subject": "📊 週次レポート {{$now.format('YYYY年MM月DD日')}}",
+            "body": "{{$node['Claude'].json.content[0].text}}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "wf-006",
+      "name": "採用書類スクリーニング",
+      "description": "応募書類をClaudeが評価基準に基づいてスクリーニングし、ATS（採用管理）に結果を登録",
+      "trigger": "メール受信（採用メールアドレス）",
+      "integrations": ["Gmail", "Claude API", "Notion/Airtable"],
+      "use_case": "採用スクリーニング時間を80%削減",
+      "nodes": [
+        {
+          "type": "Gmail Trigger",
+          "config": {"label": "採用応募"}
+        },
+        {
+          "type": "Gmail",
+          "operation": "downloadAttachment"
+        },
+        {
+          "type": "Anthropic Claude",
+          "system_prompt": "シニア採用担当者として、以下の評価基準で応募書類を評価してください。\n\n## 評価基準\n- 必須スキル: {{REQUIRED_SKILLS}}\n- 経験年数: {{REQUIRED_EXPERIENCE}}\n- ポジション: {{POSITION}}\n\n## 出力形式（JSON）\n{\n  \"overall_score\": 0-100,\n  \"skills_match\": [\"マッチしたスキル\"],\n  \"missing_skills\": [\"不足スキル\"],\n  \"experience_years\": 0,\n  \"recommendation\": \"interview/maybe/reject\",\n  \"reason\": \"評価理由\",\n  \"interview_questions\": [\"推奨面接質問3つ\"]\n}"
+        },
+        {
+          "type": "Airtable",
+          "operation": "create",
+          "config": {
+            "table": "採用パイプライン",
+            "fields": ["氏名", "スコア", "推奨", "理由"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "wf-007",
+      "name": "ブログ記事自動生成パイプライン",
+      "description": "トピックを入力するとSEO最適化されたブログ記事を自動生成してWordPressに下書き投稿",
+      "trigger": "手動/Google Sheets新行追加",
+      "integrations": ["Google Sheets", "Claude API", "WordPress"],
+      "use_case": "コンテンツ制作コストを60%削減",
+      "nodes": [
+        {
+          "type": "Google Sheets Trigger",
+          "config": {"event": "rowAdded", "sheetId": "YOUR_CONTENT_CALENDAR_ID"}
+        },
+        {
+          "type": "Anthropic Claude",
+          "operation": "message",
+          "config": {"model": "claude-opus-4-6"},
+          "system_prompt": "SEOライターとして、以下の記事を作成してください。\n\nトピック: {{$json.topic}}\nキーワード: {{$json.keywords}}\nターゲット読者: {{$json.audience}}\n文字数: {{$json.word_count}}文字\n\n必須要素：\n1. SEO最適化されたタイトル\n2. メタディスクリプション（120文字以内）\n3. 本文（H2/H3見出し付き、キーワード自然に含む）\n4. まとめ\n5. 内部リンク候補（[]でプレースホルダー）\n\nMarkdown形式で出力"
+        },
+        {
+          "type": "WordPress",
+          "operation": "createPost",
+          "config": {
+            "status": "draft",
+            "title": "{{$json.title}}",
+            "content": "{{$json.content}}",
+            "categories": "{{$json.category}}"
+          }
+        },
+        {
+          "type": "Google Sheets",
+          "operation": "updateRow",
+          "config": {"column": "status", "value": "下書き作成済み"}
+        }
+      ]
+    },
+    {
+      "id": "wf-008",
+      "name": "インシデント自動トリアージ",
+      "description": "監視アラートをClaudeが分析し、重大度を判定。重大インシデントはSlack通知＋担当者アサイン",
+      "trigger": "Webhook（監視ツールから）",
+      "integrations": ["Webhook", "Claude API", "PagerDuty/Slack", "Jira"],
+      "use_case": "インシデント対応時間を40%短縮",
+      "nodes": [
+        {
+          "type": "Webhook",
+          "path": "/incident-webhook"
+        },
+        {
+          "type": "Anthropic Claude",
+          "system_prompt": "SREエンジニアとして以下のインシデントアラートを分析してください。\n\nアラート: {{$json.alert}}\nメトリクス: {{$json.metrics}}\n影響サービス: {{$json.services}}\n\n出力（JSON）：\n{\n  \"severity\": \"critical/high/medium/low\",\n  \"likely_cause\": \"推定原因\",\n  \"impact\": \"影響範囲\",\n  \"immediate_actions\": [\"即時対応手順\"],\n  \"escalate_to\": \"チーム/個人\",\n  \"runbook\": \"参照すべきRunbook\"\n}"
+        },
+        {
+          "type": "Switch",
+          "cases": [
+            {
+              "condition": "severity == 'critical'",
+              "actions": ["PagerDuty呼び出し", "Slack #incidents通知", "Jiraチケット作成"]
+            },
+            {
+              "condition": "severity == 'high'",
+              "actions": ["Slack #alerts通知", "Jiraチケット作成"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wf-009",
+      "name": "商談メモ→CRM自動入力",
+      "description": "営業担当者が商談メモを音声/テキストで入力するとClaudeが構造化してSalesforceに自動登録",
+      "trigger": "Slackコマンド /deal-memo",
+      "integrations": ["Slack", "Claude API", "Salesforce"],
+      "use_case": "CRM入力工数を90%削減",
+      "nodes": [
+        {
+          "type": "Slack Trigger",
+          "config": {"type": "slash_command", "command": "/deal-memo"}
+        },
+        {
+          "type": "Anthropic Claude",
+          "system_prompt": "営業アシスタントとして、以下の商談メモを構造化してください。\n\nメモ: {{$json.text}}\n\n出力（JSON）：\n{\n  \"company_name\": \"\",\n  \"contact_name\": \"\",\n  \"deal_stage\": \"prospecting/qualification/proposal/negotiation/closed\",\n  \"deal_amount\": 0,\n  \"next_action\": \"\",\n  \"next_action_date\": \"YYYY-MM-DD\",\n  \"pain_points\": [],\n  \"competitors_mentioned\": [],\n  \"summary\": \"商談サマリー\",\n  \"sentiment\": \"positive/neutral/negative\"\n}"
+        },
+        {
+          "type": "Salesforce",
+          "operation": "upsert",
+          "object": "Opportunity",
+          "fields": "{{$node['Claude'].json}}"
+        },
+        {
+          "type": "Slack",
+          "operation": "reply",
+          "message": "✅ CRMに登録しました！\n\n会社: {{$json.company_name}}\n金額: ¥{{$json.deal_amount}}\n次回アクション: {{$json.next_action}}（{{$json.next_action_date}}）"
+        }
+      ]
+    },
+    {
+      "id": "wf-010",
+      "name": "多言語カスタマーサポート",
+      "description": "任意の言語で届いた問い合わせをClaudeが翻訳・分類・回答し、CRMに日本語で記録",
+      "trigger": "メール受信またはWebhook",
+      "integrations": ["Gmail/Webhook", "Claude API", "HubSpot"],
+      "use_case": "多言語サポートを追加コストゼロで実現",
+      "nodes": [
+        {
+          "type": "Gmail Trigger",
+          "config": {"label": "support"}
+        },
+        {
+          "type": "Anthropic Claude",
+          "system_prompt": "多言語カスタマーサポートエキスパートとして処理してください。\n\n問い合わせ: {{$json.body}}\n\nStep 1: 言語を検出\nStep 2: 日本語に翻訳\nStep 3: カテゴリ分類（返品/技術/請求/その他）\nStep 4: 元の言語で回答文を作成\n\n出力（JSON）：\n{\n  \"detected_language\": \"\",\n  \"japanese_translation\": \"\",\n  \"category\": \"\",\n  \"priority\": \"high/medium/low\",\n  \"response\": \"元言語での回答\",\n  \"response_japanese\": \"日本語での回答\",\n  \"requires_human\": false\n}"
+        },
+        {
+          "type": "IF",
+          "condition": "requires_human == false",
+          "trueBranch": [
+            {
+              "type": "Gmail",
+              "operation": "reply",
+              "body": "{{$json.response}}"
+            }
+          ],
+          "falseBranch": [
+            {
+              "type": "Slack",
+              "message": "🚨 人間の対応が必要: {{$json.category}}"
+            }
+          ]
+        },
+        {
+          "type": "HubSpot",
+          "operation": "createTicket",
+          "config": {
+            "subject": "[{{$json.detected_language}}] {{$json.category}}",
+            "description": "{{$json.japanese_translation}}"
+          }
+        }
+      ]
+    }
+  ],
+  "setup_instructions": {
+    "step1": {
+      "title": "n8nのセットアップ",
+      "options": [
+        "n8n.cloud（クラウド版、月$20〜）: https://n8n.io",
+        "セルフホスト: docker run -it --rm --name n8n -p 5678:5678 n8nio/n8n"
+      ]
+    },
+    "step2": {
+      "title": "Anthropic APIキーの設定",
+      "steps": [
+        "console.anthropic.comでAPIキーを取得",
+        "n8n → Settings → Credentials → Add Credential",
+        "\"Anthropic\" を選択してAPIキーを入力"
+      ]
+    },
+    "step3": {
+      "title": "ワークフローのインポート",
+      "steps": [
+        "n8n画面右上の「+」→「Import from JSON」",
+        "ワークフローのJSONを貼り付け",
+        "各ノードのCredentialsを設定",
+        "「Active」に切り替えて完成"
+      ]
+    },
+    "tips": [
+      "まずはwf-001（メール要約）から始めることをお勧めします",
+      "本番前にテストモードで動作確認してください",
+      "エラー発生時はn8nのExecutionログを確認",
+      "Claudeのモデルはコストとのバランスで選択（Sonnet推奨）"
+    ]
+  }
+}

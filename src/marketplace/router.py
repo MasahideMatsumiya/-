@@ -1,8 +1,10 @@
 """取引所API - 注文・決済・ダウンロード"""
 import secrets
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import FileResponse, JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
@@ -173,6 +175,18 @@ async def download_product(
     session.add(order)
     session.add(log)
     await session.commit()
+
+    # ローカルファイルの場合は直接配信
+    if product.download_url and not product.download_url.startswith("http"):
+        content_path = Path(product.download_url)
+        if not content_path.is_absolute():
+            content_path = Path(__file__).parent.parent.parent / product.download_url
+        if content_path.exists():
+            return FileResponse(
+                path=str(content_path),
+                filename=content_path.name,
+                media_type="application/json",
+            )
 
     return {"download_url": product.download_url, "product_name": product.name}
 
