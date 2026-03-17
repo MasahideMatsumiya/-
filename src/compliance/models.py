@@ -38,9 +38,15 @@ class RefundRequest(SQLModel, table=True):
     order_id: int = Field(foreign_key="order.id")
     customer_id: int = Field(foreign_key="customer.id")
     reason: str
-    status: str = Field(default="pending")  # "pending", "approved", "rejected"
+    status: str = Field(default="pending")  # "pending", "approved", "rejected", "auto_rejected"
     refund_amount_usd: Optional[float] = None
     stripe_refund_id: Optional[str] = None
     requested_at: datetime = Field(default_factory=datetime.utcnow)
     processed_at: Optional[datetime] = None
     notes: Optional[str] = None
+
+    # DL済み返金対策
+    was_downloaded: bool = Field(default=False)   # 申請時点でDL済みか
+    download_count_at_request: int = Field(default=0)  # 申請時のDL回数
+    risk_score: int = Field(default=0)            # 0=低, 1=中, 2=高リスク
+    risk_reasons: str = Field(default="")         # リスク理由（カンマ区切り）

@@ -48,6 +48,12 @@ class Customer(SQLModel, table=True):
     utm_source: Optional[str] = None
     utm_campaign: Optional[str] = None
 
+    # 不正リスク管理
+    refund_count: int = Field(default=0)        # 累計返金承認回数
+    fraud_flagged: bool = Field(default=False)  # 不正フラグ（ブロック対象）
+    fraud_flagged_at: Optional[datetime] = None
+    fraud_reason: Optional[str] = None
+
 
 class EmailTemplate(SQLModel, table=True):
     """メールテンプレート"""
