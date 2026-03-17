@@ -10,6 +10,7 @@ from sqlmodel import Field, SQLModel
 
 
 class Channel(str, Enum):
+    # 人間向け従来チャンネル
     DISCORD = "discord"
     REDDIT = "reddit"
     TWITTER = "twitter"
@@ -18,6 +19,13 @@ class Channel(str, Enum):
     LINKEDIN = "linkedin"
     EMAIL = "email"
     DIRECT = "direct"
+    # AIエージェント専用チャンネル
+    MCP_REGISTRY = "mcp_registry"          # Model Context Protocol サーバー登録
+    AGENT_MARKETPLACE = "agent_marketplace"  # エージェントマーケットプレイス (Agentverse等)
+    AGENT_TWITTER = "agent_twitter"        # Twitterボット/AI専用アカウント
+    AGENT_DISCORD = "agent_discord"        # Discordボット統合
+    AGENT_API = "agent_api"                # 直接API-to-API営業
+    AI_SNS = "ai_sns"                      # AI専用SNS (Farcaster等)
 
 
 class OutreachStatus(str, Enum):

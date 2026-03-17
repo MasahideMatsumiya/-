@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.accounting.router import router as accounting_router
+from src.agent.router import router as agent_router
 from src.compliance.router import router as compliance_router
 from src.config import settings
 from src.crm.router import router as crm_router
@@ -47,6 +48,7 @@ app.include_router(crm_router)
 app.include_router(compliance_router)
 app.include_router(accounting_router)
 app.include_router(growth_router)
+app.include_router(agent_router)
 
 
 @app.get("/")
@@ -62,6 +64,7 @@ async def root():
             "compliance - 取引法・特定商取引法・GDPR",
             "accounting - 経理・会計",
             "growth     - 成長KPI・LTV・ファネル分析",
+            "agent      - AIエージェント専用API（APIキー認証・Webhook配信・MCPマニフェスト）",
         ],
         "docs": "/docs",
     }

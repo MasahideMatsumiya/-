@@ -17,8 +17,22 @@ class CustomerSegment(str, Enum):
     PROSPECT = "prospect"         # 見込み客（メールリストのみ）
 
 
+class AgentFramework(str, Enum):
+    """AIエージェントフレームワーク種別"""
+    LANGCHAIN = "langchain"
+    AUTOGPT = "autogpt"
+    CREWAI = "crewai"
+    OPENAI_ASSISTANT = "openai_assistant"
+    DIFY = "dify"
+    N8N = "n8n"
+    FLOWISE = "flowise"
+    MASTRA = "mastra"
+    CUSTOM = "custom"
+    UNKNOWN = "unknown"
+
+
 class Customer(SQLModel, table=True):
-    """顧客マスタ"""
+    """顧客マスタ（人間 & AIエージェント 両対応）"""
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(unique=True, index=True)
     name: Optional[str] = None
@@ -26,13 +40,23 @@ class Customer(SQLModel, table=True):
     language: str = Field(default="ja")
     segment: CustomerSegment = Field(default=CustomerSegment.NEW)
 
+    # ---- AIエージェント専用フィールド ----
+    is_agent: bool = Field(default=False)                         # エージェント顧客フラグ
+    agent_framework: Optional[AgentFramework] = None             # 使用フレームワーク
+    agent_version: Optional[str] = None                          # エージェントバージョン
+    agent_owner_handle: Optional[str] = None                     # オーナーの@ハンドル
+    api_key_hash: Optional[str] = Field(default=None, index=True)  # APIキー（SHA256ハッシュ）
+    callback_url: Optional[str] = None                           # 購入後に配信するWebhook URL
+    agent_capabilities: str = Field(default="[]")  # JSON: ["text_gen","code","search"]
+    last_api_call_at: Optional[datetime] = None                  # 最終API呼び出し日時
+
     # 購買統計
     total_orders: int = Field(default=0)
     total_spent_usd: float = Field(default=0.0)
     avg_order_usd: float = Field(default=0.0)
     last_purchase_at: Optional[datetime] = None
 
-    # メール設定
+    # メール設定（人間顧客向け）
     email_subscribed: bool = Field(default=True)
     email_unsubscribed_at: Optional[datetime] = None
 
@@ -44,13 +68,13 @@ class Customer(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     # リファラ
-    referrer: Optional[str] = None  # どのチャンネルから来たか
+    referrer: Optional[str] = None
     utm_source: Optional[str] = None
     utm_campaign: Optional[str] = None
 
     # 不正リスク管理
-    refund_count: int = Field(default=0)        # 累計返金承認回数
-    fraud_flagged: bool = Field(default=False)  # 不正フラグ（ブロック対象）
+    refund_count: int = Field(default=0)
+    fraud_flagged: bool = Field(default=False)
     fraud_flagged_at: Optional[datetime] = None
     fraud_reason: Optional[str] = None
 
