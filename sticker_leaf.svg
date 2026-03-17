@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <defs>
+    <radialGradient id="leafBg" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#dcedc8;stop-opacity:1"/>
+    </radialGradient>
+    <clipPath id="leafClip">
+      <path d="M90 5 C130 5 175 40 175 90 C175 140 130 175 90 175 C50 175 5 140 5 90 C5 40 50 5 90 5 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- 背景サークル（葉のような形） -->
+  <path d="M90 5 C130 5 175 40 175 90 C175 140 130 175 90 175 C50 175 5 140 5 90 C5 40 50 5 90 5 Z"
+        fill="#33691e"/>
+
+  <path d="M90 10 C128 10 170 44 170 90 C170 136 128 170 90 170 C52 170 10 136 10 90 C10 44 52 10 90 10 Z"
+        fill="url(#leafBg)"/>
+
+  <!-- 大きな葉っぱの背景装飾 -->
+  <ellipse cx="145" cy="145" rx="50" ry="35" fill="#c5e1a5" opacity="0.5"
+           transform="rotate(45 145 145)" clip-path="url(#leafClip)"/>
+  <ellipse cx="35" cy="35" rx="40" ry="28" fill="#c5e1a5" opacity="0.4"
+           transform="rotate(45 35 35)" clip-path="url(#leafClip)"/>
+
+  <!-- モリンガの葉の模様 -->
+  <!-- 茎 -->
+  <line x1="90" y1="22" x2="90" y2="55" stroke="#558b2f" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- 葉 -->
+  <ellipse cx="90" cy="30" rx="9" ry="13" fill="#7cb342" transform="rotate(-20 90 30)"/>
+  <ellipse cx="90" cy="30" rx="9" ry="13" fill="#8bc34a" transform="rotate(20 90 30)"/>
+  <ellipse cx="82" cy="42" rx="7" ry="10" fill="#7cb342" transform="rotate(-35 82 42)"/>
+  <ellipse cx="98" cy="42" rx="7" ry="10" fill="#8bc34a" transform="rotate(35 98 42)"/>
+
+  <!-- 葉脈 -->
+  <line x1="90" y1="24" x2="84" y2="32" stroke="#33691e" stroke-width="0.8" opacity="0.6"/>
+  <line x1="90" y1="24" x2="96" y2="32" stroke="#33691e" stroke-width="0.8" opacity="0.6"/>
+
+  <!-- エコ割メインテキスト -->
+  <text x="90" y="95" font-family="'Hiragino Kaku Gothic ProN', 'Meiryo', 'Yu Gothic', sans-serif"
+        font-size="36" font-weight="900" text-anchor="middle"
+        fill="#1b5e20" letter-spacing="2">エコ割</text>
+
+  <!-- 割引数値 -->
+  <text x="90" y="126" font-family="Arial, Helvetica, sans-serif"
+        font-size="26" font-weight="900" text-anchor="middle" fill="#bf360c">10%</text>
+  <text x="90" y="143" font-family="Arial, Helvetica, sans-serif"
+        font-size="16" font-weight="900" text-anchor="middle" fill="#bf360c">OFF</text>
+
+  <!-- 底部テキスト -->
+  <text x="90" y="158" font-family="'Hiragino Kaku Gothic ProN', 'Meiryo', 'Yu Gothic', sans-serif"
+        font-size="9" text-anchor="middle" fill="#33691e">モリンガミルク</text>
+  <text x="90" y="169" font-family="'Hiragino Kaku Gothic ProN', 'Meiryo', 'Yu Gothic', sans-serif"
+        font-size="8" text-anchor="middle" fill="#558b2f">マイボトル持参割引</text>
+</svg>
