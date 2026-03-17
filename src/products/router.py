@@ -9,6 +9,8 @@ from src.database import get_session
 from src.products.models import Product, ProductCategory, ProductStatus
 from src.products.schemas import ProductCreate, ProductPublic, ProductUpdate
 
+MAX_BULK = 30  # 1リクエストで作成できる最大数
+
 router = APIRouter(prefix="/products", tags=["products"])
 
 
@@ -77,3 +79,75 @@ async def update_product(
     session.add(product)
     await session.commit()
     return product
+
+
+@router.post("/bulk", response_model=list[ProductPublic])
+async def create_products_bulk(
+    items: list[ProductCreate],
+    session: AsyncSession = Depends(get_session),
+):
+    """
+    商材一括登録（最大30件/リクエスト）。
+    1日10〜30種類の商材を効率投入するためのエンドポイント。
+    スラッグが重複した場合は連番サフィックスを付与。
+    """
+    if len(items) > MAX_BULK:
+        raise HTTPException(400, f"最大{MAX_BULK}件まで一括登録可能です")
+    if len(items) == 0:
+        raise HTTPException(400, "1件以上指定してください")
+
+    # 既存スラッグを一括取得して重複回避
+    base_slugs = [_slugify(item.name) for item in items]
+    existing_result = await session.execute(
+        select(Product.slug).where(Product.slug.in_(base_slugs))
+    )
+    existing_slugs = {row[0] for row in existing_result.all()}
+
+    created = []
+    slug_counter: dict[str, int] = {}
+    for item in items:
+        base = _slugify(item.name)
+        candidate = base
+        count = slug_counter.get(base, 0)
+        while candidate in existing_slugs:
+            count += 1
+            candidate = f"{base}-{count}"
+        slug_counter[base] = count
+        existing_slugs.add(candidate)
+
+        product = Product(**item.model_dump(), slug=candidate)
+        session.add(product)
+        created.append(product)
+
+    await session.commit()
+    for p in created:
+        await session.refresh(p)
+    return created
+
+
+@router.get("/{slug}/recommendations", response_model=list[ProductPublic])
+async def get_recommendations(
+    slug: str,
+    limit: int = Query(default=5, le=10),
+    session: AsyncSession = Depends(get_session),
+):
+    """
+    アップセル・クロスセル推薦（同カテゴリ内の売れ筋商材）。
+    購入後のフォローアップメールや商品ページのサイドバーで活用。
+    """
+    result = await session.execute(select(Product).where(Product.slug == slug))
+    product = result.scalar_one_or_none()
+    if not product:
+        raise HTTPException(404, "Product not found")
+
+    recs_result = await session.execute(
+        select(Product)
+        .where(
+            Product.status == ProductStatus.ACTIVE,
+            Product.category == product.category,
+            Product.id != product.id,
+        )
+        .order_by(Product.sales_count.desc())
+        .limit(limit)
+    )
+    return recs_result.scalars().all()

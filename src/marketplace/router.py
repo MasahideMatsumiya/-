@@ -122,7 +122,7 @@ async def stripe_webhook(request: Request, session: AsyncSession = Depends(get_s
 
 
 async def _fulfill_order(order: Order, session: AsyncSession):
-    """注文確定・商品配信"""
+    """注文確定・商品配信・購入確認メール送信"""
     order.status = OrderStatus.PAID
     order.paid_at = datetime.utcnow()
     order.download_token = secrets.token_urlsafe(32)
@@ -136,6 +136,21 @@ async def _fulfill_order(order: Order, session: AsyncSession):
 
     session.add(order)
     await session.commit()
+
+    # 購入確認メール（失敗してもオーダーは確定済みなので例外を飲む）
+    if order.customer_id and product:
+        try:
+            from src.crm.email import send_purchase_email
+            download_url = f"/marketplace/download/{order.download_token}"
+            await send_purchase_email(
+                customer_id=order.customer_id,
+                product_name=product.name,
+                download_url=download_url,
+                order_number=order.order_number,
+                session=session,
+            )
+        except Exception:
+            pass  # メール送信失敗はサイレントに処理
 
 
 @router.get("/download/{token}")

@@ -12,6 +12,7 @@ from src.compliance.router import router as compliance_router
 from src.config import settings
 from src.crm.router import router as crm_router
 from src.database import init_db
+from src.growth.router import router as growth_router
 from src.marketplace.router import router as marketplace_router
 from src.products.router import router as products_router
 from src.sales.router import router as sales_router
@@ -45,6 +46,7 @@ app.include_router(marketplace_router)
 app.include_router(crm_router)
 app.include_router(compliance_router)
 app.include_router(accounting_router)
+app.include_router(growth_router)
 
 
 @app.get("/")
@@ -59,6 +61,7 @@ async def root():
             "crm        - 顧客管理",
             "compliance - 取引法・特定商取引法・GDPR",
             "accounting - 経理・会計",
+            "growth     - 成長KPI・LTV・ファネル分析",
         ],
         "docs": "/docs",
     }
