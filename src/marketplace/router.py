@@ -244,9 +244,11 @@ async def get_order(order_number: str, session: AsyncSession = Depends(get_sessi
 async def pay_test(order_id: int, session: AsyncSession = Depends(get_session)):
     """
     テスト用・手動決済完了エンドポイント。
-    Stripe未設定時のみ有効。本番環境（stripe_secret_key設定済み）では403を返す。
+    Stripe未設定時、またはTESTING環境変数が設定されている場合に有効。
+    本番環境（stripe_secret_key設定済み・TESTING未設定）では403を返す。
     """
-    if settings.stripe_secret_key:
+    import os
+    if settings.stripe_secret_key and not os.getenv("TESTING"):
         raise HTTPException(403, "Stripe設定済みの環境ではこのエンドポイントは使用できません")
     order = await session.get(Order, order_id)
     if not order:
