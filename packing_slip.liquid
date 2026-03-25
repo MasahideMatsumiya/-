@@ -180,17 +180,25 @@
     {%- endif -%}
   {%- endfor -%}
 
-  {%- comment -%} 注文属性から配達希望日・時間を取得 {%- endcomment -%}
-  {%- assign desired_date = "" -%}
-  {%- assign desired_time = "" -%}
+  {%- comment -%} 注文属性から配送希望日・時間帯を取得（追加詳細のキー名） {%- endcomment -%}
+  {%- assign desired_date     = "" -%}
+  {%- assign desired_time     = "" -%}
+  {%- assign desired_date_alt = "" -%}
   {%- for attr in order.attributes -%}
-    {%- if attr.key contains "配達希望日" or attr.key contains "delivery_date" or attr.key contains "希望日" -%}
+    {%- if attr.key == "配送希望日" -%}
       {%- assign desired_date = attr.value -%}
     {%- endif -%}
-    {%- if attr.key contains "配達希望時間" or attr.key contains "delivery_time" or attr.key contains "希望時間" or attr.key contains "時間帯" -%}
+    {%- if attr.key == "配送日の指定" -%}
+      {%- assign desired_date_alt = attr.value -%}
+    {%- endif -%}
+    {%- if attr.key == "配送時間帯" -%}
       {%- assign desired_time = attr.value -%}
     {%- endif -%}
   {%- endfor -%}
+  {%- comment -%} 配送希望日が空なら配送日の指定を使う {%- endcomment -%}
+  {%- if desired_date == blank and desired_date_alt != blank and desired_date_alt != "なし" -%}
+    {%- assign desired_date = desired_date_alt -%}
+  {%- endif -%}
 
   {%- comment -%} 配送区分（タグから判定） {%- endcomment -%}
   {%- assign is_maicho  = false -%}
