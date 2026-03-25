@@ -2,178 +2,155 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>梱包明細票 - 注文番号 {{ order.order_number }}</title>
+  <title>出荷票 #{{ order.order_number }}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
-      font-size: 12px;
+      font-size: 13px;
       color: #000;
       background: #fff;
-      padding: 10mm;
       width: 210mm;
+      padding: 8mm 10mm;
     }
     @media print {
-      body { padding: 8mm; }
-      @page { size: A4; margin: 5mm; }
+      body { padding: 6mm 8mm; }
+      @page { size: A4; margin: 0; }
     }
 
-    /* ===== ヘッダー ===== */
-    .header {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      align-items: start;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-    .order-number-block {
-      font-size: 11px;
-      line-height: 1.6;
-    }
-    .order-number-block .label { font-size: 11px; }
-    .order-number-block .number { font-size: 28px; font-weight: bold; line-height: 1; }
-    .customer-dog-block {
-      text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-      padding-top: 4px;
-      line-height: 1.4;
-    }
-    .cp-stamp {
-      font-size: 28px;
-      font-weight: bold;
-      border: 3px solid #000;
-      border-radius: 4px;
-      padding: 2px 8px;
-      display: inline-block;
-    }
-
-    /* ===== セットタイトル行 ===== */
-    .set-title-row {
+    /* ===== 上段：注文番号 ＋ お客様・愛犬名 ===== */
+    .top-row {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       gap: 16px;
-      margin-bottom: 4px;
+      border-bottom: 3px solid #000;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
     }
-    .stamp-cp {
-      font-size: 22px;
+    .order-num {
+      font-size: 36px;
       font-weight: bold;
-      border: 3px solid #000;
-      border-radius: 4px;
-      padding: 1px 6px;
+      white-space: nowrap;
+      min-width: 90px;
     }
-    .stamp-tr {
-      font-size: 22px;
-      font-weight: bold;
-      border: 3px solid #000;
-      border-radius: 4px;
-      padding: 1px 6px;
-    }
-    .set-name {
-      font-size: 32px;
+    .customer-name {
+      font-size: 24px;
       font-weight: bold;
       flex: 1;
-    }
-    .order-date-big {
-      font-size: 48px;
-      font-weight: bold;
-      color: #e00;
-      letter-spacing: -1px;
+      line-height: 1.3;
     }
 
-    /* ===== ストア情報 + 配送先 ===== */
-    .info-section {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      border-top: 2px solid #000;
-      border-bottom: 1px solid #999;
-      padding: 8px 0;
-      margin-bottom: 8px;
-    }
-    .store-info { font-size: 11px; line-height: 1.8; }
-    .store-name { font-weight: bold; font-size: 13px; }
-    .shipping-address { font-size: 11px; line-height: 1.8; }
-    .shipping-address .name { font-size: 14px; font-weight: bold; }
-
-    /* ===== 請求書明細 ===== */
-    .invoice-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+    /* ===== 区分スタンプ（毎・都度・TR） ===== */
+    .stamps {
+      display: flex;
       gap: 8px;
-      font-size: 11px;
-      margin-bottom: 8px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid #ccc;
-    }
-    .invoice-meta table { width: 100%; }
-    .invoice-meta td { padding: 1px 4px; }
-    .invoice-meta td:first-child { font-weight: bold; white-space: nowrap; }
-
-    /* ===== 商品テーブル ===== */
-    .items-table {
-      width: 100%;
-      border-collapse: collapse;
+      align-items: center;
       margin-bottom: 8px;
     }
-    .items-table th {
-      background: #f0f0f0;
-      border: 1px solid #999;
-      padding: 4px 6px;
-      text-align: left;
-      font-size: 11px;
+    .stamp {
+      font-size: 20px;
+      font-weight: bold;
+      border: 3px solid #000;
+      border-radius: 4px;
+      padding: 2px 10px;
+      min-width: 44px;
+      text-align: center;
     }
-    .items-table td {
-      border: 1px solid #ccc;
-      padding: 6px;
-      vertical-align: top;
-      font-size: 11px;
+    .stamp.active {
+      background: #000;
+      color: #fff;
     }
-    .items-table .product-cell { display: flex; gap: 8px; align-items: flex-start; }
-    .items-table .product-cell img { width: 50px; height: 50px; object-fit: cover; }
-    .items-table .qty-price { text-align: right; white-space: nowrap; }
 
-    /* ===== 合計 ===== */
-    .totals {
-      float: right;
-      width: 200px;
-      font-size: 12px;
-    }
-    .totals table { width: 100%; }
-    .totals td { padding: 2px 4px; }
-    .totals td:last-child { text-align: right; font-weight: bold; }
-    .totals .total-row td { font-size: 14px; border-top: 2px solid #000; font-weight: bold; }
-    .clearfix::after { content: ''; display: table; clear: both; }
-
-    /* ===== 注記エリア ===== */
-    .notes-area {
-      margin-top: 12px;
-      border-top: 2px solid #000;
-      padding-top: 8px;
+    /* ===== メイン情報グリッド ===== */
+    .main-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 8px 20px;
+      margin-bottom: 8px;
     }
-    .note-block { font-size: 11px; line-height: 1.8; }
-    .note-block h4 { font-size: 12px; font-weight: bold; margin-bottom: 4px; border-bottom: 1px solid #ccc; }
-    .note-item { padding: 2px 0; }
-
-    /* ===== フッター ===== */
-    .footer {
-      margin-top: 12px;
-      text-align: center;
-      font-size: 11px;
+    .field-block { }
+    .field-label {
+      font-size: 10px;
       color: #555;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+    .field-value {
+      font-size: 16px;
+      font-weight: bold;
+      padding: 3px 6px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      min-height: 28px;
+      background: #fafafa;
+    }
+    .field-value.red  { color: #cc0000; font-size: 28px; border: 2px solid #cc0000; background: #fff8f8; }
+    .field-value.large { font-size: 20px; }
+
+    /* ===== 配送サイズ ===== */
+    .size-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .size-label { font-size: 10px; color: #555; font-weight: bold; margin-right: 4px; }
+    .size-box {
+      font-size: 18px;
+      font-weight: bold;
+      border: 3px solid #000;
+      border-radius: 4px;
+      padding: 2px 12px;
+      min-width: 48px;
+      text-align: center;
+    }
+    .size-box.active { background: #000; color: #fff; }
+
+    /* ===== 商品内容 ===== */
+    .products-block {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px 8px;
+      margin-bottom: 8px;
+      background: #fafafa;
+    }
+    .products-block .field-label { margin-bottom: 4px; }
+    .product-line {
+      font-size: 14px;
+      padding: 2px 0;
+      border-bottom: 1px dotted #ddd;
+    }
+    .product-line:last-child { border-bottom: none; }
+
+    /* ===== プレゼント・都道府県 ===== */
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px 20px;
+      align-items: start;
+    }
+    .prefecture {
+      font-size: 22px;
+      font-weight: bold;
+      padding: 4px 10px;
+      border: 2px solid #000;
+      border-radius: 4px;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    /* ===== 区切り線 ===== */
+    .divider {
+      border: none;
       border-top: 1px solid #ccc;
-      padding-top: 6px;
+      margin: 8px 0;
     }
   </style>
 </head>
 <body>
 
   {%- comment -%}
-    愛犬メタフィールドキー (Helium Customer Fields)
+    ── 愛犬メタフィールド (Helium Customer Fields) ──
     dog1_name   : app--960624--helium.new_singleline_text_field_4
     dog1_gender : app--960624--helium.1_1
     dog2_name   : app--960624--helium.new_singleline_text_field_2
@@ -182,169 +159,149 @@
     dog3_gender : app--960624--helium.1_3
   {%- endcomment -%}
 
-  {%- assign dog1_name   = order.customer.metafields['app--960624--helium']['new_singleline_text_field_4'].value -%}
-  {%- assign dog1_gender = order.customer.metafields['app--960624--helium']['1_1'].value -%}
-  {%- assign dog2_name   = order.customer.metafields['app--960624--helium']['new_singleline_text_field_2'].value -%}
-  {%- assign dog2_gender = order.customer.metafields['app--960624--helium']['new_singleline_text_field'].value -%}
-  {%- assign dog3_name   = order.customer.metafields['app--960624--helium']['new_singleline_text_field_3'].value -%}
-  {%- assign dog3_gender = order.customer.metafields['app--960624--helium']['1_3'].value -%}
+  {%- assign ns = 'app--960624--helium' -%}
+  {%- assign dog1_name   = order.customer.metafields[ns]['new_singleline_text_field_4'].value -%}
+  {%- assign dog1_gender = order.customer.metafields[ns]['1_1'].value -%}
+  {%- assign dog2_name   = order.customer.metafields[ns]['new_singleline_text_field_2'].value -%}
+  {%- assign dog2_gender = order.customer.metafields[ns]['new_singleline_text_field'].value -%}
+  {%- assign dog3_name   = order.customer.metafields[ns]['new_singleline_text_field_3'].value -%}
+  {%- assign dog3_gender = order.customer.metafields[ns]['1_3'].value -%}
 
   {%- comment -%} 愛犬名を「〇〇ちゃん / くん」形式で結合 {%- endcomment -%}
-  {%- assign dog_names = "" -%}
-  {%- if dog1_name != blank -%}
-    {%- if dog1_gender == "女の子" -%}
-      {%- assign dog1_label = dog1_name | append: "ちゃん" -%}
-    {%- else -%}
-      {%- assign dog1_label = dog1_name | append: "くん" -%}
+  {%- assign dog_parts = "" -%}
+  {%- for i in (1..3) -%}
+    {%- if i == 1 -%}{%- assign dname = dog1_name -%}{%- assign dgender = dog1_gender -%}{%- endif -%}
+    {%- if i == 2 -%}{%- assign dname = dog2_name -%}{%- assign dgender = dog2_gender -%}{%- endif -%}
+    {%- if i == 3 -%}{%- assign dname = dog3_name -%}{%- assign dgender = dog3_gender -%}{%- endif -%}
+    {%- if dname != blank -%}
+      {%- if dgender == "女の子" -%}{%- assign suffix = "ちゃん" -%}{%- else -%}{%- assign suffix = "くん" -%}{%- endif -%}
+      {%- assign label = dname | append: suffix -%}
+      {%- if dog_parts == "" -%}{%- assign dog_parts = label -%}{%- else -%}{%- assign dog_parts = dog_parts | append: "、" | append: label -%}{%- endif -%}
     {%- endif -%}
-    {%- assign dog_names = dog1_label -%}
-  {%- endif -%}
-  {%- if dog2_name != blank -%}
-    {%- if dog2_gender == "女の子" -%}
-      {%- assign dog2_label = dog2_name | append: "ちゃん" -%}
-    {%- else -%}
-      {%- assign dog2_label = dog2_name | append: "くん" -%}
+  {%- endfor -%}
+
+  {%- comment -%} 注文属性から配達希望日・時間を取得 {%- endcomment -%}
+  {%- assign desired_date = "" -%}
+  {%- assign desired_time = "" -%}
+  {%- for attr in order.attributes -%}
+    {%- if attr.key contains "配達希望日" or attr.key contains "delivery_date" or attr.key contains "希望日" -%}
+      {%- assign desired_date = attr.value -%}
     {%- endif -%}
-    {%- if dog_names != blank -%}
-      {%- assign dog_names = dog_names | append: "、" | append: dog2_label -%}
-    {%- else -%}
-      {%- assign dog_names = dog2_label -%}
+    {%- if attr.key contains "配達希望時間" or attr.key contains "delivery_time" or attr.key contains "希望時間" or attr.key contains "時間帯" -%}
+      {%- assign desired_time = attr.value -%}
     {%- endif -%}
-  {%- endif -%}
-  {%- if dog3_name != blank -%}
-    {%- if dog3_gender == "女の子" -%}
-      {%- assign dog3_label = dog3_name | append: "ちゃん" -%}
-    {%- else -%}
-      {%- assign dog3_label = dog3_name | append: "くん" -%}
-    {%- endif -%}
-    {%- if dog_names != blank -%}
-      {%- assign dog_names = dog_names | append: "、" | append: dog3_label -%}
-    {%- else -%}
-      {%- assign dog_names = dog3_label -%}
-    {%- endif -%}
+  {%- endfor -%}
+
+  {%- comment -%} 配送区分（タグから判定） {%- endcomment -%}
+  {%- assign is_maicho  = false -%}
+  {%- assign is_tsudo   = false -%}
+  {%- assign is_trial   = false -%}
+  {%- for tag in order.tags -%}
+    {%- if tag == "毎" or tag == "定期" or tag == "subscription" -%}{%- assign is_maicho = true -%}{%- endif -%}
+    {%- if tag == "都度" or tag == "一般" -%}{%- assign is_tsudo = true -%}{%- endif -%}
+    {%- if tag == "TR" or tag == "trial" or tag == "トライアル" -%}{%- assign is_trial = true -%}{%- endif -%}
+  {%- endfor -%}
+  {%- if is_maicho == false and is_tsudo == false and is_trial == false -%}
+    {%- assign is_tsudo = true -%}
   {%- endif -%}
 
-  {%- comment -%} 注文日（月/日 形式） {%- endcomment -%}
-  {%- assign order_month = order.created_at | date: "%-m" -%}
-  {%- assign order_day   = order.created_at | date: "%-d" -%}
+  {%- comment -%} 配送サイズ（タグから判定） {%- endcomment -%}
+  {%- assign ship_size = "" -%}
+  {%- for tag in order.tags -%}
+    {%- if tag == "CP" or tag == "60" or tag == "80" or tag == "100" -%}
+      {%- assign ship_size = tag -%}
+    {%- endif -%}
+  {%- endfor -%}
 
-  <!-- ===== ヘッダー ===== -->
-  <div class="header">
-    <div class="order-number-block">
-      <div class="label">注文番号</div>
-      <div class="number">{{ order.order_number }}</div>
-    </div>
-    <div class="customer-dog-block">
+  {%- comment -%} 出荷日（今日 or フルフィルメント日） {%- endcomment -%}
+  {%- assign ship_date = "now" | date: "%-m/%-d" -%}
+  {%- if order.fulfillments.size > 0 -%}
+    {%- assign ship_date = order.fulfillments.last.created_at | date: "%-m/%-d" -%}
+  {%- endif -%}
+
+  <!-- ===== 注文番号 ＋ お客様・愛犬名 ===== -->
+  <div class="top-row">
+    <div class="order-num">{{ order.order_number }}</div>
+    <div class="customer-name">
       {{ order.shipping_address.last_name }}さま
-      {%- if dog_names != blank -%}、{{ dog_names }}{%- endif -%}
-    </div>
-    <div class="cp-stamp">CP</div>
-  </div>
-
-  <!-- ===== セットタイトル行 ===== -->
-  <div class="set-title-row">
-    <span class="stamp-cp">CP</span>
-    <span class="stamp-tr">TR</span>
-    <span class="set-name">食いつきセット</span>
-    <span class="order-date-big">{{ order_month }}/{{ order_day }}</span>
-  </div>
-
-  <!-- ===== ストア情報 + 配送先 ===== -->
-  <div class="info-section">
-    <div class="shipping-address">
-      <div class="name">{{ order.shipping_address.last_name }} {{ order.shipping_address.first_name }}</div>
-      <div>〒{{ order.shipping_address.zip }}</div>
-      <div>{{ order.shipping_address.province }}</div>
-      <div>{{ order.shipping_address.city }}{{ order.shipping_address.address1 }}</div>
-      {%- if order.shipping_address.address2 != blank -%}
-        <div>{{ order.shipping_address.address2 }}</div>
-      {%- endif -%}
-    </div>
-    <div class="store-info" style="text-align:right;">
-      <div class="store-name">E STORE</div>
-      <div>〒{{ shop.address.zip }}</div>
-      <div>{{ shop.address.province }}{{ shop.address.city }}{{ shop.address.address1 }}</div>
-      <div>{{ shop.email }}</div>
-      <div>{{ shop.phone }}</div>
+      {%- if dog_parts != blank %}、{{ dog_parts }}{%- endif %}
     </div>
   </div>
 
-  <!-- ===== 請求書メタ情報 ===== -->
-  <div class="invoice-meta">
-    <table>
-      <tr><td>請求書番号</td><td>注文番号</td></tr>
-      <tr><td>注文番号</td><td>{{ order.order_number }}</td></tr>
-      <tr><td>注文日</td><td>{{ order.created_at | date: "%Y年%-m月%-d日" }}</td></tr>
-    </table>
-    <table>
-      <tr><td>支払い</td><td>
-        {%- for transaction in order.transactions -%}
-          {%- if transaction.status == "success" -%}{{ transaction.gateway }}{%- endif -%}
+  <!-- ===== 区分スタンプ ===== -->
+  <div class="stamps">
+    <span class="stamp{% if is_maicho %} active{% endif %}">毎</span>
+    <span class="stamp{% if is_tsudo %} active{% endif %}">都度</span>
+    <span class="stamp{% if is_trial %} active{% endif %}">TR</span>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== 日付・時間グリッド ===== -->
+  <div class="main-grid">
+    <div class="field-block">
+      <div class="field-label">出荷日</div>
+      <div class="field-value red">{{ ship_date }}</div>
+    </div>
+    <div class="field-block">
+      <div class="field-label">配達希望日</div>
+      <div class="field-value large">
+        {%- if desired_date != blank %}{{ desired_date }}{%- else %}―{%- endif %}
+      </div>
+    </div>
+    <div class="field-block" style="grid-column:1/-1;">
+      <div class="field-label">配達希望時間</div>
+      <div class="field-value large">
+        {%- if desired_time != blank %}{{ desired_time }}{%- else %}指定なし{%- endif %}
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== 配送サイズ ===== -->
+  <div class="size-row">
+    <span class="size-label">配送サイズ</span>
+    {%- for s in "CP,60,80,100" | split: "," -%}
+      <span class="size-box{% if ship_size == s %} active{% endif %}">{{ s }}</span>
+    {%- endfor -%}
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== 商品内容 ===== -->
+  <div class="products-block">
+    <div class="field-label">商品内容</div>
+    {%- for item in order.line_items -%}
+      <div class="product-line">
+        {{ item.title }}
+        {%- if item.variant_title != blank and item.variant_title != "Default Title" %} ／ {{ item.variant_title }}{%- endif %}
+        &nbsp;×{{ item.quantity }}
+      </div>
+    {%- endfor -%}
+  </div>
+
+  <!-- ===== プレゼント内容 ＋ 都道府県 ===== -->
+  <div class="bottom-grid">
+    <div>
+      <div class="field-label">プレゼント内容</div>
+      <div class="field-value" style="min-height:36px;">
+        {%- assign gift_note = "" -%}
+        {%- for attr in order.attributes -%}
+          {%- if attr.key contains "プレゼント" or attr.key contains "gift" or attr.key contains "同梱" -%}
+            {%- assign gift_note = attr.value -%}
+          {%- endif -%}
         {%- endfor -%}
-      </td></tr>
-      <tr><td>発送方法</td><td>{{ order.shipping_lines.first.title }}</td></tr>
-    </table>
-  </div>
-
-  <!-- ===== 商品テーブル ===== -->
-  <table class="items-table">
-    <thead>
-      <tr>
-        <th style="width:60%;">商品説明</th>
-        <th style="width:15%;text-align:right;">数量</th>
-        <th style="width:12%;text-align:right;">価格</th>
-        <th style="width:13%;text-align:right;">合計</th>
-      </tr>
-    </thead>
-    <tbody>
-      {%- for line_item in order.line_items -%}
-      <tr>
-        <td>
-          <div class="product-cell">
-            {%- if line_item.image -%}
-              <img src="{{ line_item.image | img_url: '100x100' }}" alt="{{ line_item.title }}">
-            {%- endif -%}
-            <div>
-              <div><strong>{{ line_item.title }}</strong></div>
-              {%- if line_item.variant_title != blank and line_item.variant_title != "Default Title" -%}
-                <div style="color:#555;">{{ line_item.variant_title }}</div>
-              {%- endif -%}
-            </div>
-          </div>
-        </td>
-        <td class="qty-price">× {{ line_item.quantity }}</td>
-        <td class="qty-price">¥{{ line_item.price | money_without_currency }}</td>
-        <td class="qty-price">¥{{ line_item.final_line_price | money_without_currency }}</td>
-      </tr>
-      {%- endfor -%}
-    </tbody>
-  </table>
-
-  <!-- ===== 合計 ===== -->
-  <div class="clearfix">
-    <div class="totals">
-      <table>
-        <tr><td>小計</td><td>¥{{ order.subtotal_price | money_without_currency }}</td></tr>
-        <tr><td>配送</td><td>¥{{ order.shipping_price | money_without_currency }}</td></tr>
-        <tr><td>消費税</td><td>¥{{ order.total_tax | money_without_currency }}</td></tr>
-        <tr class="total-row"><td>合計</td><td>¥{{ order.total_price | money_without_currency }}</td></tr>
-      </table>
+        {%- if order.note contains "プレゼント" or order.note contains "同梱" -%}
+          {%- assign gift_note = order.note -%}
+        {%- endif -%}
+        {%- if gift_note != blank %}{{ gift_note }}{%- else %}―{%- endif %}
+      </div>
     </div>
-  </div>
-
-  <!-- ===== 備考・同梱物メモ ===== -->
-  {%- if order.note != blank -%}
-  <div class="notes-area" style="margin-top:16px;">
-    <div class="note-block">
-      <h4>備考</h4>
-      <div class="note-item">{{ order.note | newline_to_br }}</div>
+    <div>
+      <div class="field-label">配送都道府県</div>
+      <div class="prefecture">{{ order.shipping_address.province }}</div>
     </div>
-  </div>
-  {%- endif -%}
-
-  <!-- ===== フッター ===== -->
-  <div class="footer">
-    ご利用ありがとうございました！ &nbsp;|&nbsp; {{ shop.name }} &nbsp;|&nbsp; {{ shop.email }}
   </div>
 
 </body>
