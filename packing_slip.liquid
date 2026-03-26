@@ -200,18 +200,27 @@
     {%- assign desired_date = desired_date_alt -%}
   {%- endif -%}
 
-  {%- comment -%} 配送区分（タグから判定） {%- endcomment -%}
-  {%- assign is_maicho  = false -%}
-  {%- assign is_tsudo   = false -%}
-  {%- assign is_trial   = false -%}
-  {%- for tag in order.tags -%}
-    {%- if tag == "毎" or tag == "定期" or tag == "subscription" -%}{%- assign is_maicho = true -%}{%- endif -%}
-    {%- if tag == "都度" or tag == "一般" -%}{%- assign is_tsudo = true -%}{%- endif -%}
-    {%- if tag == "TR" or tag == "trial" or tag == "トライアル" -%}{%- assign is_trial = true -%}{%- endif -%}
+  {%- comment -%}
+    配送区分を商品名から判定
+    毎  : 【定期便初回】・【定期便】を含む
+    都度 : 【都度購入】・モリンガミルク・ウェットフードを含む
+    TR  : トライアルを含む
+  {%- endcomment -%}
+  {%- assign is_maicho = false -%}
+  {%- assign is_tsudo  = false -%}
+  {%- assign is_trial  = false -%}
+  {%- for item in order.line_items -%}
+    {%- assign t = item.title -%}
+    {%- if t contains "定期便" -%}
+      {%- assign is_maicho = true -%}
+    {%- endif -%}
+    {%- if t contains "都度購入" or t contains "モリンガミルク" or t contains "ウェットフード" -%}
+      {%- assign is_tsudo = true -%}
+    {%- endif -%}
+    {%- if t contains "トライアル" -%}
+      {%- assign is_trial = true -%}
+    {%- endif -%}
   {%- endfor -%}
-  {%- if is_maicho == false and is_tsudo == false and is_trial == false -%}
-    {%- assign is_tsudo = true -%}
-  {%- endif -%}
 
   {%- comment -%}
     配送サイズを商品内容から自動判定
