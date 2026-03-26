@@ -213,13 +213,36 @@
     {%- assign is_tsudo = true -%}
   {%- endif -%}
 
-  {%- comment -%} 配送サイズ（タグから判定） {%- endcomment -%}
+  {%- comment -%}
+    配送サイズを商品内容から自動判定
+    CP : 食いつきトライアル・モリンガミルク・ウェットフード・トリーツ
+    60 : ドライフード 1〜4袋
+    80 : ドライフード 5〜10袋
+    100: ドライフード 11袋〜
+  {%- endcomment -%}
   {%- assign ship_size = "" -%}
-  {%- for tag in order.tags -%}
-    {%- if tag == "CP" or tag == "60" or tag == "80" or tag == "100" -%}
-      {%- assign ship_size = tag -%}
+  {%- assign dry_qty   = 0 -%}
+  {%- assign is_cp     = false -%}
+  {%- for item in order.line_items -%}
+    {%- assign t = item.title | downcase -%}
+    {%- if t contains "トライアル" or t contains "trial"
+        or t contains "モリンガ"
+        or t contains "ウェット" or t contains "wet"
+        or t contains "トリーツ" or t contains "treat" or t contains "おやつ" -%}
+      {%- assign is_cp = true -%}
+    {%- elsif t contains "ドライ" or t contains "dry" -%}
+      {%- assign dry_qty = dry_qty | plus: item.quantity -%}
     {%- endif -%}
   {%- endfor -%}
+  {%- if is_cp -%}
+    {%- assign ship_size = "CP" -%}
+  {%- elsif dry_qty >= 11 -%}
+    {%- assign ship_size = "100" -%}
+  {%- elsif dry_qty >= 5 -%}
+    {%- assign ship_size = "80" -%}
+  {%- elsif dry_qty >= 1 -%}
+    {%- assign ship_size = "60" -%}
+  {%- endif -%}
 
   {%- comment -%} 出荷日（今日 or フルフィルメント日） {%- endcomment -%}
   {%- assign ship_date = "now" | date: "%-m/%-d" -%}
