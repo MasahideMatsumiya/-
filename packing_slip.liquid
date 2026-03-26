@@ -4,7 +4,11 @@
   <meta charset="UTF-8">
   <title>出荷票 #{{ order.order_number }}</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
     body {
       font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
       font-size: 13px;
@@ -34,10 +38,10 @@
       min-width: 90px;
     }
     .customer-name {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: bold;
       flex: 1;
-      line-height: 1.3;
+      line-height: 1.4;
     }
 
     /* ===== 区分スタンプ（毎・都度・TR） ===== */
@@ -55,10 +59,12 @@
       padding: 2px 10px;
       min-width: 44px;
       text-align: center;
+      background: #fff;
+      color: #000;
     }
     .stamp.active {
-      background: #000;
-      color: #fff;
+      background: #000 !important;
+      color: #fff !important;
     }
 
     /* ===== メイン情報グリッド ===== */
@@ -68,7 +74,6 @@
       gap: 8px 20px;
       margin-bottom: 8px;
     }
-    .field-block { }
     .field-label {
       font-size: 10px;
       color: #555;
@@ -76,16 +81,20 @@
       margin-bottom: 2px;
     }
     .field-value {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: bold;
       padding: 3px 6px;
       border: 1px solid #ccc;
       border-radius: 3px;
-      min-height: 28px;
+      min-height: 30px;
       background: #fafafa;
     }
-    .field-value.red  { color: #cc0000; font-size: 28px; border: 2px solid #cc0000; background: #fff8f8; }
-    .field-value.large { font-size: 20px; }
+    .field-value.red {
+      color: #cc0000 !important;
+      font-size: 30px;
+      border: 2px solid #cc0000;
+      background: #fff !important;
+    }
 
     /* ===== 配送サイズ ===== */
     .size-row {
@@ -96,29 +105,35 @@
     }
     .size-label { font-size: 10px; color: #555; font-weight: bold; margin-right: 4px; }
     .size-box {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
       border: 3px solid #000;
       border-radius: 4px;
-      padding: 2px 12px;
-      min-width: 48px;
+      padding: 3px 14px;
+      min-width: 52px;
       text-align: center;
+      background: #fff;
+      color: #000;
     }
-    .size-box.active { background: #000; color: #fff; }
+    .size-box.active {
+      background: #000 !important;
+      color: #fff !important;
+    }
 
     /* ===== 商品内容 ===== */
     .products-block {
       border: 1px solid #ccc;
       border-radius: 4px;
-      padding: 6px 8px;
+      padding: 6px 10px;
       margin-bottom: 8px;
       background: #fafafa;
     }
-    .products-block .field-label { margin-bottom: 4px; }
     .product-line {
-      font-size: 14px;
-      padding: 2px 0;
-      border-bottom: 1px dotted #ddd;
+      font-size: 22px;
+      font-weight: bold;
+      padding: 3px 0;
+      border-bottom: 1px dotted #ccc;
+      letter-spacing: 1px;
     }
     .product-line:last-child { border-bottom: none; }
 
@@ -151,59 +166,81 @@
 
   {%- comment -%}
     ── 愛犬メタフィールド (Helium Customer Fields) ──
-    dog1_name   : app--960624--helium.new_singleline_text_field_4
-    dog1_gender : app--960624--helium.1_1
-    dog2_name   : app--960624--helium.new_singleline_text_field_2
-    dog2_gender : app--960624--helium.new_singleline_text_field
-    dog3_name   : app--960624--helium.new_singleline_text_field_3
-    dog3_gender : app--960624--helium.1_3
+    dog1_name   : app--960624--helium / new_singleline_text_field_4
+    dog1_gender : app--960624--helium / 1_1
+    dog2_name   : app--960624--helium / new_singleline_text_field_2
+    dog2_gender : app--960624--helium / new_singleline_text_field
+    dog3_name   : app--960624--helium / new_singleline_text_field_3
+    dog3_gender : app--960624--helium / 1_3
   {%- endcomment -%}
 
   {%- assign ns = 'app--960624--helium' -%}
-  {%- assign dog1_name   = order.customer.metafields[ns]['new_singleline_text_field_4'].value -%}
-  {%- assign dog1_gender = order.customer.metafields[ns]['1_1'].value -%}
-  {%- assign dog2_name   = order.customer.metafields[ns]['new_singleline_text_field_2'].value -%}
-  {%- assign dog2_gender = order.customer.metafields[ns]['new_singleline_text_field'].value -%}
-  {%- assign dog3_name   = order.customer.metafields[ns]['new_singleline_text_field_3'].value -%}
-  {%- assign dog3_gender = order.customer.metafields[ns]['1_3'].value -%}
+  {%- assign dog1_name   = order.customer.metafields[ns]['new_singleline_text_field_4'] -%}
+  {%- assign dog1_gender = order.customer.metafields[ns]['1_1'] -%}
+  {%- assign dog2_name   = order.customer.metafields[ns]['new_singleline_text_field_2'] -%}
+  {%- assign dog2_gender = order.customer.metafields[ns]['new_singleline_text_field'] -%}
+  {%- assign dog3_name   = order.customer.metafields[ns]['new_singleline_text_field_3'] -%}
+  {%- assign dog3_gender = order.customer.metafields[ns]['1_3'] -%}
 
   {%- comment -%} 愛犬名を「〇〇ちゃん / くん」形式で結合 {%- endcomment -%}
   {%- assign dog_parts = "" -%}
-  {%- for i in (1..3) -%}
-    {%- if i == 1 -%}{%- assign dname = dog1_name -%}{%- assign dgender = dog1_gender -%}{%- endif -%}
-    {%- if i == 2 -%}{%- assign dname = dog2_name -%}{%- assign dgender = dog2_gender -%}{%- endif -%}
-    {%- if i == 3 -%}{%- assign dname = dog3_name -%}{%- assign dgender = dog3_gender -%}{%- endif -%}
+  {%- assign dog_names_arr = dog1_name | append: "," | append: dog2_name | append: "," | append: dog3_name | split: "," -%}
+  {%- assign dog_genders_arr = dog1_gender | append: "," | append: dog2_gender | append: "," | append: dog3_gender | split: "," -%}
+  {%- for dname in dog_names_arr -%}
     {%- if dname != blank -%}
+      {%- assign dgender = dog_genders_arr[forloop.index0] -%}
       {%- if dgender == "女の子" -%}{%- assign suffix = "ちゃん" -%}{%- else -%}{%- assign suffix = "くん" -%}{%- endif -%}
       {%- assign label = dname | append: suffix -%}
       {%- if dog_parts == "" -%}{%- assign dog_parts = label -%}{%- else -%}{%- assign dog_parts = dog_parts | append: "、" | append: label -%}{%- endif -%}
     {%- endif -%}
   {%- endfor -%}
 
-  {%- comment -%} 注文属性から配送希望日・時間帯を取得（追加詳細のキー名） {%- endcomment -%}
+  {%- comment -%}
+    注文属性から配送希望日・時間帯を取得
+    Shopify Order Printer では order.note_attributes を使う
+    各要素は .name と .value を持つ
+  {%- endcomment -%}
   {%- assign desired_date     = "" -%}
   {%- assign desired_time     = "" -%}
   {%- assign desired_date_alt = "" -%}
-  {%- for attr in order.attributes -%}
-    {%- if attr.key == "配送希望日" -%}
+  {%- for attr in order.note_attributes -%}
+    {%- if attr.name == "配送希望日" -%}
       {%- assign desired_date = attr.value -%}
     {%- endif -%}
-    {%- if attr.key == "配送日の指定" -%}
+    {%- if attr.name == "配送日の指定" -%}
       {%- assign desired_date_alt = attr.value -%}
     {%- endif -%}
-    {%- if attr.key == "配送時間帯" -%}
+    {%- if attr.name == "配送時間帯" -%}
       {%- assign desired_time = attr.value -%}
     {%- endif -%}
   {%- endfor -%}
-  {%- comment -%} 配送希望日が空なら配送日の指定を使う {%- endcomment -%}
   {%- if desired_date == blank and desired_date_alt != blank and desired_date_alt != "なし" -%}
     {%- assign desired_date = desired_date_alt -%}
   {%- endif -%}
 
   {%- comment -%}
+    出荷日 = 配達希望日の2営業日前
+    月(1)・火(2) → 週末をまたぐため4日前
+    水(3)〜金(5) → 2日前
+    配達希望日が未設定の場合は今日を使用
+  {%- endcomment -%}
+  {%- if desired_date != blank -%}
+    {%- assign desired_ts  = desired_date | date: "%s" | plus: 0 -%}
+    {%- assign desired_dow = desired_date | date: "%w" | plus: 0 -%}
+    {%- if desired_dow == 1 or desired_dow == 2 -%}
+      {%- assign ship_ts = desired_ts | minus: 345600 -%}
+    {%- else -%}
+      {%- assign ship_ts = desired_ts | minus: 172800 -%}
+    {%- endif -%}
+    {%- assign ship_date = ship_ts | date: "%-m/%-d" -%}
+  {%- else -%}
+    {%- assign ship_date = "now" | date: "%-m/%-d" -%}
+  {%- endif -%}
+
+  {%- comment -%}
     配送区分を商品名から判定
-    毎  : 【定期便初回】・【定期便】を含む
-    都度 : 【都度購入】・モリンガミルク・ウェットフードを含む
+    毎  : 定期便を含む
+    都度 : 都度購入・モリンガミルク・ウェットフードを含む
     TR  : トライアルを含む
   {%- endcomment -%}
   {%- assign is_maicho = false -%}
@@ -211,20 +248,14 @@
   {%- assign is_trial  = false -%}
   {%- for item in order.line_items -%}
     {%- assign t = item.title -%}
-    {%- if t contains "定期便" -%}
-      {%- assign is_maicho = true -%}
-    {%- endif -%}
-    {%- if t contains "都度購入" or t contains "モリンガミルク" or t contains "ウェットフード" -%}
-      {%- assign is_tsudo = true -%}
-    {%- endif -%}
-    {%- if t contains "トライアル" -%}
-      {%- assign is_trial = true -%}
-    {%- endif -%}
+    {%- if t contains "定期便" -%}{%- assign is_maicho = true -%}{%- endif -%}
+    {%- if t contains "都度購入" or t contains "モリンガミルク" or t contains "ウェットフード" -%}{%- assign is_tsudo = true -%}{%- endif -%}
+    {%- if t contains "トライアル" -%}{%- assign is_trial = true -%}{%- endif -%}
   {%- endfor -%}
 
   {%- comment -%}
     配送サイズを商品内容から自動判定
-    CP  : ウェットフード・モリンガミルク・食いつきトライアル
+    CP  : ウェットフード・モリンガミルク・トライアル
     60  : ドライフード 1〜4袋
     80  : ドライフード 5〜10袋
     100 : ドライフード 11袋〜
@@ -250,18 +281,12 @@
     {%- assign ship_size = "60" -%}
   {%- endif -%}
 
-  {%- comment -%} 出荷日（今日 or フルフィルメント日） {%- endcomment -%}
-  {%- assign ship_date = "now" | date: "%-m/%-d" -%}
-  {%- if order.fulfillments.size > 0 -%}
-    {%- assign ship_date = order.fulfillments.last.created_at | date: "%-m/%-d" -%}
-  {%- endif -%}
-
   <!-- ===== 注文番号 ＋ お客様・愛犬名 ===== -->
   <div class="top-row">
     <div class="order-num">{{ order.order_number }}</div>
     <div class="customer-name">
       {{ order.shipping_address.last_name }}さま
-      {%- if dog_parts != blank %}、{{ dog_parts }}{%- endif %}
+      {%- if dog_parts != blank %}　{{ dog_parts }}{%- endif %}
     </div>
   </div>
 
@@ -282,14 +307,16 @@
     </div>
     <div class="field-block">
       <div class="field-label">配達希望日</div>
-      <div class="field-value large">
-        {%- if desired_date != blank %}{{ desired_date }}{%- else %}―{%- endif %}
+      <div class="field-value">
+        {%- if desired_date != blank -%}
+          {{ desired_date | date: "%-m/%-d" }}
+        {%- else -%}―{%- endif %}
       </div>
     </div>
     <div class="field-block" style="grid-column:1/-1;">
       <div class="field-label">配達希望時間</div>
-      <div class="field-value large">
-        {%- if desired_time != blank %}{{ desired_time }}{%- else %}指定なし{%- endif %}
+      <div class="field-value">
+        {%- if desired_time != blank and desired_time != "指定なし" %}{{ desired_time }}{%- else %}指定なし{%- endif %}
       </div>
     </div>
   </div>
@@ -307,35 +334,39 @@
 
   <hr class="divider">
 
-  <!-- ===== 商品内容 ===== -->
+  <!-- ===== 商品内容（略称表示） ===== -->
   <div class="products-block">
     <div class="field-label">商品内容</div>
     {%- for item in order.line_items -%}
+      {%- assign t = item.title -%}
+      {%- assign abbr = "" -%}
+      {%- if t contains "ドライフード" -%}
+        {%- if t contains "チキン" -%}{%- assign abbr = "BC" -%}
+        {%- elsif t contains "ベニソン" -%}{%- assign abbr = "BV" -%}
+        {%- elsif t contains "ポーク" -%}{%- assign abbr = "BP" -%}
+        {%- endif -%}
+      {%- elsif t contains "ウェットフード" -%}
+        {%- if t contains "チキン" -%}{%- assign abbr = "WC" -%}
+        {%- elsif t contains "ホース" -%}{%- assign abbr = "WH" -%}
+        {%- endif -%}
+      {%- elsif t contains "モリンガミルク" -%}
+        {%- assign abbr = "MM" -%}
+      {%- elsif t contains "トライアル" -%}
+        {%- assign abbr = "食いつき" -%}
+      {%- endif -%}
       <div class="product-line">
-        {{ item.title }}
-        {%- if item.variant_title != blank and item.variant_title != "Default Title" %} ／ {{ item.variant_title }}{%- endif %}
-        &nbsp;×{{ item.quantity }}
+        {%- if abbr != blank -%}
+          {{ abbr }}&nbsp;&nbsp;{{ item.quantity }}
+        {%- else -%}
+          {{ item.title }}&nbsp;×{{ item.quantity }}
+        {%- endif -%}
       </div>
     {%- endfor -%}
   </div>
 
-  <!-- ===== プレゼント内容 ＋ 都道府県 ===== -->
+  <!-- ===== 都道府県 ===== -->
   <div class="bottom-grid">
-    <div>
-      <div class="field-label">プレゼント内容</div>
-      <div class="field-value" style="min-height:36px;">
-        {%- assign gift_note = "" -%}
-        {%- for attr in order.attributes -%}
-          {%- if attr.key contains "プレゼント" or attr.key contains "gift" or attr.key contains "同梱" -%}
-            {%- assign gift_note = attr.value -%}
-          {%- endif -%}
-        {%- endfor -%}
-        {%- if order.note contains "プレゼント" or order.note contains "同梱" -%}
-          {%- assign gift_note = order.note -%}
-        {%- endif -%}
-        {%- if gift_note != blank %}{{ gift_note }}{%- else %}―{%- endif %}
-      </div>
-    </div>
+    <div></div>
     <div>
       <div class="field-label">配送都道府県</div>
       <div class="prefecture">{{ order.shipping_address.province }}</div>
