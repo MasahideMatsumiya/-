@@ -215,22 +215,19 @@
 
   {%- comment -%}
     配送サイズを商品内容から自動判定
-    CP : 食いつきトライアル・モリンガミルク・ウェットフード・トリーツ
-    60 : ドライフード 1〜4袋
-    80 : ドライフード 5〜10袋
-    100: ドライフード 11袋〜
+    CP  : ウェットフード・モリンガミルク・食いつきトライアル
+    60  : ドライフード 1〜4袋
+    80  : ドライフード 5〜10袋
+    100 : ドライフード 11袋〜
   {%- endcomment -%}
   {%- assign ship_size = "" -%}
   {%- assign dry_qty   = 0 -%}
   {%- assign is_cp     = false -%}
   {%- for item in order.line_items -%}
-    {%- assign t = item.title | downcase -%}
-    {%- if t contains "トライアル" or t contains "trial"
-        or t contains "モリンガ"
-        or t contains "ウェット" or t contains "wet"
-        or t contains "トリーツ" or t contains "treat" or t contains "おやつ" -%}
+    {%- assign t = item.title -%}
+    {%- if t contains "ウェットフード" or t contains "モリンガミルク" or t contains "トライアル" -%}
       {%- assign is_cp = true -%}
-    {%- elsif t contains "ドライ" or t contains "dry" -%}
+    {%- elsif t contains "ドライフード" -%}
       {%- assign dry_qty = dry_qty | plus: item.quantity -%}
     {%- endif -%}
   {%- endfor -%}
