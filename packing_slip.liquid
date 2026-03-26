@@ -268,9 +268,10 @@
   <hr class="divider">
 
   <!-- ===== 配送サイズ ===== -->
+  {%- assign sizes = "CP,60,80,100" | split: "," -%}
   <div class="size-row">
     <span class="size-label">配送サイズ</span>
-    {%- for s in "CP,60,80,100" | split: "," -%}
+    {%- for s in sizes -%}
       <span class="size-box{% if ship_size == s %} active{% endif %}">{{ s }}</span>
     {%- endfor -%}
   </div>
