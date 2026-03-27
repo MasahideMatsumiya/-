@@ -162,6 +162,18 @@
     .memo-block .field-label { margin-bottom: 2px; }
 
     /* ===== 同梱チェックボックス ===== */
+    .checklist-category {
+      font-size: 11px;
+      font-weight: bold;
+      background: #000;
+      color: #fff !important;
+      padding: 2px 8px;
+      border-radius: 2px;
+      display: inline-block;
+      margin-bottom: 5px;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
     .checklist {
       display: flex;
       flex-wrap: wrap;
@@ -305,6 +317,14 @@
     {%- assign ship_date = "now" | date: "%-m/%-d" -%}
   {%- endif -%}
 
+  {%- comment -%} 定期便回数をタグから取得 {%- endcomment -%}
+  {%- assign sub_count = 0 -%}
+  {%- for tag in order.tags -%}
+    {%- if tag contains "subscription-count:" -%}
+      {%- assign sub_count = tag | split: "subscription-count:" | last | strip | plus: 0 -%}
+    {%- endif -%}
+  {%- endfor -%}
+
   {%- comment -%} 配送区分 {%- endcomment -%}
   {%- assign is_maicho = false -%}
   {%- assign is_tsudo  = false -%}
@@ -413,21 +433,72 @@
   {%- endif -%}
 
   <!-- ===== 同梱チェックボックス ===== -->
+  <!-- ===== 同梱チェック（カテゴリー自動判定） ===== -->
   <div class="field-label" style="margin-bottom:4px;">同梱チェック</div>
-  <div class="checklist">
-    <label class="check-item"><span class="checkbox"></span>月刊誌</label>
-    <label class="check-item"><span class="checkbox"></span>サンクスカード</label>
-    <label class="check-item"><span class="checkbox"></span>定期便クーポン</label>
-    <label class="check-item"><span class="checkbox"></span>次回ウェットプレゼントチラシ</label>
-    <label class="check-item"><span class="checkbox"></span>ウェットプレゼント</label>
-    <label class="check-item"><span class="checkbox"></span>定期便プレゼント</label>
-    <label class="check-item"><span class="checkbox"></span>パンフレット</label>
-    <label class="check-item"><span class="checkbox"></span>お客様の声</label>
-    <label class="check-item"><span class="checkbox"></span>LINEチラシ</label>
-    <label class="check-item"><span class="checkbox"></span>食べ方ガイド</label>
-    <label class="check-item"><span class="checkbox"></span>定期便のご案内</label>
-    <label class="check-item"><span class="checkbox"></span>¥500クーポン券</label>
-  </div>
+
+  {%- if is_trial -%}
+    <!-- 食いつきトライアル -->
+    <div class="checklist-category">食いつきトライアル</div>
+    <div class="checklist">
+      <label class="check-item"><span class="checkbox"></span>パンフレット</label>
+      <label class="check-item"><span class="checkbox"></span>お客様の声</label>
+      <label class="check-item"><span class="checkbox"></span>定期便のご案内</label>
+      <label class="check-item"><span class="checkbox"></span>¥500クーポン券</label>
+      <label class="check-item"><span class="checkbox"></span>LINEチラシ</label>
+    </div>
+
+  {%- elsif is_maicho -%}
+    {%- if sub_count == 1 -%}
+      <!-- 定期トライアル（1回目） -->
+      <div class="checklist-category">定期トライアル（1回目）</div>
+      <div class="checklist">
+        <label class="check-item"><span class="checkbox"></span>パンフレット</label>
+        <label class="check-item"><span class="checkbox"></span>月刊誌</label>
+        <label class="check-item"><span class="checkbox"></span>サンクスカード</label>
+        <label class="check-item"><span class="checkbox"></span>お客様の声</label>
+        <label class="check-item"><span class="checkbox"></span>食べ方ガイド</label>
+      </div>
+    {%- elsif sub_count == 2 -%}
+      <!-- 定期便２回目 -->
+      <div class="checklist-category">定期便２回目</div>
+      <div class="checklist">
+        <label class="check-item"><span class="checkbox"></span>月刊誌</label>
+        <label class="check-item"><span class="checkbox"></span>サンクスカード</label>
+        <label class="check-item"><span class="checkbox"></span>定期便クーポン</label>
+        <label class="check-item"><span class="checkbox"></span>次回ウェットプレゼントチラシ</label>
+        <label class="check-item"><span class="checkbox"></span>LINEチラシ</label>
+      </div>
+    {%- elsif sub_count == 3 -%}
+      <!-- 定期便３回目 -->
+      <div class="checklist-category">定期便３回目</div>
+      <div class="checklist">
+        <label class="check-item"><span class="checkbox"></span>月刊誌</label>
+        <label class="check-item"><span class="checkbox"></span>サンクスカード</label>
+        <label class="check-item"><span class="checkbox"></span>定期便クーポン</label>
+        <label class="check-item"><span class="checkbox"></span>ウェットプレゼント</label>
+      </div>
+    {%- else -%}
+      <!-- 定期便（4回目以降） -->
+      <div class="checklist-category">定期便（{{ sub_count }}回目）</div>
+      <div class="checklist">
+        <label class="check-item"><span class="checkbox"></span>月刊誌</label>
+        <label class="check-item"><span class="checkbox"></span>サンクスカード</label>
+        <label class="check-item"><span class="checkbox"></span>定期便クーポン</label>
+      </div>
+    {%- endif -%}
+
+  {%- elsif is_tsudo -%}
+    <!-- 都度 -->
+    <div class="checklist-category">都度</div>
+    <div class="checklist">
+      <label class="check-item"><span class="checkbox"></span>パンフレット</label>
+      <label class="check-item"><span class="checkbox"></span>月刊誌</label>
+      <label class="check-item"><span class="checkbox"></span>サンクスカード</label>
+      <label class="check-item"><span class="checkbox"></span>LINEチラシ</label>
+      <label class="check-item"><span class="checkbox"></span>食べ方ガイド</label>
+      <label class="check-item"><span class="checkbox"></span>お客様の声</label>
+    </div>
+  {%- endif -%}
 
   <!-- ========== 区切り ========== -->
   <hr class="section-divider">
