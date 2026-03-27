@@ -149,6 +149,42 @@
       align-self: center;
     }
 
+    /* ===== 注文メモ ===== */
+    .memo-block {
+      border: 1px solid #ccc;
+      border-left: 4px solid #333;
+      border-radius: 2px;
+      padding: 4px 8px;
+      background: #fafafa;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .memo-block .field-label { margin-bottom: 2px; }
+
+    /* ===== 同梱チェックボックス ===== */
+    .checklist {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .checkbox {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #000;
+      border-radius: 2px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
     /* ===== 区切り線 ===== */
     .section-divider {
       border: none;
@@ -366,6 +402,24 @@
       {%- endfor -%}
     </div>
     <div class="prefecture">{{ order.shipping_address.province }}</div>
+  </div>
+
+  <!-- ===== 注文メモ ===== -->
+  {%- if order.note != blank -%}
+  <div class="memo-block">
+    <div class="field-label">メモ</div>
+    <div>{{ order.note }}</div>
+  </div>
+  {%- endif -%}
+
+  <!-- ===== 同梱チェックボックス ===== -->
+  <div class="field-label" style="margin-bottom:4px;">同梱チェック</div>
+  <div class="checklist">
+    <label class="check-item"><span class="checkbox"></span>ボーロ</label>
+    <label class="check-item"><span class="checkbox"></span>ウェットチラシ</label>
+    <label class="check-item"><span class="checkbox"></span>ボーロチラシ</label>
+    <label class="check-item"><span class="checkbox"></span>月刊誌</label>
+    <label class="check-item"><span class="checkbox"></span>その他：＿＿＿＿＿＿</label>
   </div>
 
   <!-- ========== 区切り ========== -->
