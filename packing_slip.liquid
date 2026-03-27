@@ -11,169 +11,218 @@
     }
     body {
       font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
-      font-size: 13px;
+      font-size: 12px;
       color: #000;
       background: #fff;
       width: 210mm;
-      padding: 8mm 10mm;
+      padding: 6mm 8mm;
     }
     @media print {
-      body { padding: 6mm 8mm; }
+      body { padding: 5mm 7mm; }
       @page { size: A4; margin: 0; }
     }
 
-    /* ===== 上段：注文番号 ＋ お客様・愛犬名 ===== */
+    /* ===== 上段：出荷票 ===== */
+    .section-label {
+      font-size: 10px;
+      font-weight: bold;
+      color: #555;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
     .top-row {
       display: flex;
       align-items: baseline;
-      gap: 16px;
+      gap: 12px;
       border-bottom: 3px solid #000;
-      padding-bottom: 6px;
-      margin-bottom: 8px;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
     }
     .order-num {
-      font-size: 36px;
+      font-size: 32px;
       font-weight: bold;
       white-space: nowrap;
-      min-width: 90px;
     }
     .customer-name {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: bold;
       flex: 1;
-      line-height: 1.4;
+      line-height: 1.3;
+    }
+    .stamps {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .stamp {
+      font-size: 16px;
+      font-weight: bold;
+      border: 2px solid #000;
+      border-radius: 3px;
+      padding: 1px 8px;
+      min-width: 38px;
+      text-align: center;
+      background: #fff;
+      color: #000;
+    }
+    .stamp.active { background: #000 !important; color: #fff !important; }
+
+    /* 日付・サイズ行 */
+    .info-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 2fr;
+      gap: 6px 12px;
+      margin-bottom: 6px;
+    }
+    .field-label {
+      font-size: 9px;
+      color: #555;
+      font-weight: bold;
+      margin-bottom: 1px;
+    }
+    .field-value {
+      font-size: 15px;
+      font-weight: bold;
+      padding: 2px 5px;
+      border: 1px solid #ccc;
+      border-radius: 2px;
+      background: #fafafa;
+      min-height: 24px;
+    }
+    .field-value.red {
+      font-size: 26px;
+      color: #cc0000 !important;
+      border: 2px solid #cc0000;
+      background: #fff !important;
     }
 
-    /* ===== 区分スタンプ（毎・都度・TR） ===== */
-    .stamps {
+    /* 配送サイズ */
+    .size-row {
       display: flex;
       gap: 8px;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
-    .stamp {
-      font-size: 20px;
+    .size-label { font-size: 9px; color: #555; font-weight: bold; margin-right: 2px; }
+    .size-box {
+      font-size: 16px;
       font-weight: bold;
-      border: 3px solid #000;
-      border-radius: 4px;
+      border: 2px solid #000;
+      border-radius: 3px;
       padding: 2px 10px;
       min-width: 44px;
       text-align: center;
       background: #fff;
       color: #000;
     }
-    .stamp.active {
-      background: #000 !important;
-      color: #fff !important;
-    }
+    .size-box.active { background: #000 !important; color: #fff !important; }
 
-    /* ===== メイン情報グリッド ===== */
-    .main-grid {
+    /* 商品内容（略称）＋都道府県 */
+    .products-pref-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px 20px;
-      margin-bottom: 8px;
+      grid-template-columns: 1fr auto;
+      gap: 6px 12px;
+      align-items: start;
+      margin-bottom: 4px;
     }
-    .field-label {
-      font-size: 10px;
-      color: #555;
-      font-weight: bold;
-      margin-bottom: 2px;
-    }
-    .field-value {
-      font-size: 18px;
-      font-weight: bold;
-      padding: 3px 6px;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      min-height: 30px;
-      background: #fafafa;
-    }
-    .field-value.red {
-      color: #cc0000 !important;
-      font-size: 30px;
-      border: 2px solid #cc0000;
-      background: #fff !important;
-    }
-
-    /* ===== 配送サイズ ===== */
-    .size-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .size-label { font-size: 10px; color: #555; font-weight: bold; margin-right: 4px; }
-    .size-box {
-      font-size: 20px;
-      font-weight: bold;
-      border: 3px solid #000;
-      border-radius: 4px;
-      padding: 3px 14px;
-      min-width: 52px;
-      text-align: center;
-      background: #fff;
-      color: #000;
-    }
-    .size-box.active {
-      background: #000 !important;
-      color: #fff !important;
-    }
-
-    /* ===== 商品内容 ===== */
     .products-block {
       border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 6px 10px;
-      margin-bottom: 8px;
+      border-radius: 3px;
+      padding: 4px 8px;
       background: #fafafa;
     }
     .product-line {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: bold;
-      padding: 3px 0;
-      border-bottom: 1px dotted #ccc;
+      padding: 1px 0;
       letter-spacing: 1px;
     }
-    .product-line:last-child { border-bottom: none; }
-
-    /* ===== プレゼント・都道府県 ===== */
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px 20px;
-      align-items: start;
-    }
     .prefecture {
-      font-size: 22px;
+      font-size: 18px;
       font-weight: bold;
-      padding: 4px 10px;
+      padding: 4px 8px;
       border: 2px solid #000;
-      border-radius: 4px;
+      border-radius: 3px;
       white-space: nowrap;
       text-align: center;
+      align-self: center;
     }
 
     /* ===== 区切り線 ===== */
-    .divider {
+    .section-divider {
       border: none;
-      border-top: 1px solid #ccc;
+      border-top: 2px dashed #999;
       margin: 8px 0;
+    }
+
+    /* ===== 下段：明細表 ===== */
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+    .detail-title {
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      color: #555;
+    }
+    .detail-meta {
+      font-size: 10px;
+      color: #555;
+    }
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 4px;
+      font-size: 11px;
+    }
+    .items-table th {
+      background: #eee;
+      border: 1px solid #999;
+      padding: 3px 5px;
+      text-align: left;
+    }
+    .items-table td {
+      border: 1px solid #ccc;
+      padding: 4px 5px;
+      vertical-align: top;
+    }
+    .items-table .num { text-align: right; white-space: nowrap; }
+    .totals-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 4px;
+    }
+    .totals-table {
+      font-size: 11px;
+      border-collapse: collapse;
+    }
+    .totals-table td { padding: 2px 6px; }
+    .totals-table td:last-child { text-align: right; font-weight: bold; min-width: 80px; }
+    .totals-table .grand-total td {
+      border-top: 2px solid #000;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    /* 配送先 */
+    .address-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 12px;
+      font-size: 10px;
+      margin-top: 6px;
+      padding-top: 4px;
+      border-top: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
 
-  {%- comment -%}
-    ── 愛犬メタフィールド (Helium Customer Fields) ──
-    dog1_name   : app--960624--helium / new_singleline_text_field_4
-    dog1_gender : app--960624--helium / 1_1
-    dog2_name   : app--960624--helium / new_singleline_text_field_2
-    dog2_gender : app--960624--helium / new_singleline_text_field
-    dog3_name   : app--960624--helium / new_singleline_text_field_3
-    dog3_gender : app--960624--helium / 1_3
-  {%- endcomment -%}
-
+  {%- comment -%} ── 愛犬メタフィールド ── {%- endcomment -%}
   {%- assign ns = 'app--960624--helium' -%}
   {%- assign dog1_name   = order.customer.metafields[ns]['new_singleline_text_field_4'] -%}
   {%- assign dog1_gender = order.customer.metafields[ns]['1_1'] -%}
@@ -182,9 +231,8 @@
   {%- assign dog3_name   = order.customer.metafields[ns]['new_singleline_text_field_3'] -%}
   {%- assign dog3_gender = order.customer.metafields[ns]['1_3'] -%}
 
-  {%- comment -%} 愛犬名を「〇〇ちゃん / くん」形式で結合 {%- endcomment -%}
   {%- assign dog_parts = "" -%}
-  {%- assign dog_names_arr = dog1_name | append: "," | append: dog2_name | append: "," | append: dog3_name | split: "," -%}
+  {%- assign dog_names_arr   = dog1_name   | append: "," | append: dog2_name   | append: "," | append: dog3_name   | split: "," -%}
   {%- assign dog_genders_arr = dog1_gender | append: "," | append: dog2_gender | append: "," | append: dog3_gender | split: "," -%}
   {%- for dname in dog_names_arr -%}
     {%- if dname != blank -%}
@@ -195,10 +243,7 @@
     {%- endif -%}
   {%- endfor -%}
 
-  {%- comment -%}
-    配送希望日・時間帯は 配送日時指定.amp がタグに保存する
-    例: 配送希望日:2026-03-30 / 配送時間帯:指定なし
-  {%- endcomment -%}
+  {%- comment -%} 配送希望日・時間帯をタグから取得 (配送日時指定.amp) {%- endcomment -%}
   {%- assign desired_date = "" -%}
   {%- assign desired_time = "" -%}
   {%- for tag in order.tags -%}
@@ -210,12 +255,7 @@
     {%- endif -%}
   {%- endfor -%}
 
-  {%- comment -%}
-    出荷日 = 配達希望日の2営業日前
-    月(1)・火(2) → 週末をまたぐため4日前
-    水(3)〜金(5) → 2日前
-    配達希望日が未設定の場合は今日を使用
-  {%- endcomment -%}
+  {%- comment -%} 出荷日 = 配達希望日の2営業日前 {%- endcomment -%}
   {%- if desired_date != blank -%}
     {%- assign desired_ts  = desired_date | date: "%s" | plus: 0 -%}
     {%- assign desired_dow = desired_date | date: "%w" | plus: 0 -%}
@@ -229,12 +269,7 @@
     {%- assign ship_date = "now" | date: "%-m/%-d" -%}
   {%- endif -%}
 
-  {%- comment -%}
-    配送区分を商品名から判定
-    毎  : 定期便を含む
-    都度 : 都度購入・モリンガミルク・ウェットフードを含む
-    TR  : トライアルを含む
-  {%- endcomment -%}
+  {%- comment -%} 配送区分 {%- endcomment -%}
   {%- assign is_maicho = false -%}
   {%- assign is_tsudo  = false -%}
   {%- assign is_trial  = false -%}
@@ -245,13 +280,7 @@
     {%- if t contains "トライアル" -%}{%- assign is_trial = true -%}{%- endif -%}
   {%- endfor -%}
 
-  {%- comment -%}
-    配送サイズを商品内容から自動判定
-    CP  : ウェットフード・モリンガミルク・トライアル
-    60  : ドライフード 1〜4袋
-    80  : ドライフード 5〜10袋
-    100 : ドライフード 11袋〜
-  {%- endcomment -%}
+  {%- comment -%} 配送サイズ {%- endcomment -%}
   {%- assign ship_size = "" -%}
   {%- assign dry_qty   = 0 -%}
   {%- assign is_cp     = false -%}
@@ -263,17 +292,15 @@
       {%- assign dry_qty = dry_qty | plus: item.quantity -%}
     {%- endif -%}
   {%- endfor -%}
-  {%- if is_cp -%}
-    {%- assign ship_size = "CP" -%}
-  {%- elsif dry_qty >= 11 -%}
-    {%- assign ship_size = "100" -%}
-  {%- elsif dry_qty >= 5 -%}
-    {%- assign ship_size = "80" -%}
-  {%- elsif dry_qty >= 1 -%}
-    {%- assign ship_size = "60" -%}
+  {%- if is_cp -%}{%- assign ship_size = "CP" -%}
+  {%- elsif dry_qty >= 11 -%}{%- assign ship_size = "100" -%}
+  {%- elsif dry_qty >= 5 -%}{%- assign ship_size = "80" -%}
+  {%- elsif dry_qty >= 1 -%}{%- assign ship_size = "60" -%}
   {%- endif -%}
 
-  <!-- ===== 注文番号 ＋ お客様・愛犬名 ===== -->
+  <!-- ========== 上段：出荷票 ========== -->
+  <div class="section-label">出 荷 票</div>
+
   <div class="top-row">
     <div class="order-num">{{ order.order_number }}</div>
     <div class="customer-name">
@@ -282,30 +309,24 @@
     </div>
   </div>
 
-  <!-- ===== 区分スタンプ ===== -->
   <div class="stamps">
     <span class="stamp{% if is_maicho %} active{% endif %}">毎</span>
     <span class="stamp{% if is_tsudo %} active{% endif %}">都度</span>
     <span class="stamp{% if is_trial %} active{% endif %}">TR</span>
   </div>
 
-  <hr class="divider">
-
-  <!-- ===== 日付・時間グリッド ===== -->
-  <div class="main-grid">
-    <div class="field-block">
+  <div class="info-row">
+    <div>
       <div class="field-label">出荷日</div>
       <div class="field-value red">{{ ship_date }}</div>
     </div>
-    <div class="field-block">
+    <div>
       <div class="field-label">配達希望日</div>
       <div class="field-value">
-        {%- if desired_date != blank -%}
-          {{ desired_date | date: "%-m/%-d" }}
-        {%- else -%}―{%- endif %}
+        {%- if desired_date != blank %}{{ desired_date | date: "%-m/%-d" }}{%- else %}―{%- endif %}
       </div>
     </div>
-    <div class="field-block" style="grid-column:1/-1;">
+    <div>
       <div class="field-label">配達希望時間</div>
       <div class="field-value">
         {%- if desired_time != blank and desired_time != "指定なし" %}{{ desired_time }}{%- else %}指定なし{%- endif %}
@@ -313,9 +334,6 @@
     </div>
   </div>
 
-  <hr class="divider">
-
-  <!-- ===== 配送サイズ ===== -->
   {%- assign sizes = "CP,60,80,100" | split: "," -%}
   <div class="size-row">
     <span class="size-label">配送サイズ</span>
@@ -324,64 +342,88 @@
     {%- endfor -%}
   </div>
 
-  <hr class="divider">
-
-  <!-- ===== 商品内容（略称表示） ===== -->
-  <div class="products-block">
-    <div class="field-label">商品内容</div>
-    {%- for item in order.line_items -%}
-      {%- assign t = item.title -%}
-      {%- assign abbr = "" -%}
-      {%- if t contains "ドライフード" -%}
-        {%- if t contains "チキン" -%}{%- assign abbr = "BC" -%}
-        {%- elsif t contains "ベニソン" -%}{%- assign abbr = "BV" -%}
-        {%- elsif t contains "ポーク" -%}{%- assign abbr = "BP" -%}
+  <div class="products-pref-row">
+    <div class="products-block">
+      <div class="field-label">商品内容</div>
+      {%- for item in order.line_items -%}
+        {%- assign t = item.title -%}
+        {%- assign abbr = "" -%}
+        {%- if t contains "ドライフード" -%}
+          {%- if t contains "チキン" -%}{%- assign abbr = "BC" -%}
+          {%- elsif t contains "ベニソン" -%}{%- assign abbr = "BV" -%}
+          {%- elsif t contains "ポーク" -%}{%- assign abbr = "BP" -%}
+          {%- endif -%}
+        {%- elsif t contains "ウェットフード" -%}
+          {%- if t contains "チキン" -%}{%- assign abbr = "WC" -%}
+          {%- elsif t contains "ホース" -%}{%- assign abbr = "WH" -%}
+          {%- endif -%}
+        {%- elsif t contains "モリンガミルク" -%}{%- assign abbr = "MM" -%}
+        {%- elsif t contains "トライアル" -%}{%- assign abbr = "食いつき" -%}
         {%- endif -%}
-      {%- elsif t contains "ウェットフード" -%}
-        {%- if t contains "チキン" -%}{%- assign abbr = "WC" -%}
-        {%- elsif t contains "ホース" -%}{%- assign abbr = "WH" -%}
-        {%- endif -%}
-      {%- elsif t contains "モリンガミルク" -%}
-        {%- assign abbr = "MM" -%}
-      {%- elsif t contains "トライアル" -%}
-        {%- assign abbr = "食いつき" -%}
-      {%- endif -%}
-      <div class="product-line">
-        {%- if abbr != blank -%}
-          {{ abbr }}&nbsp;&nbsp;{{ item.quantity }}
-        {%- else -%}
-          {{ item.title }}&nbsp;×{{ item.quantity }}
-        {%- endif -%}
-      </div>
-    {%- endfor -%}
+        <div class="product-line">
+          {%- if abbr != blank %}{{ abbr }}&nbsp;&nbsp;{{ item.quantity }}{%- else %}{{ item.title }}&nbsp;×{{ item.quantity }}{%- endif %}
+        </div>
+      {%- endfor -%}
+    </div>
+    <div class="prefecture">{{ order.shipping_address.province }}</div>
   </div>
 
-  <!-- ===== 都道府県 ===== -->
-  <div class="bottom-grid">
-    <div></div>
-    <div>
-      <div class="field-label">配送都道府県</div>
-      <div class="prefecture">{{ order.shipping_address.province }}</div>
+  <!-- ========== 区切り ========== -->
+  <hr class="section-divider">
+
+  <!-- ========== 下段：明細表 ========== -->
+  <div class="detail-header">
+    <div class="detail-title">明 細 表</div>
+    <div class="detail-meta">
+      注文番号 {{ order.order_number }}　／　注文日 {{ order.created_at | date: "%Y年%-m月%-d日" }}　／　{{ order.shipping_lines.first.title }}
     </div>
   </div>
 
-  <!-- ===== デバッグ（確認後に削除） ===== -->
-  <div style="border:3px solid red;padding:12px;margin-top:20px;font-size:14px;">
-    <div><strong>▼ note_attributes:</strong></div>
-    {%- for attr in order.note_attributes -%}
-      <div>{{ attr.name }} = {{ attr.value }}</div>
-    {%- else -%}
-      <div style="color:red;">→ 空</div>
-    {%- endfor -%}
-    <div style="margin-top:8px;"><strong>▼ note:</strong> {{ order.note }}</div>
-    <div style="margin-top:8px;"><strong>▼ metafields.custom:</strong></div>
-    <div>配送希望日 = {{ order.metafields.custom['配送希望日'] }}</div>
-    <div>配送時間帯 = {{ order.metafields.custom['配送時間帯'] }}</div>
-    <div>配送日の指定 = {{ order.metafields.custom['配送日の指定'] }}</div>
-    <div style="margin-top:8px;"><strong>▼ metafields (other):</strong></div>
-    <div>delivery.date = {{ order.metafields.delivery['date'] }}</div>
-    <div>delivery.time = {{ order.metafields.delivery['time'] }}</div>
-    <div>delivery_date.date = {{ order.metafields['delivery_date']['date'] }}</div>
+  <table class="items-table">
+    <thead>
+      <tr>
+        <th style="width:55%;">商品名</th>
+        <th style="width:12%;text-align:right;">単価</th>
+        <th style="width:10%;text-align:right;">数量</th>
+        <th style="width:13%;text-align:right;">合計</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%- for item in order.line_items -%}
+      <tr>
+        <td>
+          {{ item.title }}
+          {%- if item.variant_title != blank and item.variant_title != "Default Title" %}<br><span style="color:#666;font-size:10px;">{{ item.variant_title }}</span>{%- endif %}
+        </td>
+        <td class="num">¥{{ item.price | money_without_currency }}</td>
+        <td class="num">{{ item.quantity }}</td>
+        <td class="num">¥{{ item.final_line_price | money_without_currency }}</td>
+      </tr>
+      {%- endfor -%}
+    </tbody>
+  </table>
+
+  <div class="totals-row">
+    <table class="totals-table">
+      <tr><td>小計</td><td>¥{{ order.subtotal_price | money_without_currency }}</td></tr>
+      <tr><td>配送</td><td>¥{{ order.shipping_price | money_without_currency }}</td></tr>
+      <tr><td>消費税</td><td>¥{{ order.total_tax | money_without_currency }}</td></tr>
+      <tr class="grand-total"><td>合計</td><td>¥{{ order.total_price | money_without_currency }}</td></tr>
+    </table>
+  </div>
+
+  <div class="address-row">
+    <div>
+      <strong>配送先</strong><br>
+      〒{{ order.shipping_address.zip }}　{{ order.shipping_address.province }}{{ order.shipping_address.city }}{{ order.shipping_address.address1 }}
+      {%- if order.shipping_address.address2 != blank %} {{ order.shipping_address.address2 }}{%- endif %}<br>
+      {{ order.shipping_address.last_name }} {{ order.shipping_address.first_name }}
+    </div>
+    <div style="text-align:right;">
+      <strong>{{ shop.name }}</strong><br>
+      {{ shop.email }}<br>
+      {{ shop.phone }}
+    </div>
   </div>
 
 </body>
