@@ -373,5 +373,22 @@
     </div>
   </div>
 
+  <!-- ===== デバッグ：追加詳細の全キー確認（確認後に削除） ===== -->
+  <hr class="divider" style="margin-top:16px;">
+  <div style="font-size:10px;color:#888;margin-top:8px;">
+    <div><strong>【デバッグ】note_attributes:</strong></div>
+    {%- for attr in order.note_attributes -%}
+      <div>{{ attr.name }} = {{ attr.value }}</div>
+    {%- else -%}
+      <div>（note_attributesが空）</div>
+    {%- endfor -%}
+    <div style="margin-top:4px;"><strong>【デバッグ】attributes:</strong></div>
+    {%- for attr in order.attributes -%}
+      <div>{{ attr.name }}{{ attr.key }} = {{ attr.value }}</div>
+    {%- else -%}
+      <div>（attributesが空）</div>
+    {%- endfor -%}
+  </div>
+
 </body>
 </html>
