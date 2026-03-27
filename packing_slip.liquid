@@ -196,27 +196,19 @@
   {%- endfor -%}
 
   {%- comment -%}
-    注文属性から配送希望日・時間帯を取得
-    Shopify Order Printer では order.note_attributes を使う
-    各要素は .name と .value を持つ
+    配送希望日・時間帯は 配送日時指定.amp がタグに保存する
+    例: 配送希望日:2026-03-30 / 配送時間帯:指定なし
   {%- endcomment -%}
-  {%- assign desired_date     = "" -%}
-  {%- assign desired_time     = "" -%}
-  {%- assign desired_date_alt = "" -%}
-  {%- for attr in order.note_attributes -%}
-    {%- if attr.name == "配送希望日" -%}
-      {%- assign desired_date = attr.value -%}
+  {%- assign desired_date = "" -%}
+  {%- assign desired_time = "" -%}
+  {%- for tag in order.tags -%}
+    {%- if tag contains "配送希望日:" -%}
+      {%- assign desired_date = tag | split: "配送希望日:" | last | strip -%}
     {%- endif -%}
-    {%- if attr.name == "配送日の指定" -%}
-      {%- assign desired_date_alt = attr.value -%}
-    {%- endif -%}
-    {%- if attr.name == "配送時間帯" -%}
-      {%- assign desired_time = attr.value -%}
+    {%- if tag contains "配送時間帯:" -%}
+      {%- assign desired_time = tag | split: "配送時間帯:" | last | strip -%}
     {%- endif -%}
   {%- endfor -%}
-  {%- if desired_date == blank and desired_date_alt != blank and desired_date_alt != "なし" -%}
-    {%- assign desired_date = desired_date_alt -%}
-  {%- endif -%}
 
   {%- comment -%}
     出荷日 = 配達希望日の2営業日前
