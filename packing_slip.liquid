@@ -374,14 +374,22 @@
   </div>
 
   <!-- ===== デバッグ（確認後に削除） ===== -->
-  <div style="border:3px solid red;padding:12px;margin-top:20px;font-size:15px;">
+  <div style="border:3px solid red;padding:12px;margin-top:20px;font-size:14px;">
     <div><strong>▼ note_attributes:</strong></div>
     {%- for attr in order.note_attributes -%}
       <div>{{ attr.name }} = {{ attr.value }}</div>
     {%- else -%}
-      <div style="color:red;">→ note_attributes は空</div>
+      <div style="color:red;">→ 空</div>
     {%- endfor -%}
-    <div style="margin-top:10px;"><strong>▼ note:</strong> {{ order.note }}</div>
+    <div style="margin-top:8px;"><strong>▼ note:</strong> {{ order.note }}</div>
+    <div style="margin-top:8px;"><strong>▼ metafields.custom:</strong></div>
+    <div>配送希望日 = {{ order.metafields.custom['配送希望日'] }}</div>
+    <div>配送時間帯 = {{ order.metafields.custom['配送時間帯'] }}</div>
+    <div>配送日の指定 = {{ order.metafields.custom['配送日の指定'] }}</div>
+    <div style="margin-top:8px;"><strong>▼ metafields (other):</strong></div>
+    <div>delivery.date = {{ order.metafields.delivery['date'] }}</div>
+    <div>delivery.time = {{ order.metafields.delivery['time'] }}</div>
+    <div>delivery_date.date = {{ order.metafields['delivery_date']['date'] }}</div>
   </div>
 
 </body>
