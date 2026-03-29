@@ -48,7 +48,15 @@ async def update_customer(
     customer = await session.get(Customer, customer_id)
     if not customer:
         raise HTTPException(404, "Customer not found")
-    for key, val in data.model_dump(exclude_unset=True).items():
+    update_data = data.model_dump(exclude_unset=True)
+    # メールアドレスが他の顧客と重複する場合はスキップ（クラッシュ防止）
+    if "email" in update_data and update_data["email"] != customer.email:
+        existing = await session.execute(
+            select(Customer).where(Customer.email == update_data["email"])
+        )
+        if existing.scalar_one_or_none():
+            update_data.pop("email")
+    for key, val in update_data.items():
         setattr(customer, key, val)
     customer.updated_at = datetime.utcnow()
     session.add(customer)
