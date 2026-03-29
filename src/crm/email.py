@@ -39,8 +39,10 @@ def _send_smtp(to_email: str, subject: str, body_html: str, body_text: str) -> b
             server.starttls()
             server.login(settings.smtp_user, settings.smtp_password)
             server.sendmail(settings.from_email, to_email, msg.as_string())
+        print(f"[EMAIL] Sent to {to_email} subject={subject[:40]}", flush=True)
         return True
-    except Exception:
+    except Exception as e:
+        print(f"[EMAIL ERROR] {type(e).__name__}: {e}", flush=True)
         return False
 
 
