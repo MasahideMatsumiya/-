@@ -101,6 +101,7 @@ async def create_checkout(
     )
 
 
+@router.post("/webhook")
 @router.post("/webhook/stripe")
 async def stripe_webhook(request: Request, session: AsyncSession = Depends(get_session)):
     """Stripe Webhook - 決済確認"""
