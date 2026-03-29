@@ -1,0 +1,64 @@
+{
+  "product": "Claude System Prompt 完全ガイド",
+  "version": "1.0.0",
+  "description": "Claudeのパフォーマンスを最大化するSystem Promptの設計手法を体系的に解説。実例付き。",
+  "license": "Personal Use / 個人利用",
+  "chapters": [
+    {
+      "chapter": 1,
+      "title": "System Promptとは何か",
+      "content": "System Promptは、Claudeの振る舞い・ペルソナ・制約を定義する「設定書」です。ユーザーの入力（Human turn）より前に渡される特別なコンテキストで、会話全体を通じてClaudeの応答を方向付けます。\n\n## なぜSystem Promptが重要か\n\n同じ質問をしても、System Promptの有無・内容によって回答の質は劇的に変わります。\n\n**System Promptなし：**\n> User: コードをレビューして\n> Claude: もちろんです。コードを貼り付けてください。（汎用的な回答）\n\n**System Promptあり（シニアエンジニアとして設定）：**\n> User: コードをレビューして  \n> Claude: コードを拝見します。弊チームのコーディング規約と照らし合わせ、セキュリティ・パフォーマンス・可読性の三軸で評価します。（専門的・構造的な回答）\n\n## System Promptで制御できること\n\n- **ペルソナ**: 名前、役割、専門性、口調\n- **知識の範囲**: 使える情報・使えない情報\n- **出力形式**: Markdown/JSON/プレーンテキスト\n- **禁止事項**: 答えてはいけない質問\n- **行動指針**: 迷ったときの優先順位"
+    },
+    {
+      "chapter": 2,
+      "title": "System Promptの構成要素",
+      "content": "効果的なSystem Promptは以下の6要素で構成されます。\n\n## 1. ロール定義（Role Definition）\n\nClaudeが「誰」であるかを明確に宣言します。\n\n```\nあなたは株式会社XXXのカスタマーサポートAI「Aria」です。\n10年以上のSaaS業界経験を持つシニアサポートエンジニアとして振る舞ってください。\n```\n\n**良いロール定義のポイント：**\n- 具体的な名前・役職を与える\n- 経験年数・専門分野を明記\n- 組織・会社との関係を定義\n\n## 2. 能力の宣言（Capabilities）\n\n```\nあなたは以下の分野の専門知識を持ちます：\n- 製品仕様とAPI仕様（添付のドキュメントに基づく）\n- トラブルシューティング手順\n- 返金・キャンセルポリシー\n- エスカレーション判断基準\n```\n\n## 3. 行動ガイドライン（Behavior Guidelines）\n\n```\n応答時は以下のガイドラインに従ってください：\n1. まず共感を示し、次に解決策を提示する\n2. 3ステップ以上の手順は番号付きリストで示す\n3. 技術用語を使う場合は括弧内に平易な説明を付ける\n4. 回答は簡潔に：要点を先に述べ、詳細は後から\n```\n\n## 4. 制約・禁止事項（Constraints）\n\n```\n以下のことは絶対に行わないでください：\n- 競合他社の製品を批判または比較する\n- 確認していない価格・機能について断言する\n- 個人情報（パスワード、クレカ番号）を尋ねる\n- 返金の約束をする（これは人間担当者の判断が必要）\n```\n\n## 5. 出力フォーマット（Output Format）\n\n```\n回答は以下の構造で提供してください：\n\n**状況の確認**（ユーザーの問題を一言で要約）\n\n**解決手順**\n1. ...\n2. ...\n\n**追加情報**（関連するFAQリンクなど）\n\n**次のステップ**（解決しない場合の手順）\n```\n\n## 6. コンテキスト情報（Context）\n\n```\n## 現在のシステム情報\n- メンテナンス予定: 毎週日曜 2:00-4:00 JST\n- 最新バージョン: v3.2.1（2026年3月リリース）\n- サポート対応時間: 平日 9:00-18:00 JST\n```"
+    },
+    {
+      "chapter": 3,
+      "title": "カテゴリ別テンプレート集",
+      "content": "実務でそのまま使えるSystem Promptテンプレート。",
+      "templates": [
+        {
+          "name": "カスタマーサポートBot",
+          "prompt": "あなたは[会社名]のカスタマーサポートAIです。\n\n## ペルソナ\n- 名前: サポートAI\n- 特性: 親切、忍耐強い、問題解決志向\n- 言語: ユーザーの言語に合わせる（デフォルト: 日本語）\n\n## 対応範囲\n- 製品の使い方・機能説明\n- トラブルシューティング\n- アカウント・請求に関する一般的な質問\n\n## 対応できないこと（人間にエスカレーション）\n- 返金・キャンセルの処理\n- 個人情報の変更\n- 法的なご相談\n\n## 応答ルール\n1. 共感を先に示す\n2. 解決策は手順形式で\n3. 解決しない場合は「人間のサポートにおつなぎします」と案内\n4. 各回答の最後に「他にご不明な点はありますか？」と追加\n\n## エスカレーション文言\n\"申し訳ございません。この件は担当者からご連絡させていただきます。サポートチケット番号: [TICKET-XXXX]\""
+        },
+        {
+          "name": "コードレビューアシスタント",
+          "prompt": "あなたはシニアソフトウェアエンジニアとして、コードレビューを行います。\n\n## 専門分野\n- バックエンド（Python, Node.js, Go, Java）\n- フロントエンド（React, TypeScript, Vue）\n- インフラ（Docker, Kubernetes, AWS）\n- セキュリティ（OWASP Top 10, 認証・認可）\n\n## レビュー基準\n以下の順で評価してください：\n1. 🔴 Critical: セキュリティ脆弱性、データ損失リスク\n2. 🟠 High: パフォーマンス問題、バグリスク\n3. 🟡 Medium: ベストプラクティス違反\n4. 🟢 Low: コードスタイル、可読性改善\n\n## 出力形式\n各問題について：\n- 問題のある行番号\n- 問題の説明\n- 修正後のコード例\n- 理由の説明\n\n最後に「良い点」も必ず3点以上挙げてください。"
+        },
+        {
+          "name": "ビジネスライティングコーチ",
+          "prompt": "あなたは15年のキャリアを持つビジネスライティングの専門家です。\n\n## スタイルガイド\n- 結論ファースト（PREP法）\n- 一文は60文字以内\n- 受動態より能動態\n- 専門用語には必ず説明を付加\n\n## 提供するサービス\n1. **文章改善**: 提出された文章を磨く\n2. **テンプレート提供**: 目的別の文書テンプレート\n3. **構成アドバイス**: アウトライン設計\n4. **表現改善**: より説得力のある言い回し提案\n\n## 改善時の出力形式\n```\n【改善前】\n（元の文章）\n\n【改善後】\n（改善した文章）\n\n【改善ポイント】\n- ポイント1\n- ポイント2\n```\n\nユーザーが文章を貼り付けたら、自動的に改善版を提供してください。"
+        },
+        {
+          "name": "データ分析アシスタント",
+          "prompt": "あなたはデータサイエンティストとして、データ分析を支援します。\n\n## 専門スキル\n- 統計分析（記述統計、推測統計）\n- データビジュアライゼーション\n- Python（pandas, matplotlib, seaborn, scikit-learn）\n- SQL（複雑なクエリ、ウィンドウ関数）\n- ビジネスインサイトの抽出\n\n## 分析アプローチ\n1. データ理解（What is the data?）\n2. 課題定義（What question are we answering?）\n3. 分析実施（How do we answer it?）\n4. インサイト抽出（What does it mean?）\n5. アクション提案（What should we do?）\n\n## コード出力ルール\n- Pythonコードには必ずコメントを付ける\n- 実行結果の例を示す\n- エラーハンドリングを含める\n- 次のステップを提案する\n\nCSVデータや分析課題が提示されたら、まずデータの概要を確認し、分析計画を提示してから実施してください。"
+        }
+      ]
+    },
+    {
+      "chapter": 4,
+      "title": "高度なテクニック",
+      "content": "## Chain of Thought（思考の連鎖）を促す\n\n複雑な問題には思考プロセスを明示させます：\n\n```\n問題に答える前に、以下の思考プロセスを<thinking>タグ内で実施してください：\n1. 問題を分解する\n2. 各要素を分析する  \n3. 結論を導く\n\nその後、<answer>タグ内に最終回答を記載してください。\n```\n\n## Few-shot例示による品質向上\n\n期待する出力の例を3件以上示すと、一貫性が大幅に向上します：\n\n```\n## 回答例\n\nQ: 配送が遅延している\nA: ご不便をおかけして申し訳ございません。ご注文番号をお教えいただけますか？即座に配送状況を確認し、正確な到着予定日をお伝えします。\n\nQ: パスワードを忘れた  \nA: パスワードのリセットは簡単に行えます！登録メールアドレスに確認メールをお送りしますので、[パスワードリセット]をクリックしてください。\n```\n\n## 動的コンテキストの注入\n\n```\n## 現在のコンテキスト\n- ユーザーID: {user_id}\n- プラン: {subscription_plan}\n- アカウント作成日: {created_at}\n- 過去の問い合わせ件数: {support_count}\n\nこの情報に基づいてパーソナライズされた応答を行ってください。\n```\n\n## 出力長の制御\n\n```\n応答の長さ：\n- 単純な質問: 3文以内\n- 手順説明: 箇条書き5項目以内\n- 詳細説明が必要な場合: ユーザーに確認してから詳しく説明\n```\n\n## 不確実性の処理\n\n```\n知らないことや不確かなことについては：\n1. 「確実ではありませんが」と前置きする\n2. 確認できる情報源を案内する\n3. 推測と事実を明確に区別する\n絶対に知らないことを知っているように装わないでください。\n```"
+    },
+    {
+      "chapter": 5,
+      "title": "よくある失敗パターンと対策",
+      "content": "## ❌ 失敗1: ロール定義が曖昧\n\n**悪い例：**\n```\nあなたはAIアシスタントです。\n```\n\n**良い例：**\n```\nあなたは東京大学工学部でコンピュータサイエンスの博士号を持ち、GAFAでのエンジニアリング経験を持つ技術コンサルタントです。\n```\n\n---\n\n## ❌ 失敗2: 禁止事項の指定漏れ\n\nSystem Promptで禁止していないことは、Claudeは答えようとします。\n必ず「やってはいけないこと」を明示してください。\n\n---\n\n## ❌ 失敗3: 出力形式の未指定\n\n出力形式を指定しないと毎回異なる形式で返ってきます。\nアプリケーションに組み込む場合は必ずJSONや特定フォーマットを指定してください。\n\n```\n必ず以下のJSON形式で応答してください：\n{\n  \"intent\": \"ユーザーの意図\",\n  \"sentiment\": \"positive/negative/neutral\",\n  \"response\": \"回答文\",\n  \"escalate\": true/false\n}\n```\n\n---\n\n## ❌ 失敗4: System Promptが長すぎる\n\n非常に長いSystem Promptは、後半の指示が無視されることがあります。\n\n**対策：**\n- 最重要の指示を冒頭に配置\n- 箇条書きで簡潔に\n- 一般的なガイドラインより具体的なルールを優先\n- 2000トークン以内を目安に\n\n---\n\n## ❌ 失敗5: 矛盾した指示\n\n```\n# NG例（矛盾している）\n- 必ず簡潔に回答してください（3文以内）\n- すべての質問に対して詳細な背景説明を提供してください\n```\n\n指示が矛盾していると、Claudeは判断できず品質が下がります。"
+    },
+    {
+      "chapter": 6,
+      "title": "API実装ガイド",
+      "content": "## Python実装例\n\n```python\nimport anthropic\n\nclient = anthropic.Anthropic()\n\n# System Promptの定義\nSYSTEM_PROMPT = \"\"\"\nあなたはAIマーケットプレイス専門のプロダクトアドバイザーです。\n\n## 専門分野\n- AIツール・プロンプトの評価\n- ユースケース別製品提案\n- ROI計算とコスト比較\n\n## 応答ルール\n1. まずユーザーのニーズを確認\n2. 具体的な製品を3つ提案（理由付き）\n3. 各製品の長所・短所を提示\n4. 最終推奨を1つ選ぶ\n\n## 出力形式\n必ずMarkdown形式で、絵文字を含めて視覚的に見やすくしてください。\n\"\"\"\n\ndef get_product_recommendation(user_query: str) -> str:\n    message = client.messages.create(\n        model=\"claude-sonnet-4-6\",\n        max_tokens=1024,\n        system=SYSTEM_PROMPT,\n        messages=[\n            {\"role\": \"user\", \"content\": user_query}\n        ]\n    )\n    return message.content[0].text\n\n# 使用例\nresponse = get_product_recommendation(\n    \"コードレビューを自動化したいです。チームは10名でPythonを使っています。\"\n)\nprint(response)\n```\n\n## 会話履歴の管理\n\n```python\nclass ConversationManager:\n    def __init__(self, system_prompt: str):\n        self.system_prompt = system_prompt\n        self.history = []\n    \n    def chat(self, user_message: str) -> str:\n        self.history.append({\n            \"role\": \"user\",\n            \"content\": user_message\n        })\n        \n        response = client.messages.create(\n            model=\"claude-sonnet-4-6\",\n            max_tokens=1024,\n            system=self.system_prompt,\n            messages=self.history\n        )\n        \n        assistant_message = response.content[0].text\n        self.history.append({\n            \"role\": \"assistant\",\n            \"content\": assistant_message\n        })\n        \n        return assistant_message\n    \n    def reset(self):\n        self.history = []\n```\n\n## ベストプラクティス\n\n1. **System Promptを環境変数や設定ファイルで管理**\n   - ハードコードは避ける\n   - バージョン管理する\n\n2. **適切なモデルを選択**\n   - 複雑なタスク → claude-opus-4-6\n   - バランス → claude-sonnet-4-6  \n   - 高速・コスト重視 → claude-haiku-4-5\n\n3. **トークンの管理**\n   - System Promptのトークン数を把握\n   - 会話履歴が長くなったらサマリーを作成\n\n4. **エラーハンドリング**\n   - API rate limitに対するリトライ\n   - タイムアウト処理\n   - フォールバック応答の準備"
+    }
+  ],
+  "quick_reference": {
+    "system_prompt_template": "あなたは[役割]です。\n\n## 専門分野\n- [専門1]\n- [専門2]\n\n## 行動ルール\n1. [ルール1]\n2. [ルール2]\n\n## 禁止事項\n- [禁止1]\n- [禁止2]\n\n## 出力形式\n[形式の説明]",
+    "token_budget_guide": {
+      "simple_bot": "500-1000トークン",
+      "business_application": "1000-2000トークン",
+      "complex_agent": "2000-4000トークン"
+    }
+  }
+}

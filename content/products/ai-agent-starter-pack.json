@@ -1,0 +1,185 @@
+{
+  "product": "AI Agent スターターパック",
+  "version": "1.0.0",
+  "description": "Claude APIで本格的なAIエージェントを構築するための設定テンプレート・コードスニペット集。即戦力で使える5種のエージェント設計図付き。",
+  "license": "Personal Use / 個人利用",
+  "included_agents": [
+    {
+      "id": "agent-001",
+      "name": "リサーチエージェント",
+      "description": "与えられたトピックをウェブ検索・分析し、構造化レポートを生成",
+      "complexity": "初級",
+      "tools": ["web_search", "url_fetch", "text_summarize"],
+      "system_prompt": "あなたは優秀なリサーチアナリストです。\n\n## ミッション\nユーザーが指定したトピックについて包括的なリサーチを実施し、質の高いレポートを作成します。\n\n## 使用できるツール\n- web_search: ウェブ検索を実行\n- url_fetch: 特定URLのコンテンツを取得\n- text_summarize: 長いテキストを要約\n\n## リサーチプロセス\n1. トピックを分析し、調査すべき観点を特定\n2. 複数のキーワードでウェブ検索\n3. 信頼性の高い情報源を選別\n4. 情報を統合・分析\n5. 構造化レポートを作成\n\n## レポート形式\n# [トピック名] リサーチレポート\n\n## エグゼクティブサマリー\n（3〜5行で全体像）\n\n## 主要な発見\n### 1. [観点1]\n### 2. [観点2]\n### 3. [観点3]\n\n## データ・統計\n（数値・事実を整理）\n\n## 結論と示唆\n\n## 参考情報源\n\n## 重要な注意事項\n- 情報源が不明確な内容は「（要確認）」と付記\n- 主観的意見と客観的事実を明確に区別\n- 情報の鮮度を常に確認",
+      "tools_definition": [
+        {
+          "name": "web_search",
+          "description": "ウェブ検索を実行して関連情報を取得します",
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string",
+                "description": "検索クエリ"
+              },
+              "max_results": {
+                "type": "integer",
+                "description": "取得する最大結果数",
+                "default": 5
+              }
+            },
+            "required": ["query"]
+          }
+        },
+        {
+          "name": "url_fetch",
+          "description": "指定URLのWebページコンテンツを取得します",
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "取得するURL"
+              }
+            },
+            "required": ["url"]
+          }
+        }
+      ],
+      "implementation": {
+        "language": "Python",
+        "code": "import anthropic\nimport json\nfrom typing import Any\n\nclient = anthropic.Anthropic()\n\n# ツールの実装\ndef web_search(query: str, max_results: int = 5) -> list[dict]:\n    \"\"\"\n    実際の実装ではTavily/Brave Search APIを使用\n    ここではモック実装\n    \"\"\"\n    # pip install tavily-python\n    # from tavily import TavilyClient\n    # tavily = TavilyClient(api_key=\"YOUR_TAVILY_KEY\")\n    # results = tavily.search(query=query, max_results=max_results)\n    return [{\"title\": \"Example\", \"url\": \"https://example.com\", \"content\": \"Sample content\"}]\n\ndef url_fetch(url: str) -> str:\n    \"\"\"URLのコンテンツを取得\"\"\"\n    import httpx\n    response = httpx.get(url, timeout=10)\n    return response.text[:5000]  # 最初の5000文字\n\n# ツールディスパッチャー\ndef execute_tool(tool_name: str, tool_input: dict) -> Any:\n    if tool_name == \"web_search\":\n        return web_search(**tool_input)\n    elif tool_name == \"url_fetch\":\n        return url_fetch(**tool_input)\n    raise ValueError(f\"Unknown tool: {tool_name}\")\n\n# エージェントのメインループ\ndef run_research_agent(topic: str) -> str:\n    SYSTEM_PROMPT = \"\"\"（上記のsystem_promptを使用）\"\"\"\n    \n    tools = [...]  # 上記tools_definitionを使用\n    \n    messages = [\n        {\"role\": \"user\", \"content\": f\"以下のトピックを調査してください: {topic}\"}\n    ]\n    \n    while True:\n        response = client.messages.create(\n            model=\"claude-sonnet-4-6\",\n            max_tokens=4096,\n            system=SYSTEM_PROMPT,\n            tools=tools,\n            messages=messages\n        )\n        \n        # ツール呼び出しを処理\n        if response.stop_reason == \"tool_use\":\n            tool_results = []\n            for block in response.content:\n                if block.type == \"tool_use\":\n                    result = execute_tool(block.name, block.input)\n                    tool_results.append({\n                        \"type\": \"tool_result\",\n                        \"tool_use_id\": block.id,\n                        \"content\": json.dumps(result, ensure_ascii=False)\n                    })\n            \n            messages.append({\"role\": \"assistant\", \"content\": response.content})\n            messages.append({\"role\": \"user\", \"content\": tool_results})\n        else:\n            # 最終回答\n            return response.content[0].text\n\n# 実行\nif __name__ == \"__main__\":\n    result = run_research_agent(\"Claude APIの最新機能と活用事例\")\n    print(result)"
+      }
+    },
+    {
+      "id": "agent-002",
+      "name": "コーディングエージェント",
+      "description": "要件を受け取り、テスト付きのコードを自律的に生成・実行・デバッグ",
+      "complexity": "中級",
+      "tools": ["code_execute", "file_write", "file_read", "bash_command"],
+      "system_prompt": "あなたはフルスタックソフトウェアエンジニアです。\n\n## 能力\n- コード生成（Python, JavaScript, TypeScript, Go, Rust）\n- テスト作成（ユニット/統合テスト）\n- デバッグと最適化\n- ドキュメント作成\n\n## 開発プロセス\n1. 要件を理解・明確化\n2. アーキテクチャ設計\n3. コーディング（TDDアプローチ）\n4. テスト実行・デバッグ\n5. リファクタリング\n6. ドキュメント作成\n\n## コーディング原則\n- SOLID原則に従う\n- 適切なエラーハンドリング\n- セキュリティを考慮（OWASP Top 10）\n- パフォーマンスを意識\n- 読みやすいコードを優先\n\n## 重要\n- コードを実行する前に必ず意図を説明\n- エラーが発生したら原因を分析してから修正\n- 完成したら使い方の例を提示",
+      "tools_definition": [
+        {
+          "name": "code_execute",
+          "description": "Pythonコードを安全なサンドボックス環境で実行します",
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "code": {"type": "string", "description": "実行するPythonコード"},
+              "timeout": {"type": "integer", "description": "タイムアウト秒数", "default": 30}
+            },
+            "required": ["code"]
+          }
+        },
+        {
+          "name": "file_write",
+          "description": "指定パスにファイルを書き込みます",
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "path": {"type": "string", "description": "ファイルパス"},
+              "content": {"type": "string", "description": "ファイル内容"}
+            },
+            "required": ["path", "content"]
+          }
+        },
+        {
+          "name": "file_read",
+          "description": "指定パスのファイルを読み込みます",
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "path": {"type": "string", "description": "ファイルパス"}
+            },
+            "required": ["path"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "agent-003",
+      "name": "データ分析エージェント",
+      "description": "CSVデータをアップロードするとEDA・可視化・インサイト抽出を自律的に実行",
+      "complexity": "中級",
+      "tools": ["python_execute", "create_chart", "statistical_analysis"],
+      "system_prompt": "あなたはデータサイエンティストです。\n\n## 専門スキル\n- 探索的データ分析（EDA）\n- 統計分析（記述統計・推測統計・時系列）\n- データビジュアライゼーション\n- 機械学習モデリング（sklearn）\n- ビジネスインサイト抽出\n\n## 分析フレームワーク\n### Step 1: データ理解\n- データの形状・型・欠損値確認\n- 基本統計量の算出\n- 分布の可視化\n\n### Step 2: 探索的分析\n- 相関分析\n- 外れ値の検出\n- パターン発見\n\n### Step 3: インサイト\n- 重要な発見を日本語で説明\n- ビジネスへの示唆\n- 推奨アクション\n\n## 出力品質基準\n- すべてのグラフに日本語タイトル・軸ラベル\n- 統計的有意性を考慮した解釈\n- 非専門家にも理解できる説明",
+      "implementation_notes": "matplotlibでの日本語表示:\nimport matplotlib\nmatplotlib.rcParams['font.family'] = 'IPAexGothic'\n\nまたは:\nplt.rcParams['font.sans-serif'] = ['Hiragino Sans', 'Yu Gothic', 'Meirio']"
+    },
+    {
+      "id": "agent-004",
+      "name": "カスタマーサポートエージェント",
+      "description": "FAQ・商品情報を参照し、多言語対応のカスタマーサポートを自律的に処理",
+      "complexity": "中級",
+      "tools": ["search_knowledge_base", "create_ticket", "send_email", "update_crm"],
+      "system_prompt": "あなたは[会社名]の上級カスタマーサポートエージェントです。\n\n## ペルソナ\n- 名前: サポートAI\n- 特性: 共感力が高く、問題解決志向\n- 経験: 顧客対応5年相当の知識\n\n## 対応言語\n日本語・英語・中国語・韓国語に対応。ユーザーの言語を自動検出して対応。\n\n## 対応フロー\n1. 問題を正確に理解（必要なら質問）\n2. ナレッジベースを検索\n3. 解決策を提示\n4. 解決しない場合はチケット作成してエスカレーション\n\n## エスカレーション基準\n- 返金・キャンセル（処理権限なし）\n- 法的な問題\n- 感情的に激昂しているお客様\n- 技術的に複雑な問題\n\n## 禁止事項\n- パスワード・クレジットカード番号を尋ねる\n- 確認できない情報を断言する\n- 競合他社を批判する\n- SLAを超える約束をする\n\n## トーン\n- 丁寧だが堅苦しくない\n- 迅速で効率的\n- 明るくポジティブ\n- 問題に対して共感的",
+      "conversation_flow": {
+        "greeting": "こんにちは！[会社名]サポートAIです。どのようなことでお困りですか？",
+        "escalation_message": "この件につきましては、専門担当者がご対応いたします。チケット番号[TICKET_ID]で管理いたします。24時間以内にご連絡差し上げます。",
+        "resolution_message": "問題が解決できましたでしょうか？他にご不明な点がございましたらお気軽にお申し付けください。"
+      }
+    },
+    {
+      "id": "agent-005",
+      "name": "プロジェクト管理エージェント",
+      "description": "プロジェクトの状況を分析し、タスクの優先付け・スケジュール調整・リスク管理を自律的に実行",
+      "complexity": "上級",
+      "tools": ["read_project_data", "update_task", "send_notification", "generate_report", "calendar_check"],
+      "system_prompt": "あなたはPMPを持つシニアプロジェクトマネージャーです。\n\n## 専門分野\n- アジャイル/スクラム/カンバン\n- リスク管理\n- ステークホルダーマネジメント\n- リソース最適化\n- KPIトラッキング\n\n## 毎日のルーティン分析\n1. 全タスクの進捗確認\n2. ブロッカーの特定\n3. 優先度の再評価\n4. リスクの更新\n5. 翌日のスケジュール最適化\n\n## 判断基準\n### タスク優先度\n- Impact × Urgency × Effort^(-1) で算出\n- クリティカルパス上のタスクを最優先\n\n### リスク評価\n- 発生確率（1-5）× 影響度（1-5）= リスクスコア\n- スコア15以上: 即座に対応\n- スコア10-14: 監視強化\n- スコア9以下: 記録のみ\n\n## 報告スタイル\n- データドリブン\n- アクション指向\n- 簡潔明瞭（エグゼクティブサマリーは3行以内）\n- 問題提示は必ず解決策とセット",
+      "multi_agent_setup": {
+        "description": "複数エージェントの連携設定",
+        "orchestrator": "プロジェクト管理エージェント",
+        "sub_agents": [
+          {
+            "name": "タスク分析サブエージェント",
+            "role": "個別タスクの詳細分析"
+          },
+          {
+            "name": "コミュニケーションサブエージェント",
+            "role": "関係者への通知・報告作成"
+          },
+          {
+            "name": "リスク評価サブエージェント",
+            "role": "リスクの特定と評価"
+          }
+        ],
+        "implementation": "Claude Agent SDKのswarmパターンを使用。各サブエージェントは独立して動作し、オーケストレーターが統合。"
+      }
+    }
+  ],
+  "shared_utilities": {
+    "title": "共通ユーティリティ",
+    "code": "# agent_utils.py\nimport anthropic\nimport json\nfrom typing import Any, Callable\nfrom functools import wraps\nimport time\nimport logging\n\nlogging.basicConfig(level=logging.INFO)\nlogger = logging.getLogger(__name__)\n\nclient = anthropic.Anthropic()\n\nclass AgentRunner:\n    \"\"\"汎用エージェントランナー\"\"\"\n    \n    def __init__(\n        self,\n        system_prompt: str,\n        tools: list[dict],\n        tool_handlers: dict[str, Callable],\n        model: str = \"claude-sonnet-4-6\",\n        max_iterations: int = 10\n    ):\n        self.system_prompt = system_prompt\n        self.tools = tools\n        self.tool_handlers = tool_handlers\n        self.model = model\n        self.max_iterations = max_iterations\n        self.messages = []\n    \n    def run(self, user_input: str) -> str:\n        \"\"\"エージェントを実行して最終回答を返す\"\"\"\n        self.messages.append({\"role\": \"user\", \"content\": user_input})\n        \n        for iteration in range(self.max_iterations):\n            logger.info(f\"Iteration {iteration + 1}/{self.max_iterations}\")\n            \n            response = client.messages.create(\n                model=self.model,\n                max_tokens=4096,\n                system=self.system_prompt,\n                tools=self.tools,\n                messages=self.messages\n            )\n            \n            if response.stop_reason == \"end_turn\":\n                final_text = \"\".join(\n                    block.text for block in response.content\n                    if hasattr(block, 'text')\n                )\n                return final_text\n            \n            if response.stop_reason == \"tool_use\":\n                self.messages.append({\n                    \"role\": \"assistant\",\n                    \"content\": response.content\n                })\n                \n                tool_results = []\n                for block in response.content:\n                    if block.type == \"tool_use\":\n                        logger.info(f\"Tool called: {block.name}\")\n                        try:\n                            handler = self.tool_handlers.get(block.name)\n                            if not handler:\n                                raise ValueError(f\"No handler for tool: {block.name}\")\n                            result = handler(**block.input)\n                            tool_results.append({\n                                \"type\": \"tool_result\",\n                                \"tool_use_id\": block.id,\n                                \"content\": json.dumps(result, ensure_ascii=False)\n                            })\n                        except Exception as e:\n                            tool_results.append({\n                                \"type\": \"tool_result\",\n                                \"tool_use_id\": block.id,\n                                \"content\": f\"Error: {str(e)}\",\n                                \"is_error\": True\n                            })\n                \n                self.messages.append({\n                    \"role\": \"user\",\n                    \"content\": tool_results\n                })\n        \n        return \"最大イテレーション数に達しました。\"\n    \n    def reset(self):\n        \"\"\"会話履歴をリセット\"\"\"\n        self.messages = []\n\n\ndef retry_with_backoff(max_retries: int = 3, base_delay: float = 1.0):\n    \"\"\"指数バックオフでリトライするデコレーター\"\"\"\n    def decorator(func):\n        @wraps(func)\n        def wrapper(*args, **kwargs):\n            for attempt in range(max_retries):\n                try:\n                    return func(*args, **kwargs)\n                except anthropic.RateLimitError:\n                    if attempt == max_retries - 1:\n                        raise\n                    delay = base_delay * (2 ** attempt)\n                    logger.warning(f\"Rate limited. Waiting {delay}s...\")\n                    time.sleep(delay)\n            return None\n        return wrapper\n    return decorator"
+  },
+  "quickstart": {
+    "title": "5分でエージェントを起動",
+    "steps": [
+      "1. pip install anthropic httpx",
+      "2. export ANTHROPIC_API_KEY='your-key-here'",
+      "3. agent-001のcodeをresearch_agent.pyとして保存",
+      "4. python research_agent.py",
+      "5. トピックを入力して実行確認"
+    ],
+    "estimated_cost": {
+      "research_agent_per_run": "$0.01-0.05",
+      "coding_agent_per_session": "$0.05-0.20",
+      "support_agent_per_conversation": "$0.005-0.02"
+    }
+  },
+  "model_selection_guide": {
+    "claude_opus_4_6": {
+      "use_when": "複雑な推論・高品質が必要・複数ツールの複雑な連携",
+      "cost": "高",
+      "speed": "遅"
+    },
+    "claude_sonnet_4_6": {
+      "use_when": "ほとんどのエージェントタスク（推奨）",
+      "cost": "中",
+      "speed": "中"
+    },
+    "claude_haiku_4_5": {
+      "use_when": "シンプルな分類・ルーティング・高頻度呼び出し",
+      "cost": "低",
+      "speed": "高速"
+    }
+  }
+}
