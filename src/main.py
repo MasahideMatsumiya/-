@@ -5,19 +5,20 @@ AIコミュニティ向けデジタル商材販売プラットフォーム ($10/
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.accounting.router import router as accounting_router
 from src.agent.router import router as agent_router
 from src.compliance.router import router as compliance_router
 from src.config import settings
 from src.crm.router import router as crm_router
-from src.database import init_db
+from src.database import get_session, init_db
 from src.growth.router import router as growth_router
-from src.marketplace.router import router as marketplace_router
+from src.marketplace.router import router as marketplace_router, stripe_webhook as _stripe_webhook
 from src.products.router import router as products_router
 from src.sales.router import router as sales_router
 
@@ -82,6 +83,12 @@ async def checkout_page():
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+# /webhook/stripe のエイリアス（Stripeに登録したURLが /marketplace プレフィックスなしの場合に対応）
+@app.post("/webhook/stripe")
+async def webhook_stripe_alias(request: Request, session: AsyncSession = Depends(get_session)):
+    return await _stripe_webhook(request, session)
 
 
 # 静的ファイル（最後にマウントして他ルートを上書きしない）
