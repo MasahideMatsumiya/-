@@ -103,6 +103,35 @@ async def update_customer_segment(customer: Customer, session: AsyncSession):
     await session.commit()
 
 
+@router.post("/admin/seed-email-templates")
+async def seed_email_templates(session: AsyncSession = Depends(get_session)):
+    """購入確認メールなどのデフォルトテンプレートを登録（初回のみ実行）"""
+    from src.crm.models import EmailTemplate
+    templates = [
+        EmailTemplate(
+            name="購入確認メール",
+            trigger="purchase",
+            subject="【AI Marketplace】ご購入ありがとうございます - {{order_number}}",
+            body_html="""<h2>{{name}} 様、ご購入ありがとうございます！</h2>
+<p>商品: <strong>{{product_name}}</strong></p>
+<p>注文番号: {{order_number}}</p>
+<p><a href="{{download_url}}" style="background:#0070f3;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;">ダウンロードする</a></p>
+<p>ダウンロードリンクは30日間有効です。</p>""",
+            body_text="{{name}} 様、ご購入ありがとうございます！\n商品: {{product_name}}\n注文番号: {{order_number}}\nダウンロード: {{download_url}}",
+        ),
+    ]
+    added = 0
+    for t in templates:
+        existing = await session.execute(
+            select(EmailTemplate).where(EmailTemplate.trigger == t.trigger)
+        )
+        if not existing.scalar_one_or_none():
+            session.add(t)
+            added += 1
+    await session.commit()
+    return {"added": added, "message": f"{added}件のテンプレートを登録しました"}
+
+
 @router.delete("/customers/{customer_id}/unsubscribe")
 async def unsubscribe(customer_id: int, session: AsyncSession = Depends(get_session)):
     """メール配信停止（GDPR対応）"""

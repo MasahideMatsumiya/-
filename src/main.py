@@ -16,7 +16,7 @@ from src.agent.router import router as agent_router
 from src.compliance.router import router as compliance_router
 from src.config import settings
 from src.crm.router import router as crm_router
-from src.database import get_session, init_db
+from src.database import AsyncSessionLocal, get_session, init_db
 from src.growth.router import router as growth_router
 from src.marketplace.router import router as marketplace_router, stripe_webhook as _stripe_webhook
 from src.products.router import router as products_router
@@ -26,7 +26,33 @@ from src.sales.router import router as sales_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    await _seed_email_templates()
     yield
+
+
+async def _seed_email_templates():
+    """起動時に購入確認メールテンプレートを自動登録"""
+    from sqlmodel import select
+    from src.crm.models import EmailTemplate
+    async with AsyncSessionLocal() as session:
+        existing = await session.execute(
+            select(EmailTemplate).where(EmailTemplate.trigger == "purchase")
+        )
+        if existing.scalar_one_or_none():
+            return
+        session.add(EmailTemplate(
+            name="購入確認メール",
+            trigger="purchase",
+            subject="【AI Marketplace】ご購入ありがとうございます - {{order_number}}",
+            body_html="""<h2>{{name}} 様、ご購入ありがとうございます！</h2>
+<p>商品: <strong>{{product_name}}</strong></p>
+<p>注文番号: {{order_number}}</p>
+<p><a href="{{download_url}}" style="background:#0070f3;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;">ダウンロードする</a></p>
+<p>ダウンロードリンクは30日間有効です。</p>""",
+            body_text="{{name}} 様、ご購入ありがとうございます！\n商品: {{product_name}}\n注文番号: {{order_number}}\nダウンロード: {{download_url}}",
+        ))
+        await session.commit()
+        print("[STARTUP] 購入確認メールテンプレートを登録しました", flush=True)
 
 
 app = FastAPI(

@@ -133,8 +133,13 @@ async def stripe_webhook(request: Request, session: AsyncSession = Depends(get_s
         except Exception:
             raise HTTPException(400, "Invalid payload")
 
-    if event["type"] == "payment_intent.succeeded":
-        pi_id = event["data"]["object"]["id"]
+    event_type = event["type"] if isinstance(event, dict) else event.type
+    logger.info(f"Stripe webhook received: {event_type}")
+
+    if event_type == "payment_intent.succeeded":
+        obj = event["data"]["object"] if isinstance(event, dict) else event.data.object
+        pi_id = obj["id"] if isinstance(obj, dict) else obj.id
+        logger.info(f"PaymentIntent succeeded: {pi_id}")
         result = await session.execute(
             select(Order).where(Order.stripe_payment_intent_id == pi_id)
         )
@@ -144,6 +149,8 @@ async def stripe_webhook(request: Request, session: AsyncSession = Depends(get_s
             logger.info(f"Order fulfilled: {order.order_number}")
         elif order:
             logger.info(f"Order already fulfilled: {order.order_number}")
+        else:
+            logger.warning(f"No order found for PaymentIntent: {pi_id}")
 
     return {"status": "ok"}
 
@@ -229,6 +236,22 @@ async def get_order_by_id(order_id: int, session: AsyncSession = Depends(get_ses
     order = await session.get(Order, order_id)
     if not order:
         raise HTTPException(404, "Order not found")
+
+    # Webhook が届く前でも、Stripe 側で決済済みなら即座に注文を確定する
+    if order.status == OrderStatus.PENDING and order.stripe_payment_intent_id and settings.stripe_secret_key:
+        try:
+            import stripe
+            stripe.api_key = settings.stripe_secret_key
+            import asyncio
+            pi = await asyncio.to_thread(stripe.PaymentIntent.retrieve, order.stripe_payment_intent_id)
+            print(f"[POLLING] order={order.id} pi_id={order.stripe_payment_intent_id} pi_status={pi.status}", flush=True)
+            if pi.status == "succeeded":
+                await _fulfill_order(order, session)
+                await session.refresh(order)
+                print(f"[POLLING] Order fulfilled: {order.order_number}", flush=True)
+        except Exception as e:
+            print(f"[POLLING ERROR] {type(e).__name__}: {e}", flush=True)
+
     return order
 
 

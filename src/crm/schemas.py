@@ -17,6 +17,7 @@ class CustomerCreate(BaseModel):
 
 class CustomerUpdate(BaseModel):
     name: Optional[str] = None
+    email: Optional[str] = None
     country: Optional[str] = None
     language: Optional[str] = None
     segment: Optional[CustomerSegment] = None
