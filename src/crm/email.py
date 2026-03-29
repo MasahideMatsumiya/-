@@ -23,9 +23,55 @@ def _render(template: str, variables: dict) -> str:
     return template
 
 
+def _get_gmail_access_token() -> str:
+    """Gmail OAuthのrefresh_tokenからaccess_tokenを取得"""
+    resp = httpx.post("https://oauth2.googleapis.com/token", data={
+        "grant_type": "refresh_token",
+        "refresh_token": settings.gmail_refresh_token,
+        "client_id": settings.gmail_client_id,
+        "client_secret": settings.gmail_client_secret,
+    }, timeout=10)
+    resp.raise_for_status()
+    return resp.json()["access_token"]
+
+
+def _send_gmail_api(to_email: str, subject: str, body_html: str, body_text: str) -> bool:
+    """Gmail API（HTTPS）でメール送信"""
+    import base64
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = settings.smtp_user or settings.from_email
+    msg["To"] = to_email
+    msg.attach(MIMEText(body_text, "plain", "utf-8"))
+    msg.attach(MIMEText(body_html, "html", "utf-8"))
+    raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+    access_token = _get_gmail_access_token()
+    resp = httpx.post(
+        "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+        headers={"Authorization": f"Bearer {access_token}"},
+        json={"raw": raw},
+        timeout=15,
+    )
+    if resp.status_code == 200:
+        print(f"[EMAIL] Gmail API OK → {to_email} subject={subject[:40]}", flush=True)
+        return True
+    print(f"[EMAIL ERROR] Gmail API {resp.status_code}: {resp.text[:200]}", flush=True)
+    return False
+
+
 def _send_email(to_email: str, subject: str, body_html: str, body_text: str) -> bool:
-    """メール送信。RESEND_API_KEY優先、なければSMTP。どちらも未設定ならスキップ。"""
-    # Resend HTTP API（Railwayでの推奨）
+    """メール送信。Gmail API優先、次にResend、なければSMTP。"""
+    # Gmail API（HTTPS経由・Railway対応）
+    if settings.gmail_client_id and settings.gmail_refresh_token:
+        try:
+            return _send_gmail_api(to_email, subject, body_html, body_text)
+        except Exception as e:
+            print(f"[EMAIL ERROR] Gmail API {type(e).__name__}: {e}", flush=True)
+            return False
+
+    # Resend HTTP API
     if settings.resend_api_key:
         try:
             resp = httpx.post(

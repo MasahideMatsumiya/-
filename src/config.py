@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     smtp_password: str = ""
     from_email: str = "noreply@ai-marketplace.com"
     resend_api_key: str = ""
+    # Gmail API (OAuth2)
+    gmail_client_id: str = ""
+    gmail_client_secret: str = ""
+    gmail_refresh_token: str = ""
 
     # Business
     platform_fee_percent: float = 10.0  # 10% platform fee
