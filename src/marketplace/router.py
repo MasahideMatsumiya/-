@@ -242,13 +242,15 @@ async def get_order_by_id(order_id: int, session: AsyncSession = Depends(get_ses
         try:
             import stripe
             stripe.api_key = settings.stripe_secret_key
-            pi = stripe.PaymentIntent.retrieve(order.stripe_payment_intent_id)
+            import asyncio
+            pi = await asyncio.to_thread(stripe.PaymentIntent.retrieve, order.stripe_payment_intent_id)
+            print(f"[POLLING] order={order.id} pi_id={order.stripe_payment_intent_id} pi_status={pi.status}", flush=True)
             if pi.status == "succeeded":
                 await _fulfill_order(order, session)
                 await session.refresh(order)
-                logger.info(f"Order fulfilled via polling: {order.order_number}")
+                print(f"[POLLING] Order fulfilled: {order.order_number}", flush=True)
         except Exception as e:
-            logger.warning(f"Stripe polling check failed: {e}")
+            print(f"[POLLING ERROR] {type(e).__name__}: {e}", flush=True)
 
     return order
 
