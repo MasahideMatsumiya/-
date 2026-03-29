@@ -28,6 +28,7 @@ class OrderPublic(BaseModel):
     total_usd: float
     status: OrderStatus
     payment_method: PaymentMethod
+    download_token: Optional[str] = None
     download_count: int
     paid_at: Optional[object] = None
 
