@@ -236,6 +236,20 @@ async def get_order_by_id(order_id: int, session: AsyncSession = Depends(get_ses
     order = await session.get(Order, order_id)
     if not order:
         raise HTTPException(404, "Order not found")
+
+    # Webhook が届く前でも、Stripe 側で決済済みなら即座に注文を確定する
+    if order.status == OrderStatus.PENDING and order.stripe_payment_intent_id and settings.stripe_secret_key:
+        try:
+            import stripe
+            stripe.api_key = settings.stripe_secret_key
+            pi = stripe.PaymentIntent.retrieve(order.stripe_payment_intent_id)
+            if pi.status == "succeeded":
+                await _fulfill_order(order, session)
+                await session.refresh(order)
+                logger.info(f"Order fulfilled via polling: {order.order_number}")
+        except Exception as e:
+            logger.warning(f"Stripe polling check failed: {e}")
+
     return order
 
 
