@@ -8,6 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 
+import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
@@ -22,11 +23,37 @@ def _render(template: str, variables: dict) -> str:
     return template
 
 
-def _send_smtp(to_email: str, subject: str, body_html: str, body_text: str) -> bool:
-    """SMTPでメール送信。設定がなければスキップ（開発環境）"""
-    if not settings.smtp_user or not settings.smtp_password:
-        return False  # 設定なし = スキップ（ログのみ記録）
+def _send_email(to_email: str, subject: str, body_html: str, body_text: str) -> bool:
+    """メール送信。RESEND_API_KEY優先、なければSMTP。どちらも未設定ならスキップ。"""
+    # Resend HTTP API（Railwayでの推奨）
+    if settings.resend_api_key:
+        try:
+            resp = httpx.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {settings.resend_api_key}"},
+                json={
+                    "from": settings.from_email,
+                    "to": [to_email],
+                    "subject": subject,
+                    "html": body_html,
+                    "text": body_text,
+                },
+                timeout=10,
+            )
+            if resp.status_code in (200, 201):
+                print(f"[EMAIL] Resend OK → {to_email} subject={subject[:40]}", flush=True)
+                return True
+            else:
+                print(f"[EMAIL ERROR] Resend {resp.status_code}: {resp.text[:200]}", flush=True)
+                return False
+        except Exception as e:
+            print(f"[EMAIL ERROR] Resend {type(e).__name__}: {e}", flush=True)
+            return False
 
+    # SMTP フォールバック
+    if not settings.smtp_user or not settings.smtp_password:
+        print("[EMAIL] スキップ: RESEND_API_KEY も SMTP 設定もありません", flush=True)
+        return False
     try:
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
@@ -34,15 +61,14 @@ def _send_smtp(to_email: str, subject: str, body_html: str, body_text: str) -> b
         msg["To"] = to_email
         msg.attach(MIMEText(body_text, "plain", "utf-8"))
         msg.attach(MIMEText(body_html, "html", "utf-8"))
-
         with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as server:
             server.starttls()
             server.login(settings.smtp_user, settings.smtp_password)
             server.sendmail(settings.from_email, to_email, msg.as_string())
-        print(f"[EMAIL] Sent to {to_email} subject={subject[:40]}", flush=True)
+        print(f"[EMAIL] SMTP OK → {to_email} subject={subject[:40]}", flush=True)
         return True
     except Exception as e:
-        print(f"[EMAIL ERROR] {type(e).__name__}: {e}", flush=True)
+        print(f"[EMAIL ERROR] SMTP {type(e).__name__}: {e}", flush=True)
         return False
 
 
@@ -78,7 +104,7 @@ async def send_trigger_email(
     body_html = _render(template.body_html, vars_with_defaults)
     body_text = _render(template.body_text, vars_with_defaults)
 
-    sent = _send_smtp(customer.email, subject, body_html, body_text)
+    sent = _send_email(customer.email, subject, body_html, body_text)
 
     log = EmailLog(
         customer_id=customer_id,
@@ -193,7 +219,7 @@ async def send_newsletter_blast(
         rendered_html = _render(body_html, vars_)
         rendered_text = _render(body_text, vars_)
         rendered_subject = _render(subject, vars_)
-        ok = _send_smtp(customer.email, rendered_subject, rendered_html, rendered_text)
+        ok = _send_email(customer.email, rendered_subject, rendered_html, rendered_text)
         log = EmailLog(
             customer_id=customer.id,
             subject=rendered_subject,

@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     smtp_user: str = ""
     smtp_password: str = ""
     from_email: str = "noreply@ai-marketplace.com"
+    resend_api_key: str = ""
 
     # Business
     platform_fee_percent: float = 10.0  # 10% platform fee
