@@ -133,8 +133,13 @@ async def stripe_webhook(request: Request, session: AsyncSession = Depends(get_s
         except Exception:
             raise HTTPException(400, "Invalid payload")
 
-    if event["type"] == "payment_intent.succeeded":
-        pi_id = event["data"]["object"]["id"]
+    event_type = event["type"] if isinstance(event, dict) else event.type
+    logger.info(f"Stripe webhook received: {event_type}")
+
+    if event_type == "payment_intent.succeeded":
+        obj = event["data"]["object"] if isinstance(event, dict) else event.data.object
+        pi_id = obj["id"] if isinstance(obj, dict) else obj.id
+        logger.info(f"PaymentIntent succeeded: {pi_id}")
         result = await session.execute(
             select(Order).where(Order.stripe_payment_intent_id == pi_id)
         )
@@ -144,6 +149,8 @@ async def stripe_webhook(request: Request, session: AsyncSession = Depends(get_s
             logger.info(f"Order fulfilled: {order.order_number}")
         elif order:
             logger.info(f"Order already fulfilled: {order.order_number}")
+        else:
+            logger.warning(f"No order found for PaymentIntent: {pi_id}")
 
     return {"status": "ok"}
 
