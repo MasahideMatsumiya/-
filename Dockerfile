@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir -e .
 
 # アプリのコピー
 COPY src/ ./src/
+COPY static/ ./static/
 
 # 非rootユーザーで実行
 RUN useradd -m appuser && chown -R appuser /app
