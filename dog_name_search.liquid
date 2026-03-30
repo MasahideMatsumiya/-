@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>愛犬名照合 #{{ order.order_number }}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important; }
+    body {
+      font-family: 'Hiragino Kaku Gothic Pro', 'Meiryo', sans-serif;
+      font-size: 12px;
+      color: #000;
+      background: #fff;
+      width: 210mm;
+      padding: 6mm 8mm;
+    }
+    @media print {
+      body { padding: 5mm 7mm; }
+      @page { size: A4; margin: 0; }
+      /* 一致なし → 印刷しない */
+      .no-match { display: none !important; }
+    }
+
+    /* 一致あり */
+    .match-card {
+      border: 3px solid #000;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 4px;
+    }
+    .match-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+    }
+    .order-num { font-size: 28px; font-weight: bold; }
+    .customer  { font-size: 18px; font-weight: bold; flex: 1; }
+    .hit-badge {
+      background: #000 !important;
+      color: #fff !important;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+
+    .match-detail {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 16px;
+      font-size: 12px;
+    }
+    .match-label { color: #555; font-size: 10px; font-weight: bold; margin-bottom: 1px; }
+    .match-value { font-size: 14px; font-weight: bold; }
+    .match-value.highlight { color: #cc0000 !important; font-size: 18px; }
+
+    /* 一致なし（画面のみ表示） */
+    .no-match {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 6px 10px;
+      color: #aaa;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  {%- comment -%}
+  =====================================================
+  ▼▼▼ 照合する愛犬名をここに追加してください ▼▼▼
+  カンマ区切りで入力（スペース不要）
+  例: "ポチ,ハナ,コロ,モモ"
+  =====================================================
+  {%- endcomment -%}
+  {%- assign search_names = "ここに犬の名前,次の名前,また次の名前" | split: "," -%}
+
+  {%- comment -%} 愛犬メタフィールド取得 {%- endcomment -%}
+  {%- assign ns = 'app--960624--helium' -%}
+  {%- assign dog1_name = order.customer.metafields[ns]['new_singleline_text_field_4'] -%}
+  {%- assign dog2_name = order.customer.metafields[ns]['new_singleline_text_field_2'] -%}
+  {%- assign dog3_name = order.customer.metafields[ns]['new_singleline_text_field_3'] -%}
+
+  {%- comment -%} 照合ループ {%- endcomment -%}
+  {%- assign matched_name = "" -%}
+  {%- for sname in search_names -%}
+    {%- assign sname_t = sname | strip -%}
+    {%- if sname_t == blank -%}{%- continue -%}{%- endif -%}
+    {%- if dog1_name == sname_t or dog2_name == sname_t or dog3_name == sname_t -%}
+      {%- if matched_name == "" -%}
+        {%- assign matched_name = sname_t -%}
+      {%- else -%}
+        {%- assign matched_name = matched_name | append: "・" | append: sname_t -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- if matched_name != "" -%}
+
+  <!-- ===== 一致あり ===== -->
+  <div class="match-card">
+    <div class="match-header">
+      <div class="order-num">{{ order.order_number }}</div>
+      <div class="customer">{{ order.shipping_address.last_name }}さま</div>
+      <div class="hit-badge">一致 ✓</div>
+    </div>
+    <div class="match-detail">
+      <div>
+        <div class="match-label">一致した愛犬名</div>
+        <div class="match-value highlight">{{ matched_name }}</div>
+      </div>
+      <div>
+        <div class="match-label">登録されている愛犬名</div>
+        <div class="match-value">
+          {%- if dog1_name != blank %}{{ dog1_name }}{%- endif -%}
+          {%- if dog2_name != blank %}　{{ dog2_name }}{%- endif -%}
+          {%- if dog3_name != blank %}　{{ dog3_name }}{%- endif -%}
+        </div>
+      </div>
+      <div>
+        <div class="match-label">メールアドレス</div>
+        <div class="match-value">{{ order.customer.email }}</div>
+      </div>
+      <div>
+        <div class="match-label">電話番号</div>
+        <div class="match-value">{{ order.shipping_address.phone }}</div>
+      </div>
+      <div style="grid-column:1/-1;">
+        <div class="match-label">配送先</div>
+        <div class="match-value">
+          〒{{ order.shipping_address.zip }}&nbsp;
+          {{ order.shipping_address.province }}{{ order.shipping_address.city }}{{ order.shipping_address.address1 }}
+          {%- if order.shipping_address.address2 != blank %} {{ order.shipping_address.address2 }}{%- endif %}&nbsp;
+          {{ order.shipping_address.last_name }}&nbsp;{{ order.shipping_address.first_name }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {%- else -%}
+
+  <!-- ===== 一致なし（印刷時は非表示） ===== -->
+  <div class="no-match">
+    #{{ order.order_number }} {{ order.shipping_address.last_name }}さま ― 一致なし
+    （登録名:
+    {%- if dog1_name != blank %} {{ dog1_name }}{%- endif -%}
+    {%- if dog2_name != blank %} / {{ dog2_name }}{%- endif -%}
+    {%- if dog3_name != blank %} / {{ dog3_name }}{%- endif -%}
+    ）
+  </div>
+
+  {%- endif -%}
+
+</body>
+</html>
