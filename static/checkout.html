@@ -95,7 +95,7 @@
 (async function () {
   const params = new URLSearchParams(location.search);
   const productId = params.get('product_id') || 1;
-  let stripe, elements, orderId, customerId;
+  let stripe, elements, orderId, productData;
 
   async function loadProduct() {
     const res = await fetch('/products/?limit=100');
@@ -118,27 +118,6 @@
     return Stripe(cfg.publishable_key);
   }
 
-  async function createOrder(product) {
-    // ゲスト顧客で仮注文を作成
-    const tempEmail = 'guest-' + Date.now() + '@marketplace.local';
-    const custRes = await fetch('/crm/customers', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: tempEmail }),
-    });
-    if (!custRes.ok) throw new Error('注文の初期化に失敗しました');
-    const customer = await custRes.json();
-    customerId = customer.id;
-
-    const checkRes = await fetch('/marketplace/checkout', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ product_id: Number(productId), customer_id: customer.id }),
-    });
-    if (!checkRes.ok) throw new Error('チェックアウトの作成に失敗しました');
-    const checkout = await checkRes.json();
-    if (!checkout.stripe_client_secret) throw new Error('Stripe設定がされていません。管理者にお問い合わせください。');
-    return checkout;
-  }
-
   // 3Dセキュアリダイレクト後の処理
   const paidParam = params.get('paid');
   const orderIdParam = params.get('order_id');
@@ -153,11 +132,16 @@
 
   try {
     const [product, stripeInstance] = await Promise.all([loadProduct(), loadStripeInstance()]);
+    productData = product;
     stripe = stripeInstance;
-    const checkout = await createOrder(product);
-    orderId = checkout.order_id;
 
-    elements = stripe.elements({ clientSecret: checkout.stripe_client_secret, locale: 'ja' });
+    // Deferred mode: 支払いボタン押下まで顧客・注文を作成しない（ゲスト顧客を排除）
+    elements = stripe.elements({
+      mode: 'payment',
+      amount: Math.round(product.price_usd * 100),
+      currency: 'usd',
+      locale: 'ja',
+    });
     const paymentElement = elements.create('payment', { layout: 'tabs' });
     paymentElement.mount('#payment-element');
     paymentElement.on('ready', () => {
@@ -178,16 +162,45 @@
 
     setBtnLoading(true); hideMsg();
 
-    // 顧客情報を更新（ゲスト→実ユーザー）
-    try {
-      await fetch('/crm/customers/' + customerId, {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email }),
-      });
-    } catch (_) {}
+    // Step 1: カード情報をバリデーション
+    const { error: submitError } = await elements.submit();
+    if (submitError) { showMsg(translateStripeError(submitError), 'error'); setBtnLoading(false); return; }
 
+    // Step 2: 実メールで顧客を作成（既存なら取得）
+    let customer;
+    try {
+      const custRes = await fetch('/crm/customers', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name }),
+      });
+      if (custRes.status === 409) {
+        const existingRes = await fetch('/crm/customers/by-email?email=' + encodeURIComponent(email));
+        if (!existingRes.ok) throw new Error('顧客情報の取得に失敗しました');
+        customer = await existingRes.json();
+      } else if (!custRes.ok) {
+        throw new Error('注文の初期化に失敗しました');
+      } else {
+        customer = await custRes.json();
+      }
+    } catch (e) { showMsg(e.message, 'error'); setBtnLoading(false); return; }
+
+    // Step 3: 注文を作成してclient_secretを取得
+    let checkout;
+    try {
+      const checkRes = await fetch('/marketplace/checkout', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: Number(productId), customer_id: customer.id }),
+      });
+      if (!checkRes.ok) throw new Error('チェックアウトの作成に失敗しました');
+      checkout = await checkRes.json();
+      if (!checkout.stripe_client_secret) throw new Error('Stripe設定がされていません。管理者にお問い合わせください。');
+    } catch (e) { showMsg(e.message, 'error'); setBtnLoading(false); return; }
+    orderId = checkout.order_id;
+
+    // Step 4: 決済確定
     const { error } = await stripe.confirmPayment({
       elements,
+      clientSecret: checkout.stripe_client_secret,
       confirmParams: {
         return_url: location.origin + '/checkout?product_id=' + productId + '&order_id=' + orderId + '&paid=1',
         payment_method_data: { billing_details: { name, email } },
