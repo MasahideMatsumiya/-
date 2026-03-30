@@ -336,22 +336,24 @@
     {%- if t contains "トライアル" -%}{%- assign is_trial = true -%}{%- endif -%}
   {%- endfor -%}
 
-  {%- comment -%} 配送サイズ {%- endcomment -%}
+  {%- comment -%}
+    配送サイズ判定
+    ドライフードがある場合は袋数優先（ウェット・モリンガ同梱でもドライに準ずる）
+    ドライフードがない場合のみCP
+  {%- endcomment -%}
   {%- assign ship_size = "" -%}
   {%- assign dry_qty   = 0 -%}
-  {%- assign is_cp     = false -%}
   {%- for item in order.line_items -%}
-    {%- assign t = item.title -%}
-    {%- if t contains "ウェットフード" or t contains "モリンガミルク" or t contains "トライアル" -%}
-      {%- assign is_cp = true -%}
-    {%- elsif t contains "ドライフード" -%}
+    {%- if item.title contains "ドライフード" -%}
       {%- assign dry_qty = dry_qty | plus: item.quantity -%}
     {%- endif -%}
   {%- endfor -%}
-  {%- if is_cp -%}{%- assign ship_size = "CP" -%}
-  {%- elsif dry_qty >= 11 -%}{%- assign ship_size = "100" -%}
+  {%- if dry_qty >= 11 -%}{%- assign ship_size = "100" -%}
   {%- elsif dry_qty >= 5 -%}{%- assign ship_size = "80" -%}
   {%- elsif dry_qty >= 1 -%}{%- assign ship_size = "60" -%}
+  {%- else -%}
+    {%- comment -%} ドライフードなし → CP品のみ {%- endcomment -%}
+    {%- assign ship_size = "CP" -%}
   {%- endif -%}
 
   <!-- ========== 上段：出荷票 ========== -->
@@ -361,7 +363,7 @@
     <div class="order-num">{{ order.order_number }}</div>
     <div class="customer-name">
       {{ order.shipping_address.last_name }}さま
-      {%- if dog_parts != blank %}　{{ dog_parts }}{%- endif %}
+      {%- if dog_parts != blank %}、{{ dog_parts }}{%- endif %}
     </div>
   </div>
 
