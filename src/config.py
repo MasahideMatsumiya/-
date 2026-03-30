@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     app_version: str = "0.1.0"
     debug: bool = False
     secret_key: str = "change-me-in-production"
+    app_url: str = "https://airy-enthusiasm-production.up.railway.app"
 
     # Database
     database_url: str = "sqlite+aiosqlite:///./ai_marketplace.db"

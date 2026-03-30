@@ -175,7 +175,7 @@ async def _fulfill_order(order: Order, session: AsyncSession):
     if order.customer_id and product:
         try:
             from src.crm.email import send_purchase_email
-            download_url = f"/marketplace/download/{order.download_token}"
+            download_url = f"{settings.app_url}/marketplace/download/{order.download_token}"
             await send_purchase_email(
                 customer_id=order.customer_id,
                 product_name=product.name,
