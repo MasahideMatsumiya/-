@@ -327,25 +327,19 @@
   {%- endfor -%}
 
   {%- comment -%}
-    配送希望日・時間帯をメモ（order.note）から取得
-    書式例（どちらの括弧でも対応）:
-      配送希望日：2026-04-08
-      配送時間帯：午前中（8時〜12時）
+    配送希望日・時間帯をタグから取得
+    配送日時指定.amp がタグに書き込む形式:
+      配送希望日:2026-04-06
+      配送時間帯:午前中（8時〜12時）
   {%- endcomment -%}
   {%- assign desired_date = "" -%}
   {%- assign desired_time = "" -%}
-  {%- assign note_lines = order.note | newline_to_br | split: "<br />" -%}
-  {%- for line in note_lines -%}
-    {%- assign l = line | strip -%}
-    {%- if l contains "配送希望日" or l contains "配達希望日" -%}
-      {%- assign v = l | split: "：" | last | strip -%}
-      {%- if v == l -%}{%- assign v = l | split: ":" | last | strip -%}{%- endif -%}
-      {%- if v != l and v != blank -%}{%- assign desired_date = v -%}{%- endif -%}
+  {%- for tag in order.tags -%}
+    {%- if tag contains "配送希望日:" -%}
+      {%- assign desired_date = tag | split: "配送希望日:" | last | strip -%}
     {%- endif -%}
-    {%- if l contains "配送時間帯" or l contains "配達希望時間" -%}
-      {%- assign v = l | split: "：" | last | strip -%}
-      {%- if v == l -%}{%- assign v = l | split: ":" | last | strip -%}{%- endif -%}
-      {%- if v != l and v != blank -%}{%- assign desired_time = v -%}{%- endif -%}
+    {%- if tag contains "配送時間帯:" -%}
+      {%- assign desired_time = tag | split: "配送時間帯:" | last | strip -%}
     {%- endif -%}
   {%- endfor -%}
 
@@ -469,7 +463,7 @@
     <div>
       <div class="field-label">配達希望日</div>
       <div class="field-value">
-        {%- if desired_date != blank %}{{ desired_date }}{%- else %}―{%- endif %}
+        {%- if desired_date != blank %}{{ desired_date | date: "%-m/%-d" }}{%- else %}―{%- endif %}
       </div>
     </div>
     <div>
@@ -635,28 +629,6 @@
     </table>
   </div>
 
-  <!-- ===== DEBUG（確認後削除） ===== -->
-  <div style="border:3px solid red;padding:10px;margin-top:16px;font-size:13px;">
-    <b>▼ メモ（order.note）:</b><br>
-    {%- if order.note != blank -%}
-      {{ order.note | newline_to_br }}<br>
-    {%- else -%}
-      <span style="color:red;">空</span><br>
-    {%- endif -%}
-    <b>▼ テンプレートが読み取った値:</b><br>
-    desired_date = <b>{{ desired_date | default: "（未取得）" }}</b><br>
-    desired_time = <b>{{ desired_time | default: "（未取得）" }}</b><br>
-    <b>▼ note_attributes:</b><br>
-    {%- for attr in order.note_attributes -%}
-      {{ attr.name }} = {{ attr.value }}<br>
-    {%- else -%}
-      <span style="color:red;">空</span><br>
-    {%- endfor -%}
-    <b>▼ tags (配送関連):</b><br>
-    {%- for tag in order.tags -%}
-      {%- if tag contains "配送" %} {{ tag }}<br>{%- endif -%}
-    {%- endfor -%}
-  </div>
 
 </body>
 </html>
