@@ -327,23 +327,25 @@
   {%- endfor -%}
 
   {%- comment -%}
-    配送希望日・時間帯を 追加詳細（note_attributes）から取得
-    タグは使わない（アプリが自動セットする値のため）
-    キー名: 配送希望日 / 配送時間帯 / 配送日の指定
+    配送希望日・時間帯をメモ（order.note）から取得
+    書式例（どちらの括弧でも対応）:
+      配送希望日：2026-04-08
+      配送時間帯：午前中（8時〜12時）
   {%- endcomment -%}
   {%- assign desired_date = "" -%}
   {%- assign desired_time = "" -%}
-  {%- for attr in order.note_attributes -%}
-    {%- if attr.name == "配送希望日" -%}
-      {%- assign desired_date = attr.value -%}
+  {%- assign note_lines = order.note | newline_to_br | split: "<br />" -%}
+  {%- for line in note_lines -%}
+    {%- assign l = line | strip -%}
+    {%- if l contains "配送希望日" or l contains "配達希望日" -%}
+      {%- assign v = l | split: "：" | last | strip -%}
+      {%- if v == l -%}{%- assign v = l | split: ":" | last | strip -%}{%- endif -%}
+      {%- if v != l and v != blank -%}{%- assign desired_date = v -%}{%- endif -%}
     {%- endif -%}
-    {%- if attr.name == "配送時間帯" -%}
-      {%- assign desired_time = attr.value -%}
-    {%- endif -%}
-    {%- if attr.name == "配送日の指定" and desired_date == blank -%}
-      {%- unless attr.value == "なし" or attr.value == "指定なし" -%}
-        {%- assign desired_date = attr.value -%}
-      {%- endunless -%}
+    {%- if l contains "配送時間帯" or l contains "配達希望時間" -%}
+      {%- assign v = l | split: "：" | last | strip -%}
+      {%- if v == l -%}{%- assign v = l | split: ":" | last | strip -%}{%- endif -%}
+      {%- if v != l and v != blank -%}{%- assign desired_time = v -%}{%- endif -%}
     {%- endif -%}
   {%- endfor -%}
 
@@ -467,7 +469,7 @@
     <div>
       <div class="field-label">配達希望日</div>
       <div class="field-value">
-        {%- if desired_date != blank %}{{ desired_date | date: "%-m/%-d" }}{%- else %}―{%- endif %}
+        {%- if desired_date != blank %}{{ desired_date }}{%- else %}―{%- endif %}
       </div>
     </div>
     <div>
@@ -635,16 +637,21 @@
 
   <!-- ===== DEBUG（確認後削除） ===== -->
   <div style="border:3px solid red;padding:10px;margin-top:16px;font-size:13px;">
+    <b>▼ メモ（order.note）:</b><br>
+    {%- if order.note != blank -%}
+      {{ order.note | newline_to_br }}<br>
+    {%- else -%}
+      <span style="color:red;">空</span><br>
+    {%- endif -%}
+    <b>▼ テンプレートが読み取った値:</b><br>
+    desired_date = <b>{{ desired_date | default: "（未取得）" }}</b><br>
+    desired_time = <b>{{ desired_time | default: "（未取得）" }}</b><br>
     <b>▼ note_attributes:</b><br>
     {%- for attr in order.note_attributes -%}
       {{ attr.name }} = {{ attr.value }}<br>
     {%- else -%}
       <span style="color:red;">空</span><br>
     {%- endfor -%}
-    <b>▼ metafields.custom:</b><br>
-    配送希望日 = {{ order.metafields.custom['配送希望日'] }}<br>
-    配送時間帯 = {{ order.metafields.custom['配送時間帯'] }}<br>
-    配送日の指定 = {{ order.metafields.custom['配送日の指定'] }}<br>
     <b>▼ tags (配送関連):</b><br>
     {%- for tag in order.tags -%}
       {%- if tag contains "配送" %} {{ tag }}<br>{%- endif -%}
