@@ -326,15 +326,24 @@
     {%- endif -%}
   {%- endfor -%}
 
-  {%- comment -%} 配送希望日・時間帯をタグから取得 (配送日時指定.amp) {%- endcomment -%}
+  {%- comment -%}
+    配送希望日・時間帯を 追加詳細（note_attributes）から取得
+    タグは使わない（アプリが自動セットする値のため）
+    キー名: 配送希望日 / 配送時間帯 / 配送日の指定
+  {%- endcomment -%}
   {%- assign desired_date = "" -%}
   {%- assign desired_time = "" -%}
-  {%- for tag in order.tags -%}
-    {%- if tag contains "配送希望日:" -%}
-      {%- assign desired_date = tag | split: "配送希望日:" | last | strip -%}
+  {%- for attr in order.note_attributes -%}
+    {%- if attr.name == "配送希望日" -%}
+      {%- assign desired_date = attr.value -%}
     {%- endif -%}
-    {%- if tag contains "配送時間帯:" -%}
-      {%- assign desired_time = tag | split: "配送時間帯:" | last | strip -%}
+    {%- if attr.name == "配送時間帯" -%}
+      {%- assign desired_time = attr.value -%}
+    {%- endif -%}
+    {%- if attr.name == "配送日の指定" and desired_date == blank -%}
+      {%- unless attr.value == "なし" or attr.value == "指定なし" -%}
+        {%- assign desired_date = attr.value -%}
+      {%- endunless -%}
     {%- endif -%}
   {%- endfor -%}
 
