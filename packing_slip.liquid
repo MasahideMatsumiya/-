@@ -333,27 +333,17 @@
       配送時間帯:午前中（8時〜12時）
   {%- endcomment -%}
   {%- comment -%}
-    配送希望日・時間帯:
-    1. 追加詳細（note_attributes）から取得
-    2. なければタグから取得（旧注文 / アプリ設定によりタグのみの場合）
-    メモ（order.note）は表示のみ、ここでは使わない。
+    配送希望日・時間帯: 追加詳細（note_attributes）のみ使用。タグは使わない。
+    「指定なし」「なし」は空と同等に扱う。
   {%- endcomment -%}
   {%- assign desired_date = "" -%}
   {%- assign desired_time = "" -%}
   {%- for attr in order.note_attributes -%}
-    {%- if attr.name == "配送希望日" -%}{%- assign desired_date = attr.value -%}{%- endif -%}
-    {%- if attr.name == "配送時間帯" -%}{%- assign desired_time = attr.value -%}{%- endif -%}
+    {%- if attr.name == "配送希望日" -%}{%- assign desired_date = attr.value | strip -%}{%- endif -%}
+    {%- if attr.name == "配送時間帯" -%}{%- assign desired_time = attr.value | strip -%}{%- endif -%}
   {%- endfor -%}
-  {%- if desired_date == blank -%}
-    {%- for tag in order.tags -%}
-      {%- if tag contains "配送希望日:" -%}
-        {%- assign desired_date = tag | split: "配送希望日:" | last | strip -%}
-      {%- endif -%}
-      {%- if tag contains "配送時間帯:" -%}
-        {%- assign desired_time = tag | split: "配送時間帯:" | last | strip -%}
-      {%- endif -%}
-    {%- endfor -%}
-  {%- endif -%}
+  {%- if desired_date == "指定なし" or desired_date == "なし" -%}{%- assign desired_date = "" -%}{%- endif -%}
+  {%- if desired_time == "指定なし" or desired_time == "なし" -%}{%- assign desired_time = "" -%}{%- endif -%}
 
   {%- comment -%} 出荷日 = 配達希望日の2営業日前 {%- endcomment -%}
   {%- if desired_date != blank -%}
