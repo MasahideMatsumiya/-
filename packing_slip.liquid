@@ -143,17 +143,18 @@
       align-self: center;
     }
 
-    /* ===== 注文メモ ===== */
+    /* ===== 注文メモ（配達希望日の上・目立つ表示） ===== */
     .memo-block {
-      border: 1px solid #ccc;
-      border-left: 4px solid #333;
+      border: 2px solid #e65c00;
+      border-left: 6px solid #e65c00;
       border-radius: 2px;
-      padding: 4px 8px;
-      background: #fafafa;
-      font-size: 12px;
+      padding: 5px 8px;
+      background: #fff8f4 !important;
+      font-size: 14px;
+      font-weight: bold;
       margin-bottom: 6px;
     }
-    .memo-block .field-label { margin-bottom: 2px; }
+    .memo-block .field-label { color: #e65c00; margin-bottom: 2px; }
 
     /* ===== 同梱チェックボックス ===== */
     .checklist-category {
@@ -427,6 +428,14 @@
     <span class="stamp{% if is_trial %} active{% endif %}">TR</span>
   </div>
 
+  <!-- ===== 注文メモ（配達希望日の直上） ===== -->
+  {%- if order.note != blank -%}
+  <div class="memo-block">
+    <div class="field-label">メモ（配達日変更確認）</div>
+    <div>{{ order.note }}</div>
+  </div>
+  {%- endif -%}
+
   <!-- ===== 決済アラート ===== -->
   {%- if is_konbini and order.financial_status == "pending" -%}
   <div class="payment-alert konbini">
@@ -502,13 +511,6 @@
     <div class="prefecture">{{ order.shipping_address.province }}</div>
   </div>
 
-  <!-- ===== 注文メモ ===== -->
-  {%- if order.note != blank -%}
-  <div class="memo-block">
-    <div class="field-label">メモ</div>
-    <div>{{ order.note }}</div>
-  </div>
-  {%- endif -%}
 
   <!-- ===== 同梱チェックボックス ===== -->
   <!-- ===== 同梱チェック（カテゴリー自動判定） ===== -->
