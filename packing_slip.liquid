@@ -332,16 +332,23 @@
       配送希望日:2026-04-06
       配送時間帯:午前中（8時〜12時）
   {%- endcomment -%}
+  {%- comment -%}
+    配送希望日・時間帯:
+    メモ（order.note）が空の場合のみタグから自動取得。
+    メモに何か書かれている場合は手動管理とみなし、タグを無視する。
+  {%- endcomment -%}
   {%- assign desired_date = "" -%}
   {%- assign desired_time = "" -%}
-  {%- for tag in order.tags -%}
-    {%- if tag contains "配送希望日:" -%}
-      {%- assign desired_date = tag | split: "配送希望日:" | last | strip -%}
-    {%- endif -%}
-    {%- if tag contains "配送時間帯:" -%}
-      {%- assign desired_time = tag | split: "配送時間帯:" | last | strip -%}
-    {%- endif -%}
-  {%- endfor -%}
+  {%- if order.note == blank -%}
+    {%- for tag in order.tags -%}
+      {%- if tag contains "配送希望日:" -%}
+        {%- assign desired_date = tag | split: "配送希望日:" | last | strip -%}
+      {%- endif -%}
+      {%- if tag contains "配送時間帯:" -%}
+        {%- assign desired_time = tag | split: "配送時間帯:" | last | strip -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
 
   {%- comment -%} 出荷日 = 配達希望日の2営業日前 {%- endcomment -%}
   {%- if desired_date != blank -%}
