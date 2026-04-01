@@ -334,12 +334,17 @@
   {%- endcomment -%}
   {%- comment -%}
     配送希望日・時間帯:
-    メモ（order.note）が空の場合のみタグから自動取得。
-    メモに何か書かれている場合は手動管理とみなし、タグを無視する。
+    1. 追加詳細（note_attributes）から取得
+    2. なければタグから取得（旧注文 / アプリ設定によりタグのみの場合）
+    メモ（order.note）は表示のみ、ここでは使わない。
   {%- endcomment -%}
   {%- assign desired_date = "" -%}
   {%- assign desired_time = "" -%}
-  {%- if order.note == blank -%}
+  {%- for attr in order.note_attributes -%}
+    {%- if attr.name == "配送希望日" -%}{%- assign desired_date = attr.value -%}{%- endif -%}
+    {%- if attr.name == "配送時間帯" -%}{%- assign desired_time = attr.value -%}{%- endif -%}
+  {%- endfor -%}
+  {%- if desired_date == blank -%}
     {%- for tag in order.tags -%}
       {%- if tag contains "配送希望日:" -%}
         {%- assign desired_date = tag | split: "配送希望日:" | last | strip -%}
