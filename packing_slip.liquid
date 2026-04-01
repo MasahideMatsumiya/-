@@ -633,6 +633,23 @@
     </table>
   </div>
 
+  <!-- ===== DEBUG（確認後削除） ===== -->
+  <div style="border:3px solid red;padding:10px;margin-top:16px;font-size:13px;">
+    <b>▼ note_attributes:</b><br>
+    {%- for attr in order.note_attributes -%}
+      {{ attr.name }} = {{ attr.value }}<br>
+    {%- else -%}
+      <span style="color:red;">空</span><br>
+    {%- endfor -%}
+    <b>▼ metafields.custom:</b><br>
+    配送希望日 = {{ order.metafields.custom['配送希望日'] }}<br>
+    配送時間帯 = {{ order.metafields.custom['配送時間帯'] }}<br>
+    配送日の指定 = {{ order.metafields.custom['配送日の指定'] }}<br>
+    <b>▼ tags (配送関連):</b><br>
+    {%- for tag in order.tags -%}
+      {%- if tag contains "配送" %} {{ tag }}<br>{%- endif -%}
+    {%- endfor -%}
+  </div>
 
 </body>
 </html>
