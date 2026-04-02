@@ -326,22 +326,9 @@
     {%- endif -%}
   {%- endfor -%}
 
-  {%- comment -%}
-    配送希望日・時間帯をタグから取得
-    配送日時指定.amp がタグに書き込む形式:
-      配送希望日:2026-04-06
-      配送時間帯:午前中（8時〜12時）
-  {%- endcomment -%}
-  {%- comment -%}
-    配送希望日・時間帯: 追加詳細（note_attributes）のみ使用。タグは使わない。
-    「指定なし」「なし」は空と同等に扱う。
-  {%- endcomment -%}
-  {%- assign desired_date = "" -%}
-  {%- assign desired_time = "" -%}
-  {%- for attr in order.note_attributes -%}
-    {%- if attr.name == "配送希望日" -%}{%- assign desired_date = attr.value | strip -%}{%- endif -%}
-    {%- if attr.name == "配送時間帯" -%}{%- assign desired_time = attr.value | strip -%}{%- endif -%}
-  {%- endfor -%}
+  {%- comment -%} 追加詳細から配送希望日・時間帯を取得（whereフィルター使用） {%- endcomment -%}
+  {%- assign desired_date = order.note_attributes | where: "name", "配送希望日" | map: "value" | first | strip -%}
+  {%- assign desired_time = order.note_attributes | where: "name", "配送時間帯" | map: "value" | first | strip -%}
   {%- if desired_date == "指定なし" or desired_date == "なし" -%}{%- assign desired_date = "" -%}{%- endif -%}
   {%- if desired_time == "指定なし" or desired_time == "なし" -%}{%- assign desired_time = "" -%}{%- endif -%}
 
@@ -631,6 +618,20 @@
     </table>
   </div>
 
+  <!-- ===== DEBUG ===== -->
+  <div style="border:3px solid red;padding:10px;margin-top:16px;font-size:12px;line-height:1.8;">
+    <b>▼ note_attributes（全件）:</b><br>
+    {%- for attr in order.note_attributes -%}
+      [{{ forloop.index }}] name=「{{ attr.name }}」 value=「{{ attr.value }}」<br>
+    {%- else -%}
+      <span style="color:red;">空（0件）</span><br>
+    {%- endfor -%}
+    <b>▼ whereフィルター結果:</b><br>
+    配送希望日 = 「{{ desired_date }}」<br>
+    配送時間帯 = 「{{ desired_time }}」<br>
+    <b>▼ tags（全件）:</b><br>
+    {%- for tag in order.tags -%}{{ tag }} / {%- endfor -%}
+  </div>
 
 </body>
 </html>
