@@ -327,19 +327,23 @@
   {%- endfor -%}
 
   {%- comment -%}
-    配送希望日・時間帯: タグから取得（配送日時指定.ampはタグのみに書き込む）
-    「指定なし」「なし」は空として扱う
+    配送希望日・時間帯の取得順:
+    1. 追加詳細（note_attributes）= スタッフの手動設定を優先
+    2. タグ = アプリが自動設定した値をフォールバック
+    「指定なし」「なし」は空として扱い ― 表示にする
   {%- endcomment -%}
-  {%- assign desired_date = "" -%}
-  {%- assign desired_time = "" -%}
-  {%- for tag in order.tags -%}
-    {%- if tag contains "配送希望日:" -%}
-      {%- assign desired_date = tag | split: "配送希望日:" | last | strip -%}
-    {%- endif -%}
-    {%- if tag contains "配送時間帯:" -%}
-      {%- assign desired_time = tag | split: "配送時間帯:" | last | strip -%}
-    {%- endif -%}
-  {%- endfor -%}
+  {%- assign desired_date = order.note_attributes | where: "name", "配送希望日" | map: "value" | first | strip -%}
+  {%- assign desired_time = order.note_attributes | where: "name", "配送時間帯" | map: "value" | first | strip -%}
+  {%- if desired_date == blank -%}
+    {%- for tag in order.tags -%}
+      {%- if tag contains "配送希望日:" -%}{%- assign desired_date = tag | split: "配送希望日:" | last | strip -%}{%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {%- if desired_time == blank -%}
+    {%- for tag in order.tags -%}
+      {%- if tag contains "配送時間帯:" -%}{%- assign desired_time = tag | split: "配送時間帯:" | last | strip -%}{%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
   {%- if desired_date == "指定なし" or desired_date == "なし" -%}{%- assign desired_date = "" -%}{%- endif -%}
   {%- if desired_time == "指定なし" or desired_time == "なし" -%}{%- assign desired_time = "" -%}{%- endif -%}
 
