@@ -1,0 +1,5 @@
+.env
+credentials.json
+pdfs/*.pdf
+__pycache__/
+*.pyc
