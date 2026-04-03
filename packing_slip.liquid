@@ -196,9 +196,11 @@
   {%- assign is_maicho = false -%}
   {%- assign is_tsudo  = false -%}
   {%- assign is_trial  = false -%}
+  {%- assign is_plan12 = false -%}
   {%- for item in order.line_items -%}
     {%- assign t = item.title -%}
     {%- if t contains "定期便" -%}{%- assign is_maicho = true -%}{%- endif -%}
+    {%- if t contains "定期プラン1.2kg" -%}{%- assign is_maicho = true -%}{%- assign is_plan12 = true -%}{%- endif -%}
     {%- if t contains "都度購入" or t contains "モリンガミルク" or t contains "ウェットフード" -%}{%- assign is_tsudo = true -%}{%- endif -%}
     {%- if t contains "トライアル" -%}{%- assign is_trial = true -%}{%- endif -%}
   {%- endfor -%}
@@ -342,6 +344,31 @@
       <label class="check-item"><span class="checkbox"></span>¥500クーポン券</label>
       <label class="check-item"><span class="checkbox"></span>LINEチラシ</label>
     </div>
+  {%- elsif is_plan12 -%}
+    {%- if sub_count == 1 -%}
+      <div class="checklist-category">定期プラン1.2kg（1回目）</div>
+      <div class="checklist">
+        <label class="check-item"><span class="checkbox"></span>月刊誌</label>
+        <label class="check-item"><span class="checkbox"></span>サンクスカード</label>
+        <label class="check-item"><span class="checkbox"></span>定期便クーポン</label>
+        <label class="check-item"><span class="checkbox"></span>ウェットプレゼントチラシ</label>
+      </div>
+    {%- elsif sub_count == 2 -%}
+      <div class="checklist-category">定期プラン1.2kg（2回目）</div>
+      <div class="checklist">
+        <label class="check-item"><span class="checkbox"></span>月刊誌</label>
+        <label class="check-item"><span class="checkbox"></span>サンクスカード</label>
+        <label class="check-item"><span class="checkbox"></span>定期便クーポン</label>
+        <label class="check-item"><span class="checkbox"></span>ウェットプレゼント</label>
+      </div>
+    {%- else -%}
+      <div class="checklist-category">定期プラン1.2kg（{{ sub_count }}回目）</div>
+      <div class="checklist">
+        <label class="check-item"><span class="checkbox"></span>月刊誌</label>
+        <label class="check-item"><span class="checkbox"></span>サンクスカード</label>
+        <label class="check-item"><span class="checkbox"></span>定期便クーポン</label>
+      </div>
+    {%- endif -%}
   {%- elsif is_maicho -%}
     {%- if sub_count == 1 -%}
       <div class="checklist-category">定期トライアル（1回目）</div>
