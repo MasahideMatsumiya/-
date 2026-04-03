@@ -207,7 +207,12 @@
   {%- assign dry_qty   = 0 -%}
   {%- for item in order.line_items -%}
     {%- if item.title contains "ドライフード" -%}
-      {%- assign dry_qty = dry_qty | plus: item.quantity -%}
+      {%- if item.title contains "定期プラン1.2kg" -%}
+        {%- assign set_bags = item.quantity | times: 3 -%}
+        {%- assign dry_qty = dry_qty | plus: set_bags -%}
+      {%- else -%}
+        {%- assign dry_qty = dry_qty | plus: item.quantity -%}
+      {%- endif -%}
     {%- endif -%}
   {%- endfor -%}
   {%- if dry_qty >= 11 -%}{%- assign ship_size = "100" -%}
@@ -316,8 +321,10 @@
         {%- elsif t contains "モリンガミルク" -%}{%- assign abbr = "MM" -%}
         {%- elsif t contains "トライアル" -%}{%- assign abbr = "食いつき" -%}
         {%- endif -%}
+        {%- assign disp_qty = item.quantity -%}
+        {%- if t contains "定期プラン1.2kg" -%}{%- assign disp_qty = item.quantity | times: 3 -%}{%- endif -%}
         <div class="product-line">
-          {%- if abbr != blank %}{{ abbr }}&nbsp;&nbsp;{{ item.quantity }}{%- else %}{{ item.title }}&nbsp;×{{ item.quantity }}{%- endif %}
+          {%- if abbr != blank %}{{ abbr }}&nbsp;&nbsp;{{ disp_qty }}{%- else %}{{ item.title }}&nbsp;×{{ item.quantity }}{%- endif %}
         </div>
       {%- endfor -%}
     </div>
