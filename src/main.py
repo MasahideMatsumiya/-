@@ -106,6 +106,21 @@ async def checkout_page():
     return FileResponse(os.path.join(os.path.dirname(__file__), "../static/checkout.html"))
 
 
+@app.get("/tokushoho")
+async def tokushoho_page():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "../static/tokushoho.html"))
+
+
+@app.get("/privacy")
+async def privacy_page():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "../static/privacy.html"))
+
+
+@app.get("/refund")
+async def refund_page():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "../static/refund.html"))
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
