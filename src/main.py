@@ -83,21 +83,7 @@ app.include_router(agent_router)
 
 @app.get("/")
 async def root():
-    return {
-        "service": settings.app_name,
-        "version": settings.app_version,
-        "modules": [
-            "products   - 商材管理（プロンプト・ツール・データセット等）",
-            "sales      - AIコミュニティ営業管理",
-            "marketplace - 取引所・決済（Stripe）",
-            "crm        - 顧客管理",
-            "compliance - 取引法・特定商取引法・GDPR",
-            "accounting - 経理・会計",
-            "growth     - 成長KPI・LTV・ファネル分析",
-            "agent      - AIエージェント専用API（APIキー認証・Webhook配信・MCPマニフェスト）",
-        ],
-        "docs": "/docs",
-    }
+    return FileResponse(os.path.join(os.path.dirname(__file__), "../static/index.html"))
 
 
 @app.get("/checkout")

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Marketplace - AIツール・プロンプト販売</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #333; }
+    header { background: white; border-bottom: 1px solid #eee; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 1.2rem; font-weight: 800; color: #0070f3; }
+    nav a { color: #555; text-decoration: none; margin-left: 24px; font-size: 0.9rem; }
+    nav a:hover { color: #0070f3; }
+    .hero { text-align: center; padding: 80px 20px 60px; }
+    .hero h1 { font-size: 2.4rem; font-weight: 800; color: #111; margin-bottom: 16px; }
+    .hero p { font-size: 1.1rem; color: #666; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .btn { display: inline-block; padding: 14px 32px; background: #0070f3; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1rem; }
+    .btn:hover { background: #0058cc; }
+    .products { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
+    .products h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 24px; }
+    .card { background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .card-info h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+    .card-info p { color: #666; font-size: 0.9rem; }
+    .card-price { font-size: 1.8rem; font-weight: 800; color: #0070f3; white-space: nowrap; margin-left: 20px; }
+    footer { background: white; border-top: 1px solid #eee; padding: 24px 32px; text-align: center; font-size: 0.85rem; color: #888; }
+    footer a { color: #0070f3; text-decoration: none; margin: 0 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">AI Marketplace</div>
+    <nav>
+      <a href="/tokushoho">特定商取引法</a>
+      <a href="/privacy">プライバシーポリシー</a>
+      <a href="/refund">返金ポリシー</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h1>AIツール・プロンプトを購入</h1>
+    <p>厳選されたAIプロンプト・ツール・データセットをすぐにダウンロード。ワンタイム購入で永久利用可能。</p>
+    <a href="/checkout?product_id=1" class="btn">今すぐ購入する</a>
+  </div>
+
+  <div class="products">
+    <h2>商品一覧</h2>
+    <div class="card">
+      <div class="card-info">
+        <h3>Claude Prompt Pack Vol.1</h3>
+        <p>すぐ使えるClaudeプロンプト20選。業務効率化・コンテンツ作成・分析など幅広いシーンで活用できます。</p>
+      </div>
+      <div>
+        <div class="card-price">$9.90</div>
+        <a href="/checkout?product_id=1" class="btn" style="font-size:0.85rem;padding:10px 20px;display:block;margin-top:10px;text-align:center;">購入する</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div>© 2026 MMGAMES. All rights reserved.</div>
+    <div style="margin-top:8px;">
+      <a href="/tokushoho">特定商取引法に基づく表記</a>
+      <a href="/privacy">プライバシーポリシー</a>
+      <a href="/refund">返金・キャンセルポリシー</a>
+    </div>
+  </footer>
+</body>
+</html>
