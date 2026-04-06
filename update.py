@@ -7,6 +7,7 @@
   2. python3 update.py を実行
 """
 import os
+import re
 import json
 import base64
 import glob
@@ -145,10 +146,33 @@ def update_sheet(
     return True
 
 
+# ── ファイル名から日付を解析 ──────────────────────────
+def parse_date_from_filename(filename: str) -> str:
+    """
+    PDFファイル名から日付を解析する。
+    例: 4.6.002.pdf → 2026/04/06
+        3.31.001.pdf → 2026/03/31
+    解析できない場合は今日の日付を返す。
+    """
+    stem = Path(filename).stem  # 拡張子なし
+    match = re.match(r'^(\d{1,2})\.(\d{1,2})', stem)
+    if match:
+        month = int(match.group(1))
+        day   = int(match.group(2))
+        year  = date.today().year
+        try:
+            return date(year, month, day).strftime("%Y/%m/%d")
+        except ValueError:
+            pass
+    # 解析できない場合は今日
+    today_str = date.today().strftime("%Y/%m/%d")
+    print(f"  ⚠  ファイル名から日付を読めません → 今日 ({today_str}) を使用")
+    return today_str
+
+
 # ── メイン ────────────────────────────────────────────
 def main():
-    today_str = date.today().strftime("%Y/%m/%d")
-    print(f"=== 在庫管理表 自動更新  {today_str} ===\n")
+    print(f"=== 在庫管理表 自動更新 ===\n")
 
     # PDF ファイル確認
     pdf_files = sorted(glob.glob(os.path.join(PDF_FOLDER, "*.pdf")))
@@ -158,42 +182,49 @@ def main():
 
     print(f"PDFファイル {len(pdf_files)} 件を処理します")
 
-    # 全 PDF から注文を収集
-    all_orders: list[dict] = []
+    # PDFごとに日付を判定しながら注文を収集
+    # { "2026/04/06": [order, ...], "2026/04/05": [order, ...] }
+    orders_by_date: dict[str, list[dict]] = {}
+
     for pdf_path in pdf_files:
-        print(f"\n[解析] {Path(pdf_path).name}")
+        fname = Path(pdf_path).name
+        entry_date = parse_date_from_filename(fname)
+        print(f"\n[解析] {fname}  →  {entry_date}")
         try:
             orders = extract_orders_from_pdf(pdf_path)
             print(f"  抽出: {len(orders)} 件")
-            all_orders.extend(orders)
+            orders_by_date.setdefault(entry_date, []).extend(orders)
         except json.JSONDecodeError as e:
             print(f"  ERROR: JSON parse error - {e}")
         except Exception as e:
             print(f"  ERROR: {e}")
 
-    if not all_orders:
+    if not orders_by_date:
         print("\nERROR: 注文データを取得できませんでした")
         return
 
-    # 商品キー別にグループ化
-    groups: dict[str, list[dict]] = {}
-    for order in all_orders:
-        key = order.get("product_key", "")
-        groups.setdefault(key, []).append(order)
-
     # Google Sheets に接続
-    print("\n[Google Sheets 更新]")
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
     creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=scopes)
     gc = gspread.authorize(creds)
 
-    for product_key, entries in groups.items():
-        mapping = PRODUCT_TO_SHEET.get(product_key)
-        if not mapping:
-            print(f"  ⚠  '{product_key}' のシートマッピングが未定義（スキップ）")
-            continue
-        sheet_name, biko_col = mapping
-        update_sheet(gc, SPREADSHEET_ID, sheet_name, entries, today_str, biko_col)
+    # 日付ごとにシートを更新
+    for entry_date, all_orders in sorted(orders_by_date.items()):
+        print(f"\n[Google Sheets 更新]  {entry_date}")
+
+        # 商品キー別にグループ化
+        groups: dict[str, list[dict]] = {}
+        for order in all_orders:
+            key = order.get("product_key", "")
+            groups.setdefault(key, []).append(order)
+
+        for product_key, entries in groups.items():
+            mapping = PRODUCT_TO_SHEET.get(product_key)
+            if not mapping:
+                print(f"  ⚠  '{product_key}' のシートマッピングが未定義（スキップ）")
+                continue
+            sheet_name, biko_col = mapping
+            update_sheet(gc, SPREADSHEET_ID, sheet_name, entries, entry_date, biko_col)
 
     print("\n=== 完了 ===")
 
