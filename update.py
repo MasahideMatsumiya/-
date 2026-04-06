@@ -26,19 +26,20 @@ CLAUDE_API_KEY  = os.getenv("CLAUDE_API_KEY")
 CREDENTIALS_FILE = os.getenv("CREDENTIALS_FILE", "credentials.json")
 PDF_FOLDER      = os.getenv("PDF_FOLDER", "./pdfs")
 
-# Shopify 商品名キー → スプレッドシートのシートタブ名
+# Shopify 商品名キー → (シートタブ名, 備考列番号)
+# 備考列: J列=10, I列=9
 PRODUCT_TO_SHEET = {
-    "チキン(ドライ)":     "BBチキン【本社】在庫数",
-    "ベニソン":           "BBベニソン【本社】在庫数",
-    "ポーク(ドライ)":     "BBポーク【本社】在庫数",
-    "モリンガミルク":     "モリンガミルク",
-    "wetチキン":          "wetチキン在庫数2023.9",
-    "wetホース":          "wetホース在庫数",
-    "wetポーク":          "wetポーク在庫数",
-    "トリーツ高野豆腐":   "BBトリーツ【高野豆腐】",
-    "トリーツいちご":     "BBトリーツ【いちご＆ヤギミルク】",
-    "トリーツ乳酸菌":     "BBトリーツ【乳酸菌ボーロ】",
-    "ツヤット":           "ツヤット",
+    "チキン(ドライ)":     ("BBチキン【本社】在庫数",          10),  # J列
+    "ベニソン":           ("BBベニソン【本社】在庫数",         9),   # I列
+    "ポーク(ドライ)":     ("BBポーク【本社】在庫数",           9),   # I列
+    "モリンガミルク":     ("モリンガミルク",                   9),   # I列
+    "wetチキン":          ("wetチキン在庫数2023.9",            9),   # I列
+    "wetホース":          ("wetホース在庫数",                  9),   # I列
+    "wetポーク":          ("wetポーク在庫数",                  9),   # I列
+    "トリーツ高野豆腐":   ("BBトリーツ【高野豆腐】",           9),   # I列
+    "トリーツいちご":     ("BBトリーツ【いちご＆ヤギミルク】", 9),   # I列
+    "トリーツ乳酸菌":     ("BBトリーツ【乳酸菌ボーロ】",       9),   # I列
+    "ツヤット":           ("ツヤット",                         9),   # I列
 }
 
 EXTRACT_PROMPT = """\
@@ -117,6 +118,7 @@ def update_sheet(
     sheet_name: str,
     entries: list[dict],
     entry_date: str,
+    biko_col: int = 9,
 ) -> bool:
     """指定シートの entry_date 行に販売数と備考を書き込む"""
     try:
@@ -136,8 +138,8 @@ def update_sheet(
     total_bags = sum(e["quantity"] for e in entries)
     biko = "".join(f"{e['customer_name']}さま{e['quantity']}袋、" for e in entries)
 
-    ws.update_cell(row_idx, 3, total_bags)  # C列: 販売
-    ws.update_cell(row_idx, 10, biko)       # J列: 備考
+    ws.update_cell(row_idx, 3, total_bags)    # C列: 販売
+    ws.update_cell(row_idx, biko_col, biko)  # 備考列
 
     print(f"  OK  {sheet_name}: {total_bags}袋  |  {biko}")
     return True
@@ -186,11 +188,12 @@ def main():
     gc = gspread.authorize(creds)
 
     for product_key, entries in groups.items():
-        sheet_name = PRODUCT_TO_SHEET.get(product_key)
-        if not sheet_name:
+        mapping = PRODUCT_TO_SHEET.get(product_key)
+        if not mapping:
             print(f"  ⚠  '{product_key}' のシートマッピングが未定義（スキップ）")
             continue
-        update_sheet(gc, SPREADSHEET_ID, sheet_name, entries, today_str)
+        sheet_name, biko_col = mapping
+        update_sheet(gc, SPREADSHEET_ID, sheet_name, entries, today_str, biko_col)
 
     print("\n=== 完了 ===")
 
