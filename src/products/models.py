@@ -40,6 +40,19 @@ class Product(SQLModel, table=True):
     compare_price_usd: Optional[float] = None  # 元値（割引表示用）
     stripe_price_id: Optional[str] = None
 
+    # AI-Native動的価格設定
+    # pricing_model: "fixed" | "dynamic"
+    # dynamicの場合: price = base_price_usd * 2^floor(sales_count / price_step)
+    pricing_model: str = Field(default="fixed")
+    base_price_usd: Optional[float] = None      # 動的価格の基準価格（リリース時の最安値）
+    price_step: int = Field(default=100)         # 何件売れるごとに倍になるか
+
+    # AI-Nativeコンテンツ
+    # content_format: "human" | "ai_native"
+    content_format: str = Field(default="human")
+    ai_decode_seed: Optional[str] = None        # デコードキー生成シード（購入者のみに渡す）
+    network_value_enabled: bool = Field(default=False)  # ネットワーク効果ON/OFF
+
     # コンテンツ
     preview_content: Optional[str] = None  # 無料プレビュー部分
     download_url: Optional[str] = None     # 購入後ダウンロードURL
