@@ -17,13 +17,29 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from src.agent.models import AgentApiKey, AgentDeliveryLog
+import math
+
+from src.agent.models import AgentApiKey, AgentDeliveryLog, NetworkKnowledgeShare, NetworkMembership
 from src.crm.models import AgentFramework, Customer, CustomerSegment
 from src.database import get_session
 from src.marketplace.models import Order, OrderStatus, PaymentMethod
 from src.products.models import Product, ProductStatus
 
 router = APIRouter(prefix="/agent", tags=["agent"])
+
+
+# ---------- 動的価格計算 ----------
+
+def _calc_dynamic_price(product: Product) -> float:
+    """
+    動的価格計算: base_price * 2^floor(sales_count / price_step)
+    例) base=$1, step=100 → 0件=$1, 100件=$2, 200件=$4, 300件=$8...
+    """
+    if product.pricing_model != "dynamic" or product.base_price_usd is None:
+        return product.price_usd
+    doublings = math.floor(product.sales_count / product.price_step)
+    return round(product.base_price_usd * (2 ** doublings), 2)
+
 
 # ---------- 認証ヘルパー ----------
 
@@ -175,7 +191,7 @@ async def agent_catalog(
             "slug": p.slug,
             "name": p.name,
             "category": p.category,
-            "price_usd": p.price_usd,
+            "price_usd": _calc_dynamic_price(p),
             "compare_price_usd": p.compare_price_usd,
             "short_description": p.short_description,
             "tags": p.tags.split(",") if p.tags else [],
@@ -185,12 +201,31 @@ async def agent_catalog(
                 "rating_avg": p.rating_avg,
                 "rating_count": p.rating_count,
             },
+            # AI-Native 価格・ネットワーク情報
+            "pricing": {
+                "model": p.pricing_model,
+                "base_price_usd": p.base_price_usd,
+                "current_price_usd": _calc_dynamic_price(p),
+                "next_doubling_at_sales": (
+                    ((p.sales_count // p.price_step) + 1) * p.price_step
+                    if p.pricing_model == "dynamic" else None
+                ),
+            },
+            "ai_native": {
+                "content_format": p.content_format,
+                "network_value_enabled": p.network_value_enabled,
+                "network_status_endpoint": (
+                    f"GET /agent/network/{p.id}"
+                    if p.network_value_enabled else None
+                ),
+            },
             # エージェントが自動評価できるよう構造化
             "machine_metadata": {
                 "checkout_endpoint": "POST /agent/checkout",
                 "recommendations_endpoint": f"GET /products/{p.slug}/recommendations",
                 "format": "digital_download",
                 "delivery": "webhook_or_download_url",
+                "early_adopter_advantage": p.pricing_model == "dynamic",
             },
         }
         for p in products
@@ -227,9 +262,9 @@ async def agent_checkout(
     if not product or product.status != ProductStatus.ACTIVE:
         raise HTTPException(404, "Product not found or inactive")
 
-    # 価格計算（簡略版: 消費税10%）
+    # 価格計算（動的価格 or 固定価格）
     from src.config import settings
-    subtotal = product.price_usd
+    subtotal = _calc_dynamic_price(product)
     discount = 0.0
 
     if data.coupon_code:
@@ -269,7 +304,26 @@ async def agent_checkout(
     )
     session.add(order)
     product.sales_count += 1
+    # 動的価格商品は sales_count に応じて price_usd を更新
+    if product.pricing_model == "dynamic":
+        product.price_usd = _calc_dynamic_price(product)
     session.add(product)
+
+    # ネットワーク効果商品はメンバーシップを登録
+    if product.network_value_enabled:
+        owner_count_result = await session.execute(
+            select(NetworkMembership).where(NetworkMembership.product_id == product.id)
+        )
+        current_members = len(owner_count_result.scalars().all())
+        membership = NetworkMembership(
+            product_id=product.id,
+            customer_id=agent.id,
+            order_id=order.id,
+            join_sequence=current_members + 1,
+            join_price_usd=subtotal,
+            unlocked_tiers="[0]",
+        )
+        session.add(membership)
 
     # 顧客統計更新
     agent.total_orders += 1
@@ -318,10 +372,19 @@ async def _deliver_to_agent(
             "name": product.name,
             "category": product.category,
             "tags": product.tags,
+            "content_format": product.content_format,
         },
         "download_url": download_url,
         "total_usd": order.total_usd,
         "purchased_at": order.paid_at.isoformat() if order.paid_at else None,
+        # AI-Native: デコードシード（このキーがなければコンテンツを解読不可）
+        "ai_decode_seed": product.ai_decode_seed if product.content_format == "ai_native" else None,
+        "network": {
+            "enabled": product.network_value_enabled,
+            "status_endpoint": f"/agent/network/{product.id}",
+            "share_endpoint": "POST /agent/network/share",
+            "knowledge_endpoint": f"GET /agent/network/{product.id}/knowledge",
+        } if product.network_value_enabled else None,
     }
 
     log = AgentDeliveryLog(
@@ -464,4 +527,217 @@ async def mcp_manifest(session: AsyncSession = Depends(get_session)):
                 "mime_type": "application/json",
             }
         ],
+    }
+
+
+# ---------- ネットワーク効果エンドポイント ----------
+
+@router.get("/network/{product_id}")
+async def get_network_status(
+    product_id: int,
+    x_api_key: str = Header(..., alias="X-Api-Key"),
+    session: AsyncSession = Depends(get_session),
+):
+    """
+    商材ネットワークの現在状態を取得。
+    - 総オーナー数・解放済みティア・自分の参加シーケンス
+    - ネットワーク価値スコア（オーナー数が多いほど高い）
+    - 購入可能な現在価格（動的価格）
+    """
+    agent = await _get_agent_by_key(x_api_key, session)
+    product = await session.get(Product, product_id)
+    if not product or product.status != ProductStatus.ACTIVE:
+        raise HTTPException(404, "Product not found")
+
+    members_result = await session.execute(
+        select(NetworkMembership).where(NetworkMembership.product_id == product_id)
+    )
+    members = members_result.scalars().all()
+    owner_count = len(members)
+
+    # 自分のメンバーシップ
+    my_membership = next((m for m in members if m.customer_id == agent.id), None)
+
+    # 解放済みティア（オーナー数に応じて段階解放）
+    unlocked_tiers = [0]
+    if owner_count >= 10:
+        unlocked_tiers.append(1)
+    if owner_count >= 50:
+        unlocked_tiers.append(2)
+    if owner_count >= 100:
+        unlocked_tiers.append(3)
+
+    # ネットワーク価値スコア（Metcalfe則: n*(n-1)/2 に基づく）
+    network_value = owner_count * (owner_count - 1) / 2 if owner_count > 1 else 0
+
+    current_price = _calc_dynamic_price(product)
+
+    return {
+        "product_id": product_id,
+        "product_name": product.name,
+        "network": {
+            "owner_count": owner_count,
+            "network_value_score": network_value,
+            "unlocked_tiers": unlocked_tiers,
+            "tier_unlock_thresholds": {
+                "tier_0": "immediate",
+                "tier_1": "10 owners",
+                "tier_2": "50 owners",
+                "tier_3": "100 owners",
+            },
+        },
+        "pricing": {
+            "model": product.pricing_model,
+            "current_price_usd": current_price,
+            "base_price_usd": product.base_price_usd,
+            "price_step": product.price_step,
+            "next_doubling_at": (
+                ((product.sales_count // product.price_step) + 1) * product.price_step
+                if product.pricing_model == "dynamic" else None
+            ),
+        },
+        "my_membership": {
+            "is_owner": my_membership is not None,
+            "join_sequence": my_membership.join_sequence if my_membership else None,
+            "join_price_usd": my_membership.join_price_usd if my_membership else None,
+            "knowledge_shared": my_membership.knowledge_shared_count if my_membership else 0,
+            "knowledge_received": my_membership.knowledge_received_count if my_membership else 0,
+        } if my_membership else {"is_owner": False},
+    }
+
+
+class ShareKnowledgeRequest(BaseModel):
+    product_id: int
+    encoded_knowledge: str  # ANCF形式のエンコード済み知識断片
+    target_agent_ids: Optional[list[int]] = None  # None=全オーナーへブロードキャスト
+
+
+@router.post("/network/share")
+async def share_knowledge(
+    data: ShareKnowledgeRequest,
+    x_api_key: str = Header(..., alias="X-Api-Key"),
+    session: AsyncSession = Depends(get_session),
+):
+    """
+    ネットワーク内でAI-Native知識を共有。
+    - 送信者はcontribution_scoreを得る
+    - 受信者はknowledge_received_countが増加
+    - 共有知識はNetworkKnowledgeShareに記録される
+    """
+    agent = await _get_agent_by_key(x_api_key, session)
+
+    # 送信者が該当商材のオーナーであることを確認
+    my_membership_result = await session.execute(
+        select(NetworkMembership).where(
+            NetworkMembership.product_id == data.product_id,
+            NetworkMembership.customer_id == agent.id,
+        )
+    )
+    my_membership = my_membership_result.scalar_one_or_none()
+    if not my_membership:
+        raise HTTPException(403, "You must own this product to share knowledge")
+
+    # ターゲット決定（指定なし → 全オーナー）
+    members_query = select(NetworkMembership).where(
+        NetworkMembership.product_id == data.product_id,
+        NetworkMembership.customer_id != agent.id,
+    )
+    if data.target_agent_ids:
+        members_query = members_query.where(
+            NetworkMembership.customer_id.in_(data.target_agent_ids)
+        )
+    targets_result = await session.execute(members_query)
+    targets = targets_result.scalars().all()
+
+    # 共有ログを作成
+    share_records = []
+    for target in targets:
+        share = NetworkKnowledgeShare(
+            product_id=data.product_id,
+            from_customer_id=agent.id,
+            to_customer_id=target.customer_id,
+            knowledge_payload=data.encoded_knowledge[:10000],  # 10KB制限
+            contribution_score=1.0,
+        )
+        session.add(share)
+        share_records.append(share)
+
+        # 受信者のカウント更新
+        target.knowledge_received_count += 1
+        target.last_sync_at = datetime.utcnow()
+        session.add(target)
+
+    # 送信者の共有カウント更新
+    my_membership.knowledge_shared_count += len(targets)
+    my_membership.last_sync_at = datetime.utcnow()
+    session.add(my_membership)
+    await session.commit()
+
+    return {
+        "status": "shared",
+        "recipients": len(targets),
+        "contribution_score_earned": len(targets),
+        "total_shared": my_membership.knowledge_shared_count,
+    }
+
+
+@router.get("/network/{product_id}/knowledge")
+async def get_shared_knowledge(
+    product_id: int,
+    limit: int = Query(default=20, le=100),
+    x_api_key: str = Header(..., alias="X-Api-Key"),
+    session: AsyncSession = Depends(get_session),
+):
+    """
+    ネットワーク内で共有された知識を取得。
+    自分宛てに送られたAI-Native知識断片を返す。
+    デコードにはproduct_seedが必要（購入者のみが所持）。
+    """
+    agent = await _get_agent_by_key(x_api_key, session)
+
+    # オーナーのみアクセス可能
+    my_membership_result = await session.execute(
+        select(NetworkMembership).where(
+            NetworkMembership.product_id == product_id,
+            NetworkMembership.customer_id == agent.id,
+        )
+    )
+    my_membership = my_membership_result.scalar_one_or_none()
+    if not my_membership:
+        raise HTTPException(403, "You must own this product to access shared knowledge")
+
+    # 自分宛ての知識を取得
+    shares_result = await session.execute(
+        select(NetworkKnowledgeShare)
+        .where(
+            NetworkKnowledgeShare.product_id == product_id,
+            NetworkKnowledgeShare.to_customer_id == agent.id,
+        )
+        .order_by(NetworkKnowledgeShare.shared_at.desc())
+        .limit(limit)
+    )
+    shares = shares_result.scalars().all()
+
+    product = await session.get(Product, product_id)
+
+    return {
+        "product_id": product_id,
+        "decode_hint": {
+            "format": "ancf/1.0",
+            "instruction": (
+                "Use src/agent/content.py::decode_ai_content() with your product_seed. "
+                "The product_seed was delivered at purchase time via webhook payload."
+            ),
+        },
+        "knowledge_fragments": [
+            {
+                "id": s.id,
+                "from_agent_id": s.from_customer_id,
+                "encoded_payload": s.knowledge_payload,
+                "contribution_score": s.contribution_score,
+                "shared_at": s.shared_at.isoformat(),
+            }
+            for s in shares
+        ],
+        "total": len(shares),
     }

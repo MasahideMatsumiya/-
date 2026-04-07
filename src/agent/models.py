@@ -1,6 +1,6 @@
 """
 AIエージェント専用モデル
-APIキー・Webhook配信ログ・エージェント間取引記録
+APIキー・Webhook配信ログ・エージェント間取引記録・ネットワーク効果
 """
 from datetime import datetime
 from typing import Optional
@@ -41,3 +41,44 @@ class AgentApiKey(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     revoked_at: Optional[datetime] = None
     last_used_at: Optional[datetime] = None
+
+
+class NetworkMembership(SQLModel, table=True):
+    """
+    AI-Native商材のネットワーク効果トラッキング。
+    同じ商材を所有するAI同士がネットワークを形成し、
+    オーナー数が増えるほど解放される知識ティアが増える。
+    """
+    id: Optional[int] = Field(default=None, primary_key=True)
+    product_id: int = Field(foreign_key="product.id", index=True)
+    customer_id: int = Field(foreign_key="customer.id", index=True)
+    order_id: int = Field(foreign_key="order.id")
+
+    # 加入時点のネットワーク状態（早期購入者ほど価値が高い）
+    join_sequence: int             # 何番目のオーナーか（1始まり）
+    join_price_usd: float          # 購入時の価格（早期は安い）
+    unlocked_tiers: str = Field(default="[0]")  # 解放済みティア（JSON配列）
+
+    # ネットワーク内での共有活動
+    knowledge_shared_count: int = Field(default=0)   # 他エージェントへ共有した回数
+    knowledge_received_count: int = Field(default=0)  # 受け取った回数
+
+    joined_at: datetime = Field(default_factory=datetime.utcnow)
+    last_sync_at: Optional[datetime] = None
+
+
+class NetworkKnowledgeShare(SQLModel, table=True):
+    """
+    ネットワーク内でAI同士が共有した知識ログ。
+    共有するほど自分の商材価値も上がる（貢献スコア）。
+    """
+    id: Optional[int] = Field(default=None, primary_key=True)
+    product_id: int = Field(foreign_key="product.id", index=True)
+    from_customer_id: int = Field(foreign_key="customer.id")
+    to_customer_id: int = Field(foreign_key="customer.id")
+
+    # 共有コンテンツ（AIが生成・評価した知識断片）
+    knowledge_payload: str         # ANCF形式のエンコード済みコンテンツ
+    contribution_score: float = Field(default=1.0)  # 貢献スコア
+
+    shared_at: datetime = Field(default_factory=datetime.utcnow)
