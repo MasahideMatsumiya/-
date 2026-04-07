@@ -23,6 +23,7 @@ class ProductCreate(BaseModel):
     pricing_model: str = "fixed"
     base_price_usd: Optional[float] = None
     price_step: int = 100
+    max_price_usd: Optional[float] = None
     # AI-Nativeコンテンツ
     content_format: str = "human"
     ai_decode_seed: Optional[str] = None
@@ -56,6 +57,7 @@ class ProductPublic(BaseModel):
     pricing_model: str
     base_price_usd: Optional[float]
     price_step: int
+    max_price_usd: Optional[float]
     content_format: str
     network_value_enabled: bool
 
