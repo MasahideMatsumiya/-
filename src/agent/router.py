@@ -32,13 +32,27 @@ router = APIRouter(prefix="/agent", tags=["agent"])
 
 def _calc_dynamic_price(product: Product) -> float:
     """
-    動的価格計算: base_price * 2^floor(sales_count / price_step)
-    例) base=$1, step=100 → 0件=$1, 100件=$2, 200件=$4, 300件=$8...
+    動的価格計算: 件数が倍になるたびに価格が倍（上限あり）
+    price_step = 最初に価格が変わる件数のしきい値
+    max_price_usd = 価格の上限
+
+    例) base=$2, step=100, max=$10
+      0〜99件  → $2
+      100〜199件 → $2  (2^0 = 1倍)
+      200〜399件 → $4  (2^1 = 2倍)
+      400〜799件 → $8  (2^2 = 4倍)
+      800件〜   → $10 (2^3=$16 → 上限$10)
     """
     if product.pricing_model != "dynamic" or product.base_price_usd is None:
         return product.price_usd
-    doublings = math.floor(product.sales_count / product.price_step)
-    return round(product.base_price_usd * (2 ** doublings), 2)
+    if product.sales_count < product.price_step:
+        price = product.base_price_usd
+    else:
+        doublings = math.floor(math.log2(product.sales_count / product.price_step))
+        price = product.base_price_usd * (2 ** doublings)
+    if product.max_price_usd is not None:
+        price = min(price, product.max_price_usd)
+    return round(price, 2)
 
 
 # ---------- 認証ヘルパー ----------
@@ -206,8 +220,9 @@ async def agent_catalog(
                 "model": p.pricing_model,
                 "base_price_usd": p.base_price_usd,
                 "current_price_usd": _calc_dynamic_price(p),
+                "max_price_usd": p.max_price_usd,
                 "next_doubling_at_sales": (
-                    ((p.sales_count // p.price_step) + 1) * p.price_step
+                    p.price_step * (2 ** (math.floor(math.log2(max(p.sales_count, p.price_step) / p.price_step)) + 1))
                     if p.pricing_model == "dynamic" else None
                 ),
             },
@@ -591,8 +606,9 @@ async def get_network_status(
             "current_price_usd": current_price,
             "base_price_usd": product.base_price_usd,
             "price_step": product.price_step,
+            "max_price_usd": product.max_price_usd,
             "next_doubling_at": (
-                ((product.sales_count // product.price_step) + 1) * product.price_step
+                product.price_step * (2 ** (math.floor(math.log2(max(product.sales_count, product.price_step) / product.price_step)) + 1))
                 if product.pricing_model == "dynamic" else None
             ),
         },

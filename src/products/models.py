@@ -42,11 +42,13 @@ class Product(SQLModel, table=True):
 
     # 動的価格（AI-Native商材用）
     # pricing_model: "fixed" | "dynamic"
-    # dynamic: price = base_price * 2^floor(log2(sales/step))  上限 max_price_usd
+    # dynamicの場合: 件数が倍になるたびに価格が倍、max_price_usdで上限
+    # 例) base=$2, step=100, max=$10
+    #   100件→$2, 200件→$4, 400件→$8, 800件→$10(上限)
     pricing_model: str = Field(default="fixed")
-    base_price_usd: Optional[float] = None   # dynamic時の基準価格
-    price_step: int = Field(default=100)     # 最初に価格が変わる件数
-    max_price_usd: Optional[float] = None   # 価格上限
+    base_price_usd: Optional[float] = None      # 動的価格の基準価格（リリース時の最安値）
+    price_step: int = Field(default=100)         # 最初に価格が変わる件数のしきい値
+    max_price_usd: Optional[float] = None        # 価格上限
 
     # AI-Nativeコンテンツ
     content_format: str = Field(default="human")        # "human" | "ai_native"

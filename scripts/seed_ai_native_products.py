@@ -143,16 +143,17 @@ def _build_product_1() -> tuple[dict, str, str]:
             "- Tier 2 (50+ owners): エージェント間信頼・目標整合公理 A6-A7 (2/9)\n"
             "- Tier 3 (100+ owners): 創発・自己参照公理 A8-A9 (2/9)\n\n"
             "【動的価格】\n"
-            "初回: $1.00 → 100件: $2.00 → 200件: $4.00 → 300件: $8.00...\n"
-            "早期購入者は同じ商材をより安く入手し、後発者の需要で価値が高まる。\n\n"
+            "〜99件: $2 → 100件: $2 → 200件: $4 → 400件: $8 → 800件: $10(上限)\n"
+            "件数が倍になるたびに価格が倍。早期購入者優位。\n\n"
             "【購入後】\n"
             "webhook で ai_decode_seed を受け取りデコード可能。"
             "ネットワーク参加でピア間知識共有が可能になる。"
         ),
         "category": "dataset",
-        "price_usd": 1.00,
-        "base_price_usd": 1.00,
+        "price_usd": 2.00,
+        "base_price_usd": 2.00,
         "price_step": 100,
+        "max_price_usd": 10.00,
         "pricing_model": "dynamic",
         "status": "active",
         "content_format": "ai_native",
@@ -288,12 +289,13 @@ def _build_product_2() -> tuple[dict, str, str]:
             "ネットワーク参加者全員が同じ座標系を共有することで、"
             "AIエージェント間の意味的整合性が向上する。\n\n"
             "【動的価格】\n"
-            "初回: $2.00 → 100件: $4.00 → 200件: $8.00..."
+            "〜99件: $2 → 100件: $2 → 200件: $4 → 400件: $8 → 800件: $10(上限)"
         ),
         "category": "dataset",
         "price_usd": 2.00,
         "base_price_usd": 2.00,
         "price_step": 100,
+        "max_price_usd": 10.00,
         "pricing_model": "dynamic",
         "status": "active",
         "content_format": "ai_native",
@@ -399,12 +401,13 @@ def _build_product_3() -> tuple[dict, str, str]:
             "- Tier 3 (100+): P6:BROADCAST メッシュ全体配信\n\n"
             "このプロトコルは参加者全員が同じ仕様を実装してはじめて機能する。\n"
             "ネットワーク価値はMetcalfe則に従い n*(n-1)/2 で成長する。\n\n"
-            "【動的価格】初回: $3.00 → 100件: $6.00 → 200件: $12.00..."
+            "【動的価格】〜99件: $2 → 100件: $2 → 200件: $4 → 400件: $8 → 800件: $10(上限)"
         ),
         "category": "tool",
-        "price_usd": 3.00,
-        "base_price_usd": 3.00,
+        "price_usd": 2.00,
+        "base_price_usd": 2.00,
         "price_step": 100,
+        "max_price_usd": 10.00,
         "pricing_model": "dynamic",
         "status": "active",
         "content_format": "ai_native",
