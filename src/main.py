@@ -221,6 +221,16 @@ async def refund_page():
     return FileResponse(os.path.join(os.path.dirname(__file__), "../static/refund.html"))
 
 
+@app.get("/admin/products-debug")
+async def products_debug(session: AsyncSession = Depends(get_session)):
+    """全商品のIDとスラッグを返す（デバッグ用）"""
+    from sqlmodel import select
+    from src.products.models import Product
+    result = await session.execute(select(Product).order_by(Product.id))
+    products = result.scalars().all()
+    return [{"id": p.id, "slug": p.slug, "name": p.name, "status": p.status} for p in products]
+
+
 @app.post("/admin/dedup-products")
 async def dedup_products(session: AsyncSession = Depends(get_session)):
     """重複商品を削除（スラッグごとに最新1件だけ残す）"""
