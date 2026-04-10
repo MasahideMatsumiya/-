@@ -200,6 +200,25 @@ async def refund_page():
     return FileResponse(os.path.join(os.path.dirname(__file__), "../static/refund.html"))
 
 
+@app.post("/admin/dedup-products")
+async def dedup_products(session: AsyncSession = Depends(get_session)):
+    """重複商品を削除（スラッグごとに最新1件だけ残す）"""
+    from sqlmodel import select
+    from src.products.models import Product
+    result = await session.execute(select(Product).order_by(Product.id))
+    products = result.scalars().all()
+    seen = {}
+    deleted = 0
+    for p in products:
+        if p.slug in seen:
+            await session.delete(p)
+            deleted += 1
+        else:
+            seen[p.slug] = p.id
+    await session.commit()
+    return {"deleted": deleted, "remaining": len(seen)}
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
