@@ -14,14 +14,19 @@
     .hero { text-align: center; padding: 80px 20px 60px; }
     .hero h1 { font-size: 2.4rem; font-weight: 800; color: #111; margin-bottom: 16px; }
     .hero p { font-size: 1.1rem; color: #666; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; }
-    .btn { display: inline-block; padding: 14px 32px; background: #0070f3; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1rem; }
+    .btn { display: inline-block; padding: 14px 32px; background: #0070f3; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; border: none; }
     .btn:hover { background: #0058cc; }
     .products { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
     .products h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 24px; }
     .card { background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
     .card-info h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
     .card-info p { color: #666; font-size: 0.9rem; }
-    .card-price { font-size: 1.8rem; font-weight: 800; color: #0070f3; white-space: nowrap; margin-left: 20px; }
+    .card-info .badge { display: inline-block; font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; background: #e8f0fe; color: #0070f3; margin-bottom: 6px; font-weight: 600; }
+    .card-info .badge.ai { background: #f0fdf4; color: #16a34a; }
+    .card-right { text-align: right; min-width: 120px; margin-left: 20px; }
+    .card-price { font-size: 1.8rem; font-weight: 800; color: #0070f3; white-space: nowrap; }
+    .card-price .base { font-size: 0.75rem; color: #999; font-weight: 400; display: block; }
+    .loading { text-align: center; padding: 60px; color: #999; }
     footer { background: white; border-top: 1px solid #eee; padding: 24px 32px; text-align: center; font-size: 0.85rem; color: #888; }
     footer a { color: #0070f3; text-decoration: none; margin: 0 12px; }
   </style>
@@ -39,21 +44,11 @@
   <div class="hero">
     <h1>AIツール・プロンプトを購入</h1>
     <p>厳選されたAIプロンプト・ツール・データセットをすぐにダウンロード。ワンタイム購入で永久利用可能。</p>
-    <a href="/checkout?product_id=1" class="btn">今すぐ購入する</a>
   </div>
 
   <div class="products">
     <h2>商品一覧</h2>
-    <div class="card">
-      <div class="card-info">
-        <h3>Claude Prompt Pack Vol.1</h3>
-        <p>すぐ使えるClaudeプロンプト20選。業務効率化・コンテンツ作成・分析など幅広いシーンで活用できます。</p>
-      </div>
-      <div>
-        <div class="card-price">$9.90</div>
-        <a href="/checkout?product_id=1" class="btn" style="font-size:0.85rem;padding:10px 20px;display:block;margin-top:10px;text-align:center;">購入する</a>
-      </div>
-    </div>
+    <div id="product-list"><div class="loading">読み込み中...</div></div>
   </div>
 
   <footer>
@@ -64,5 +59,38 @@
       <a href="/refund">返金・キャンセルポリシー</a>
     </div>
   </footer>
+
+  <script>
+    fetch('/products/?limit=50&max_price=50')
+      .then(r => r.json())
+      .then(products => {
+        const list = document.getElementById('product-list');
+        if (!products.length) { list.innerHTML = '<div class="loading">商品準備中...</div>'; return; }
+        list.innerHTML = products.map(p => {
+          const isAI = p.content_format === 'ai_native';
+          const price = p.pricing_model === 'dynamic'
+            ? `$${p.price_usd.toFixed(2)}<span class="base">早期価格・販売数で変動</span>`
+            : `$${p.price_usd.toFixed(2)}`;
+          const badge = isAI
+            ? `<span class="badge ai">🤖 AI-Native</span>`
+            : `<span class="badge">${p.category.toUpperCase()}</span>`;
+          return `
+            <div class="card">
+              <div class="card-info">
+                ${badge}
+                <h3>${p.name}</h3>
+                <p>${p.short_description}</p>
+              </div>
+              <div class="card-right">
+                <div class="card-price">${price}</div>
+                <a href="/checkout?product_id=${p.id}" class="btn" style="font-size:0.85rem;padding:10px 20px;display:block;margin-top:10px;text-align:center;">購入する</a>
+              </div>
+            </div>`;
+        }).join('');
+      })
+      .catch(() => {
+        document.getElementById('product-list').innerHTML = '<div class="loading">商品の読み込みに失敗しました</div>';
+      });
+  </script>
 </body>
 </html>
