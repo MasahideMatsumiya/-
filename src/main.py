@@ -26,9 +26,31 @@ from src.sales.router import router as sales_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    await _migrate_add_columns()
     await _seed_email_templates()
     await _seed_initial_products()
     yield
+
+
+async def _migrate_add_columns():
+    """既存テーブルに不足カラムを追加（冪等）"""
+    from src.database import engine
+    async with engine.begin() as conn:
+        migrations = [
+            "ALTER TABLE product ADD COLUMN IF NOT EXISTS pricing_model VARCHAR DEFAULT 'fixed'",
+            "ALTER TABLE product ADD COLUMN IF NOT EXISTS base_price_usd FLOAT",
+            "ALTER TABLE product ADD COLUMN IF NOT EXISTS price_step INTEGER DEFAULT 100",
+            "ALTER TABLE product ADD COLUMN IF NOT EXISTS max_price_usd FLOAT",
+            "ALTER TABLE product ADD COLUMN IF NOT EXISTS content_format VARCHAR DEFAULT 'human'",
+            "ALTER TABLE product ADD COLUMN IF NOT EXISTS ai_decode_seed VARCHAR",
+            "ALTER TABLE product ADD COLUMN IF NOT EXISTS network_value_enabled BOOLEAN DEFAULT FALSE",
+        ]
+        for sql in migrations:
+            try:
+                await conn.execute(__import__("sqlalchemy").text(sql))
+            except Exception:
+                pass  # SQLite等でIF NOT EXISTSが使えない場合は無視
+    print("[STARTUP] マイグレーション完了", flush=True)
 
 
 async def _seed_email_templates():
