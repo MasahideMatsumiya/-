@@ -27,9 +27,23 @@ from src.sales.router import router as sales_router
 async def lifespan(app: FastAPI):
     await init_db()
     await _migrate_add_columns()
+    await _dedup_products()
     await _seed_email_templates()
     await _seed_initial_products()
     yield
+
+
+async def _dedup_products():
+    """スラッグ重複商品を削除（古いIDを消して最新を残す）"""
+    from src.database import engine
+    async with engine.begin() as conn:
+        await conn.execute(__import__("sqlalchemy").text("""
+            DELETE FROM product
+            WHERE id NOT IN (
+                SELECT MAX(id) FROM product GROUP BY slug
+            )
+        """))
+    print("[STARTUP] 重複商品クリーンアップ完了", flush=True)
 
 
 async def _migrate_add_columns():
