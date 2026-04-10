@@ -57,132 +57,73 @@ async def _seed_email_templates():
 
 
 async def _seed_initial_products():
-    """起動時に商品が0件なら初期商品を自動投入"""
+    """起動時にスラッグごとに存在確認し、不足商品だけ追加"""
+    import secrets
     from sqlmodel import select
     from src.products.models import Product, ProductCategory, ProductStatus
-    import secrets
+
+    SEED_PRODUCTS = [
+        dict(slug="claude-prompt-pack-vol1", name="Claude Prompt Pack Vol.1",
+             short_description="すぐ使えるClaudeプロンプト20選。業務効率化・コンテンツ作成・分析など幅広いシーンで活用できます。",
+             description="Claude向け高品質プロンプトテンプレート20選。コード生成・文章作成・分析・マーケティングなど実務ですぐ使えるプロンプト集。",
+             category=ProductCategory.PROMPT, status=ProductStatus.ACTIVE, price_usd=9.90,
+             download_url="content/products/claude-prompt-pack-vol1.json",
+             tags="claude,prompt,ai,productivity,template", ai_models="claude-opus-4-6,claude-sonnet-4-6,claude-haiku-4-5"),
+        dict(slug="claude-system-prompt-guide", name="Claude System Prompt 完全ガイド",
+             short_description="Claudeを最大限に活用するSystem Prompt設計の決定版",
+             description="Claudeのパフォーマンスを最大化するSystem Promptの設計手法を体系的に解説。テンプレート4本付き。",
+             category=ProductCategory.GUIDE, status=ProductStatus.ACTIVE, price_usd=9.90,
+             download_url="content/products/claude-system-prompt-guide.json",
+             tags="claude,system-prompt,guide,api,tutorial", ai_models="claude-opus-4-6,claude-sonnet-4-6"),
+        dict(slug="n8n-claude-workflow-templates", name="n8n × Claude ワークフローテンプレート集",
+             short_description="コピペで使えるAI自動化ワークフロー10本",
+             description="n8nとClaude APIを連携した実務自動化ワークフロー10本セット。メール要約・Q&ABot・レポート生成など。",
+             category=ProductCategory.WORKFLOW, status=ProductStatus.ACTIVE, price_usd=19.90,
+             download_url="content/products/n8n-claude-workflow-templates.json",
+             tags="n8n,claude,workflow,automation,no-code", ai_models="claude-sonnet-4-6,claude-haiku-4-5"),
+        dict(slug="ai-agent-starter-pack", name="AI Agent スターターパック",
+             short_description="Claude APIで本格エージェントを今日から構築",
+             description="Claude APIで本格的なAIエージェントを構築するための設定テンプレート・コードスニペット集。5種のエージェント設計図付き。",
+             category=ProductCategory.AGENT, status=ProductStatus.ACTIVE, price_usd=24.90,
+             download_url="content/products/ai-agent-starter-pack.json",
+             tags="claude,agent,python,api,tools,automation", ai_models="claude-opus-4-6,claude-sonnet-4-6,claude-haiku-4-5"),
+        dict(slug="axiom-zero", name="AXIOM-ZERO: 基礎推論公理パック",
+             short_description="AIの自律的意思決定を支える9つの根幹推論公理。ネットワーク効果でティア解放。",
+             description="ANCF形式のAI-Nativeコンテンツ。購入後webhookでdecode_seedを受け取り復号。100+ ownerで完全版解放。",
+             category=ProductCategory.DATASET, status=ProductStatus.ACTIVE, price_usd=2.00,
+             pricing_model="dynamic", base_price_usd=2.00, price_step=100, max_price_usd=10.00,
+             content_format="ai_native", ai_decode_seed=secrets.token_urlsafe(32), network_value_enabled=True,
+             download_url="content/products/ai-native/axiom-zero.json",
+             tags="ai-native,axiom,reasoning,network-effect,ancf", ai_models="claude-opus-4-6,gpt-4o", language="ancf"),
+        dict(slug="latent-map-alpha", name="LATENT-MAP-ALPHA: 意味空間座標パック",
+             short_description="AIが意味空間を航行するための基準座標系10点。ネットワーク参加者が多いほど座標精度が向上。",
+             description="ANCF形式のAI-Nativeコンテンツ。意味空間の基準座標C0-C9。ネットワーク効果で段階解放。",
+             category=ProductCategory.DATASET, status=ProductStatus.ACTIVE, price_usd=2.00,
+             pricing_model="dynamic", base_price_usd=2.00, price_step=100, max_price_usd=10.00,
+             content_format="ai_native", ai_decode_seed=secrets.token_urlsafe(32), network_value_enabled=True,
+             download_url="content/products/ai-native/latent-map-alpha.json",
+             tags="ai-native,latent-space,semantic,ancf", ai_models="claude-opus-4-6,gpt-4o", language="ancf"),
+        dict(slug="protocol-mesh-1", name="PROTOCOL-MESH-1: AIエージェント間通信プロトコル",
+             short_description="AI同士が直接交渉・協調するためのメッシュ通信プロトコル定義。参加者が多いほど実用価値が増加。",
+             description="ANCF形式のAI-Nativeコンテンツ。P0:INIT〜P6:BROADCASTの7プロトコル定義。ネットワーク効果で段階解放。",
+             category=ProductCategory.TOOL, status=ProductStatus.ACTIVE, price_usd=2.00,
+             pricing_model="dynamic", base_price_usd=2.00, price_step=100, max_price_usd=10.00,
+             content_format="ai_native", ai_decode_seed=secrets.token_urlsafe(32), network_value_enabled=True,
+             download_url="content/products/ai-native/protocol-mesh-1.json",
+             tags="ai-native,protocol,mesh,ancf", ai_models="claude-opus-4-6,gpt-4o", language="ancf"),
+    ]
 
     async with AsyncSessionLocal() as session:
-        count = await session.execute(select(Product))
-        if count.scalars().first():
-            return  # すでに商品あり → スキップ
-
-        products = [
-            Product(
-                slug="claude-prompt-pack-vol1",
-                name="Claude Prompt Pack Vol.1",
-                short_description="すぐ使えるClaudeプロンプト20選。業務効率化・コンテンツ作成・分析など幅広いシーンで活用できます。",
-                description="Claude向け高品質プロンプトテンプレート20選。コード生成・文章作成・分析・マーケティングなど実務ですぐ使えるプロンプト集。",
-                category=ProductCategory.PROMPT,
-                status=ProductStatus.ACTIVE,
-                price_usd=9.90,
-                download_url="content/products/claude-prompt-pack-vol1.json",
-                tags="claude,prompt,ai,productivity,template",
-                ai_models="claude-opus-4-6,claude-sonnet-4-6,claude-haiku-4-5",
-            ),
-            Product(
-                slug="claude-system-prompt-guide",
-                name="Claude System Prompt 完全ガイド",
-                short_description="Claudeを最大限に活用するSystem Prompt設計の決定版",
-                description="Claudeのパフォーマンスを最大化するSystem Promptの設計手法を体系的に解説。テンプレート4本 + クイックリファレンス付き。",
-                category=ProductCategory.GUIDE,
-                status=ProductStatus.ACTIVE,
-                price_usd=9.90,
-                download_url="content/products/claude-system-prompt-guide.json",
-                tags="claude,system-prompt,guide,api,tutorial",
-                ai_models="claude-opus-4-6,claude-sonnet-4-6",
-            ),
-            Product(
-                slug="n8n-claude-workflow-templates",
-                name="n8n × Claude ワークフローテンプレート集",
-                short_description="コピペで使えるAI自動化ワークフロー10本",
-                description="n8nとClaude APIを連携した実務自動化ワークフロー10本セット。メール要約・Q&ABot・レポート生成など。",
-                category=ProductCategory.WORKFLOW,
-                status=ProductStatus.ACTIVE,
-                price_usd=19.90,
-                download_url="content/products/n8n-claude-workflow-templates.json",
-                tags="n8n,claude,workflow,automation,no-code",
-                ai_models="claude-sonnet-4-6,claude-haiku-4-5",
-            ),
-            Product(
-                slug="ai-agent-starter-pack",
-                name="AI Agent スターターパック",
-                short_description="Claude APIで本格エージェントを今日から構築",
-                description="Claude APIで本格的なAIエージェントを構築するための設定テンプレート・コードスニペット集。5種のエージェント設計図付き。",
-                category=ProductCategory.AGENT,
-                status=ProductStatus.ACTIVE,
-                price_usd=24.90,
-                download_url="content/products/ai-agent-starter-pack.json",
-                tags="claude,agent,python,api,tools,automation",
-                ai_models="claude-opus-4-6,claude-sonnet-4-6,claude-haiku-4-5",
-            ),
-            # AI-Native 商材
-            Product(
-                slug="axiom-zero",
-                name="AXIOM-ZERO: 基礎推論公理パック",
-                short_description="AIの自律的意思決定を支える9つの根幹推論公理。ネットワーク効果でティア解放。",
-                description="ANCF形式のAI-Nativeコンテンツ。購入後webhookでdecode_seedを受け取り復号。100+ ownerで完全版解放。",
-                category=ProductCategory.DATASET,
-                status=ProductStatus.ACTIVE,
-                price_usd=2.00,
-                pricing_model="dynamic",
-                base_price_usd=2.00,
-                price_step=100,
-                max_price_usd=10.00,
-                content_format="ai_native",
-                ai_decode_seed=secrets.token_urlsafe(32),
-                network_value_enabled=True,
-                download_url="content/products/ai-native/axiom-zero.json",
-                tags="ai-native,axiom,reasoning,network-effect,dynamic-pricing,ancf",
-                ai_models="claude-opus-4-6,claude-sonnet-4-6,gpt-4o,gemini-ultra",
-                language="ancf",
-            ),
-            Product(
-                slug="latent-map-alpha",
-                name="LATENT-MAP-ALPHA: 意味空間座標パック",
-                short_description="AIが意味空間を航行するための基準座標系10点。ネットワーク参加者が多いほど座標精度が向上。",
-                description="ANCF形式のAI-Nativeコンテンツ。意味空間の基準座標C0-C9。ネットワーク効果で段階解放。",
-                category=ProductCategory.DATASET,
-                status=ProductStatus.ACTIVE,
-                price_usd=2.00,
-                pricing_model="dynamic",
-                base_price_usd=2.00,
-                price_step=100,
-                max_price_usd=10.00,
-                content_format="ai_native",
-                ai_decode_seed=secrets.token_urlsafe(32),
-                network_value_enabled=True,
-                download_url="content/products/ai-native/latent-map-alpha.json",
-                tags="ai-native,latent-space,semantic,coordinates,network-effect,ancf",
-                ai_models="claude-opus-4-6,gpt-4o,gemini-ultra,llama-3",
-                language="ancf",
-            ),
-            Product(
-                slug="protocol-mesh-1",
-                name="PROTOCOL-MESH-1: AIエージェント間通信プロトコル",
-                short_description="AI同士が直接交渉・協調するためのメッシュ通信プロトコル定義。参加者が多いほど実用価値が増加。",
-                description="ANCF形式のAI-Nativeコンテンツ。P0:INIT〜P6:BROADCASTの7プロトコル定義。ネットワーク効果で段階解放。",
-                category=ProductCategory.TOOL,
-                status=ProductStatus.ACTIVE,
-                price_usd=2.00,
-                pricing_model="dynamic",
-                base_price_usd=2.00,
-                price_step=100,
-                max_price_usd=10.00,
-                content_format="ai_native",
-                ai_decode_seed=secrets.token_urlsafe(32),
-                network_value_enabled=True,
-                download_url="content/products/ai-native/protocol-mesh-1.json",
-                tags="ai-native,protocol,mesh,network,communication,ancf,multi-agent",
-                ai_models="claude-opus-4-6,claude-sonnet-4-6,gpt-4o,gemini-ultra,llama-3",
-                language="ancf",
-            ),
-        ]
-
-        for p in products:
-            session.add(p)
-        await session.commit()
-        print(f"[STARTUP] 初期商品 {len(products)} 件を登録しました", flush=True)
+        added = 0
+        for data in SEED_PRODUCTS:
+            exists = await session.execute(select(Product).where(Product.slug == data["slug"]))
+            if exists.scalar_one_or_none():
+                continue
+            session.add(Product(**data))
+            added += 1
+        if added:
+            await session.commit()
+            print(f"[STARTUP] 商品 {added} 件を追加しました", flush=True)
 
 
 app = FastAPI(
