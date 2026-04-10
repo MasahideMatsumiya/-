@@ -66,10 +66,12 @@ def _send_email(to_email: str, subject: str, body_html: str, body_text: str) -> 
     # Gmail API（HTTPS経由・Railway対応）
     if settings.gmail_client_id and settings.gmail_refresh_token:
         try:
-            return _send_gmail_api(to_email, subject, body_html, body_text)
+            result = _send_gmail_api(to_email, subject, body_html, body_text)
+            if result:
+                return True
+            # Gmail失敗時は次の方法にフォールバック
         except Exception as e:
             print(f"[EMAIL ERROR] Gmail API {type(e).__name__}: {e}", flush=True)
-            return False
 
     # Resend HTTP API
     if settings.resend_api_key:
