@@ -34,16 +34,23 @@ async def lifespan(app: FastAPI):
 
 
 async def _dedup_products():
-    """スラッグ重複商品を削除（古いIDを消して最新を残す）"""
-    from src.database import engine
-    async with engine.begin() as conn:
-        await conn.execute(__import__("sqlalchemy").text("""
-            DELETE FROM product
-            WHERE id NOT IN (
-                SELECT MAX(id) FROM product GROUP BY slug
-            )
-        """))
-    print("[STARTUP] 重複商品クリーンアップ完了", flush=True)
+    """スラッグ重複商品を削除（同じslugで古いIDを削除）"""
+    from sqlmodel import select
+    from src.products.models import Product
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(select(Product).order_by(Product.id))
+        all_products = result.scalars().all()
+        seen: dict = {}
+        deleted = 0
+        for p in all_products:
+            if p.slug in seen:
+                await session.delete(p)
+                deleted += 1
+            else:
+                seen[p.slug] = p.id
+        if deleted:
+            await session.commit()
+            print(f"[STARTUP] 重複商品 {deleted} 件を削除しました", flush=True)
 
 
 async def _migrate_add_columns():
