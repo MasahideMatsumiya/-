@@ -34,23 +34,30 @@ async def lifespan(app: FastAPI):
 
 
 async def _dedup_products():
-    """スラッグ重複商品を削除（同じslugで古いIDを削除）"""
+    """古い短スラッグ商品を削除（正しいスラッグ版が存在する場合のみ）"""
     from sqlmodel import select
     from src.products.models import Product
+    # 正しいスラッグと古い短スラッグのペア
+    REPLACE_SLUGS = {
+        "claude-system-prompt": "claude-system-prompt-guide",
+        "n8n-claude": "n8n-claude-workflow-templates",
+        "ai-agent": "ai-agent-starter-pack",
+    }
     async with AsyncSessionLocal() as session:
-        result = await session.execute(select(Product).order_by(Product.id))
-        all_products = result.scalars().all()
-        seen: dict = {}
         deleted = 0
-        for p in all_products:
-            if p.slug in seen:
-                await session.delete(p)
+        for old_slug, new_slug in REPLACE_SLUGS.items():
+            # 正しい版が存在する場合のみ古い版を削除
+            new_exists = await session.execute(select(Product).where(Product.slug == new_slug))
+            if not new_exists.scalar_one_or_none():
+                continue
+            old = await session.execute(select(Product).where(Product.slug == old_slug))
+            old_product = old.scalar_one_or_none()
+            if old_product:
+                await session.delete(old_product)
                 deleted += 1
-            else:
-                seen[p.slug] = p.id
         if deleted:
             await session.commit()
-            print(f"[STARTUP] 重複商品 {deleted} 件を削除しました", flush=True)
+            print(f"[STARTUP] 旧スラッグ商品 {deleted} 件を削除しました", flush=True)
 
 
 async def _migrate_add_columns():
