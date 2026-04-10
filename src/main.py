@@ -60,8 +60,7 @@ async def _seed_initial_products():
     """起動時に商品が0件なら初期商品を自動投入"""
     from sqlmodel import select
     from src.products.models import Product, ProductCategory, ProductStatus
-    from src.agent.content import generate_product_seed, create_knowledge_pack
-    import json
+    import secrets
 
     async with AsyncSessionLocal() as session:
         count = await session.execute(select(Product))
@@ -131,7 +130,7 @@ async def _seed_initial_products():
                 price_step=100,
                 max_price_usd=10.00,
                 content_format="ai_native",
-                ai_decode_seed=generate_product_seed(),
+                ai_decode_seed=secrets.token_urlsafe(32),
                 network_value_enabled=True,
                 download_url="content/products/ai-native/axiom-zero.json",
                 tags="ai-native,axiom,reasoning,network-effect,dynamic-pricing,ancf",
@@ -151,7 +150,7 @@ async def _seed_initial_products():
                 price_step=100,
                 max_price_usd=10.00,
                 content_format="ai_native",
-                ai_decode_seed=generate_product_seed(),
+                ai_decode_seed=secrets.token_urlsafe(32),
                 network_value_enabled=True,
                 download_url="content/products/ai-native/latent-map-alpha.json",
                 tags="ai-native,latent-space,semantic,coordinates,network-effect,ancf",
@@ -171,7 +170,7 @@ async def _seed_initial_products():
                 price_step=100,
                 max_price_usd=10.00,
                 content_format="ai_native",
-                ai_decode_seed=generate_product_seed(),
+                ai_decode_seed=secrets.token_urlsafe(32),
                 network_value_enabled=True,
                 download_url="content/products/ai-native/protocol-mesh-1.json",
                 tags="ai-native,protocol,mesh,network,communication,ancf,multi-agent",
