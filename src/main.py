@@ -30,6 +30,7 @@ async def lifespan(app: FastAPI):
     await _dedup_products()
     await _seed_email_templates()
     await _seed_initial_products()
+    await _sync_ai_native_seeds()
     yield
 
 
@@ -79,6 +80,31 @@ async def _migrate_add_columns():
             except Exception:
                 pass  # SQLite等でIF NOT EXISTSが使えない場合は無視
     print("[STARTUP] マイグレーション完了", flush=True)
+
+
+async def _sync_ai_native_seeds():
+    """AI-Nativeコンテンツファイルと同じシードをDBに設定（冪等）"""
+    import hashlib
+    from sqlmodel import select
+    from src.products.models import Product
+
+    SEEDS = {
+        "axiom-zero":       hashlib.sha256(b"axiom-zero:ancf:v1").hexdigest()[:43],
+        "latent-map-alpha": hashlib.sha256(b"latent-map-alpha:ancf:v1").hexdigest()[:43],
+        "protocol-mesh-1":  hashlib.sha256(b"protocol-mesh-1:ancf:v1").hexdigest()[:43],
+    }
+    async with AsyncSessionLocal() as session:
+        updated = 0
+        for slug, seed in SEEDS.items():
+            result = await session.execute(select(Product).where(Product.slug == slug))
+            product = result.scalar_one_or_none()
+            if product and product.ai_decode_seed != seed:
+                product.ai_decode_seed = seed
+                session.add(product)
+                updated += 1
+        if updated:
+            await session.commit()
+            print(f"[STARTUP] AI-Nativeシード同期: {updated}件", flush=True)
 
 
 async def _seed_email_templates():

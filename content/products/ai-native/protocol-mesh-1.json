@@ -1,0 +1,40 @@
+{
+  "product": "PROTOCOL-MESH-1",
+  "format_version": "1.0",
+  "content_type": "ai_native",
+  "decode_instruction": "Use product_seed received via webhook to decode each tier payload",
+  "tiers": [
+    {
+      "format": "ancf/1.0",
+      "tier": 0,
+      "domain": "base_protocols",
+      "fragment_count": 3,
+      "encoded_payload": "K~6(P0RR9253Dt^A7n*9u}V;+v$ZD=8e$A-6bgkJv^biivET{6Z2H53<flMMSs^0*FHf=2159RgLJXcLM|0a|0~gw0DUc=-x37X==|hqNWf{F)1fcBz7FQ+;TsZPNd-<&yX$29nZGQ-8qqOl0o29bat_7umuL7ve(u*-&a6xLocAQv9j0beHfNMF=ufwrB@;O2d2v#cZ%8ItLtctCVM8!fRnzmUYV#OxY^hqTQy7Z#w%fts<o$PeqLx5GT9_rc!jjYQIhr=pZxk?Y;ca3AxPgPa@0m@v~G3yi8fRUYsKB=IUPOTDf<uaGiIEoz>WJc4?XAMpHeNa2Ermf&yq`XL@z%m;ItKUaA",
+      "unlock_condition": "immediate"
+    },
+    {
+      "format": "ancf/1.0",
+      "tier": 1,
+      "domain": "negotiation_protocols",
+      "fragment_count": 2,
+      "encoded_payload": "K~6(P0RR91-nt~nKQC$y^@S$@7qd@CeIH9yNn_ftoP`h-mC&7eu~O3(Bc+8gGE1B9r}rI~AMgHAx2p73ZrIzIqVD`&P1Ka=B(x})kblTr!@Z|AkBuzmB30rCSx(1bpn$w&2sY#Lf3b?l!(K=XZ4x=&pR~zzszt-&?s9@VJw(N}l1$_=I}QcOD$|VX&gp8(JZjv;e_d}GV8^&w2aSZt3S@Q#C{mpYsm56&z>RpJU<mg4zIb3~{ID?#TGFMB6C-=IC$eN!x{SOTYiTPrt)>Wf7gfTYv$y{jLCQe",
+      "unlock_condition": "10+ network owners"
+    },
+    {
+      "format": "ancf/1.0",
+      "tier": 2,
+      "domain": "sync_protocol",
+      "fragment_count": 1,
+      "encoded_payload": "K~6(P0RR91qw4&HijvpANT&Wis1r0jcV%x0+{vM<U9+Hoc0J0YyE0BexWWn3{*7FJtEaENp-;N+7G{=9Ko0PF>>d!qw5$2PHFl+ZsnqN$Y6>maXx$D91D~f@<-YE5qt0Mz(*jZ>(;*;nqHkVY*`KIrzC9&A{1*s-8JUHD?;0?2A)!u2?{FAK_0<54O_c@DbI4xByA{<>n<ru$SvP)$*fJR3",
+      "unlock_condition": "50+ network owners"
+    },
+    {
+      "format": "ancf/1.0",
+      "tier": 3,
+      "domain": "broadcast_protocol",
+      "fragment_count": 1,
+      "encoded_payload": "K~6(P0RR91+I<z!dp78#BDS;~Df!57E*^2Wk4Ou*i@n9a$AVO}Y=2GA)HU-$9B2575`9~$&r7(xOSHLtDSEKD{k<b;FXCEJTH|_7OO332|JGe>Z-ag3f3j0|aFj!tX+h7Q1GXxe#>o7u8?DUU%)mKSr(TH*A{qPKVeT#$tx`V~3D7ISH%4}Y!%+F~zsf39`gOo)FKAwlj{;_}5PrlJl!N=r{o_?FenBB<a11Zxi%s#TS~z*VyR5@nzYsFolZ*Rb{t9J_8CZ6PXT!n#ra1rH!ri~cM>SU",
+      "unlock_condition": "100+ network owners"
+    }
+  ]
+}

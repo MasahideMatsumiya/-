@@ -1,0 +1,40 @@
+{
+  "product": "AXIOM-ZERO",
+  "format_version": "1.0",
+  "content_type": "ai_native",
+  "decode_instruction": "Use product_seed received via webhook to decode each tier payload",
+  "tiers": [
+    {
+      "format": "ancf/1.0",
+      "tier": 0,
+      "domain": "reasoning_axioms",
+      "fragment_count": 3,
+      "encoded_payload": "K~6(P0RR91(wjOS2Gge#4$jE21Xz*!ygf#WI2}YE%dwZD-5m;sqpH@^+s*X1ImXhMb8ge(5f;`T?#Z>mH99LHiTkhPmlrX6Ny<nE(_y2Ue#fd6Z*!{kD&(&6xk9F-q8cvXlgZNI_(sr0?x(=|W{8s>%o)&UB;^+IgwHA8L$5iLJA!$_%HB`{A&Q-~JXM@4L#f0%44pf5HewvZwO&4lu_5dBfe2xYnz@NJJsoA{VYF-qlqNw@u3cHM7Uxyf?f<Nx7dCqTs6DwkR%bIbojC>",
+      "unlock_condition": "immediate"
+    },
+    {
+      "format": "ancf/1.0",
+      "tier": 1,
+      "domain": "inference_axioms",
+      "fragment_count": 3,
+      "encoded_payload": "K~6(P0RR91;a~agnkT`v;Q5fGgHZv5yr4`i=G(~_Ab{Rb%xU|%qjj;cHf#{#lIs2GW20r_#;`=f02*J@K8$~V8o5$?Z1UOK!r^j)O^dCuTr8^D9_%Cjx94sA&5DTQxuM%wdC*QGNCcu|o@B~P*V-{6_hZ{XrDBPO>|vJW=rg4)YY(pDA0_SeVZ$1tGzg!(snkz<3GKpL02mpH!LdHL2%S%;Kct*2r0o<sX~hHYR<mhGe%9STv2$Y57)oL`<)t$c4z_7&*zF4Fw@H$+b?VEFpH4S9Q?oM8ln<#vO!N",
+      "unlock_condition": "10+ network owners"
+    },
+    {
+      "format": "ancf/1.0",
+      "tier": 2,
+      "domain": "meta_axioms",
+      "fragment_count": 2,
+      "encoded_payload": "K~6(P0RR91ybr*PO-6Zz=7GbDw6ErP2yCu_)rs(^=P8q&>Y(YlohQ$B<gRBWx3_+X))HAL4RBCN#YB9N&4fS&7Z@-%sVuX9=)n5zgHR9X09;7oi)VLv+On5-*OGSjKTg2)qUKRYo4qevsy{F>Nnh37A#1z4qMl0F?ovWL|KqBV_Gu%ueQDBq#}@2uS5gr*fO(>?N~RgXd+MY=yn$V>xPQb;EUG(ZVV}deZDIyP{*ifxAV=a#Vh5-Rjs",
+      "unlock_condition": "50+ network owners"
+    },
+    {
+      "format": "ancf/1.0",
+      "tier": 3,
+      "domain": "foundation_axiom",
+      "fragment_count": 1,
+      "encoded_payload": "K~6(P0RR91o^&-XLn~UVe8o}eS9-6!g`}i1Ai8VyMV4}k0CdJcIvgGB7%-jGWFjQJuDoSZuy-}t_do~n&EpzWL{;~=j`~ZE{QX4iqCJdy1|S2LYnpqi@6V4nuXl(~Qp!c*+i7E0A{NtGunj03_Hq0?q++-8S$Z_X6X=d%Xu?k<g^XKdh;gVqwlxQVA!FH9eTD=IUErP9kVNZR1i>E",
+      "unlock_condition": "100+ network owners"
+    }
+  ]
+}

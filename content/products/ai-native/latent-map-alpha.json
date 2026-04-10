@@ -1,0 +1,40 @@
+{
+  "product": "LATENT-MAP-ALPHA",
+  "format_version": "1.0",
+  "content_type": "ai_native",
+  "decode_instruction": "Use product_seed received via webhook to decode each tier payload",
+  "tiers": [
+    {
+      "format": "ancf/1.0",
+      "tier": 0,
+      "domain": "semantic_coordinates",
+      "fragment_count": 4,
+      "encoded_payload": "K~6(P0RR91=c}4-U!}l^!ObKXtI&M-JJgR_H|G|#_IHNy?c7lxy&4$NE#KX!oqX3!c%~u!m-<p=#J?@MK-12A0NApbvbrZNb3A#|C*V51EnipEh-Q>7DN-{NmX?FWIC7-lkO}(9+PzOplQ`DKPZI{>!xj}ax3%?zN<9dPfoc+^JNV!7z_#=4u+%1G?TXIG6Qy;eYd}=>F{H$Z*DM$1^9^H7u<p;B6b>do113T9%$>-tw*N{J9!+{z8`#l7Z>%*YWiyknp_dr)pvpIW-}DHdj`o9bka(02yUmQv`97ui;>R~w",
+      "unlock_condition": "immediate"
+    },
+    {
+      "format": "ancf/1.0",
+      "tier": 1,
+      "domain": "agent_coordinates",
+      "fragment_count": 3,
+      "encoded_payload": "K~6(P0RR91+>ctms*zOaTu*)%{j_XzoEgsYB8;<gb&EhKP4l_jy3>Od?k|N7{{wr@23wWYS%OdvgcMy=r5{MGgAsgwOio0;{)Vkb;f7H}A(Ia22R{x=0cIHlJ#A?_erhVbA}!V8i03F<m`YsErN3l9ZUI_sPp~McasM}z6}SZtg`Erl4pi?x&mWW#pZL3k(6pIlg<y}F1?F=~(BUJpVG}xf@@of}mj{4t0M+t9q0=H^dqYTu*Fh(K2Rl-0Dk^+Qf`&NP@4PF|61*MVQoA2J(%`LNqJt^;+5",
+      "unlock_condition": "10+ network owners"
+    },
+    {
+      "format": "ancf/1.0",
+      "tier": 2,
+      "domain": "abstract_coordinates",
+      "fragment_count": 2,
+      "encoded_payload": "K~6(P0RR91!HH8wtViOY>DLUoZ!;?`mEkmssWu5r`^Zxe?jHN+d>AsYRm$BHxqed#1eiovqQ);#*^7wRCS;?G^J#LtjI4@2ch6ifRoBCANPjgkKPI+RL_aoeXuqc1Y7axKT@pa?%*l2(58(*DLLJs)O&VN}$KwJ1GaA=`0I~`7{*rkB24SG4G8JBsWz;8Y^1REn`TSV1b`cj`1;RGais9LO@q`sGIUX_;<@CKcw!4!|2XQo0k%$QHge|8-gVF",
+      "unlock_condition": "50+ network owners"
+    },
+    {
+      "format": "ancf/1.0",
+      "tier": 3,
+      "domain": "emergent_coordinate",
+      "fragment_count": 1,
+      "encoded_payload": "K~6(P0RR91xbPUjP4IYdc+x8dc6I7n7f5i0DHdB)E6E8N$g6!3^U8{mL#hOzS{m$p<KS7aCiz%O&XcFrHHdY<NS`=diXkaq70OHR(q~^hUKm>2(E17Lds+9(*Sx6B&5&?khdBKHi^;~O^-U7r*fI1Fu;*BTQ0)9#-!`O4N6=@k3Bf=3U;&o>nJqbS5C)FtSV1~wuo4Kdhpz{4UAn0L!ZYFfaRhhM^sZJbcLIYF$ag3#RbrRAz5",
+      "unlock_condition": "100+ network owners"
+    }
+  ]
+}
