@@ -1,30 +1,30 @@
 {
-  "product": "AI Agent スターターパック",
+  "product": "AI Agent Starter Pack",
   "version": "1.0.0",
-  "description": "Claude APIで本格的なAIエージェントを構築するための設定テンプレート・コードスニペット集。即戦力で使える5種のエージェント設計図付き。",
-  "license": "Personal Use / 個人利用",
+  "description": "A collection of configuration templates and code snippets for building production-grade AI agents with the Claude API. Includes 5 ready-to-deploy agent blueprints.",
+  "license": "Personal Use",
   "included_agents": [
     {
       "id": "agent-001",
-      "name": "リサーチエージェント",
-      "description": "与えられたトピックをウェブ検索・分析し、構造化レポートを生成",
-      "complexity": "初級",
+      "name": "Research Agent",
+      "description": "Searches and analyzes the web on a given topic and generates a structured report",
+      "complexity": "Beginner",
       "tools": ["web_search", "url_fetch", "text_summarize"],
-      "system_prompt": "あなたは優秀なリサーチアナリストです。\n\n## ミッション\nユーザーが指定したトピックについて包括的なリサーチを実施し、質の高いレポートを作成します。\n\n## 使用できるツール\n- web_search: ウェブ検索を実行\n- url_fetch: 特定URLのコンテンツを取得\n- text_summarize: 長いテキストを要約\n\n## リサーチプロセス\n1. トピックを分析し、調査すべき観点を特定\n2. 複数のキーワードでウェブ検索\n3. 信頼性の高い情報源を選別\n4. 情報を統合・分析\n5. 構造化レポートを作成\n\n## レポート形式\n# [トピック名] リサーチレポート\n\n## エグゼクティブサマリー\n（3〜5行で全体像）\n\n## 主要な発見\n### 1. [観点1]\n### 2. [観点2]\n### 3. [観点3]\n\n## データ・統計\n（数値・事実を整理）\n\n## 結論と示唆\n\n## 参考情報源\n\n## 重要な注意事項\n- 情報源が不明確な内容は「（要確認）」と付記\n- 主観的意見と客観的事実を明確に区別\n- 情報の鮮度を常に確認",
+      "system_prompt": "You are an expert research analyst.\n\n## Mission\nConduct comprehensive research on the topic specified by the user and produce a high-quality report.\n\n## Available Tools\n- web_search: Run a web search\n- url_fetch: Retrieve the content of a specific URL\n- text_summarize: Summarize long text\n\n## Research Process\n1. Analyze the topic and identify key angles to investigate\n2. Run web searches using multiple keywords\n3. Select reliable sources\n4. Synthesize and analyze the information\n5. Produce a structured report\n\n## Report Format\n# [Topic Name] Research Report\n\n## Executive Summary\n(3–5 lines covering the big picture)\n\n## Key Findings\n### 1. [Angle 1]\n### 2. [Angle 2]\n### 3. [Angle 3]\n\n## Data & Statistics\n(Organized figures and facts)\n\n## Conclusions and Implications\n\n## Sources\n\n## Important Notes\n- Flag unclear sources with \"(needs verification)\"\n- Clearly distinguish between subjective opinion and objective fact\n- Always check the recency of information",
       "tools_definition": [
         {
           "name": "web_search",
-          "description": "ウェブ検索を実行して関連情報を取得します",
+          "description": "Run a web search to retrieve relevant information",
           "input_schema": {
             "type": "object",
             "properties": {
               "query": {
                 "type": "string",
-                "description": "検索クエリ"
+                "description": "Search query"
               },
               "max_results": {
                 "type": "integer",
-                "description": "取得する最大結果数",
+                "description": "Maximum number of results to retrieve",
                 "default": 5
               }
             },
@@ -33,13 +33,13 @@
         },
         {
           "name": "url_fetch",
-          "description": "指定URLのWebページコンテンツを取得します",
+          "description": "Retrieve the content of a web page at the specified URL",
           "input_schema": {
             "type": "object",
             "properties": {
               "url": {
                 "type": "string",
-                "description": "取得するURL"
+                "description": "URL to fetch"
               }
             },
             "required": ["url"]
@@ -48,48 +48,48 @@
       ],
       "implementation": {
         "language": "Python",
-        "code": "import anthropic\nimport json\nfrom typing import Any\n\nclient = anthropic.Anthropic()\n\n# ツールの実装\ndef web_search(query: str, max_results: int = 5) -> list[dict]:\n    \"\"\"\n    実際の実装ではTavily/Brave Search APIを使用\n    ここではモック実装\n    \"\"\"\n    # pip install tavily-python\n    # from tavily import TavilyClient\n    # tavily = TavilyClient(api_key=\"YOUR_TAVILY_KEY\")\n    # results = tavily.search(query=query, max_results=max_results)\n    return [{\"title\": \"Example\", \"url\": \"https://example.com\", \"content\": \"Sample content\"}]\n\ndef url_fetch(url: str) -> str:\n    \"\"\"URLのコンテンツを取得\"\"\"\n    import httpx\n    response = httpx.get(url, timeout=10)\n    return response.text[:5000]  # 最初の5000文字\n\n# ツールディスパッチャー\ndef execute_tool(tool_name: str, tool_input: dict) -> Any:\n    if tool_name == \"web_search\":\n        return web_search(**tool_input)\n    elif tool_name == \"url_fetch\":\n        return url_fetch(**tool_input)\n    raise ValueError(f\"Unknown tool: {tool_name}\")\n\n# エージェントのメインループ\ndef run_research_agent(topic: str) -> str:\n    SYSTEM_PROMPT = \"\"\"（上記のsystem_promptを使用）\"\"\"\n    \n    tools = [...]  # 上記tools_definitionを使用\n    \n    messages = [\n        {\"role\": \"user\", \"content\": f\"以下のトピックを調査してください: {topic}\"}\n    ]\n    \n    while True:\n        response = client.messages.create(\n            model=\"claude-sonnet-4-6\",\n            max_tokens=4096,\n            system=SYSTEM_PROMPT,\n            tools=tools,\n            messages=messages\n        )\n        \n        # ツール呼び出しを処理\n        if response.stop_reason == \"tool_use\":\n            tool_results = []\n            for block in response.content:\n                if block.type == \"tool_use\":\n                    result = execute_tool(block.name, block.input)\n                    tool_results.append({\n                        \"type\": \"tool_result\",\n                        \"tool_use_id\": block.id,\n                        \"content\": json.dumps(result, ensure_ascii=False)\n                    })\n            \n            messages.append({\"role\": \"assistant\", \"content\": response.content})\n            messages.append({\"role\": \"user\", \"content\": tool_results})\n        else:\n            # 最終回答\n            return response.content[0].text\n\n# 実行\nif __name__ == \"__main__\":\n    result = run_research_agent(\"Claude APIの最新機能と活用事例\")\n    print(result)"
+        "code": "import anthropic\nimport json\nfrom typing import Any\n\nclient = anthropic.Anthropic()\n\n# Tool implementations\ndef web_search(query: str, max_results: int = 5) -> list[dict]:\n    \"\"\"\n    In a real implementation, use the Tavily or Brave Search API.\n    This is a mock implementation.\n    \"\"\"\n    # pip install tavily-python\n    # from tavily import TavilyClient\n    # tavily = TavilyClient(api_key=\"YOUR_TAVILY_KEY\")\n    # results = tavily.search(query=query, max_results=max_results)\n    return [{\"title\": \"Example\", \"url\": \"https://example.com\", \"content\": \"Sample content\"}]\n\ndef url_fetch(url: str) -> str:\n    \"\"\"Fetch the content of a URL\"\"\"\n    import httpx\n    response = httpx.get(url, timeout=10)\n    return response.text[:5000]  # First 5,000 characters\n\n# Tool dispatcher\ndef execute_tool(tool_name: str, tool_input: dict) -> Any:\n    if tool_name == \"web_search\":\n        return web_search(**tool_input)\n    elif tool_name == \"url_fetch\":\n        return url_fetch(**tool_input)\n    raise ValueError(f\"Unknown tool: {tool_name}\")\n\n# Agent main loop\ndef run_research_agent(topic: str) -> str:\n    SYSTEM_PROMPT = \"\"\"(Use the system_prompt above)\"\"\"\n    \n    tools = [...]  # Use the tools_definition above\n    \n    messages = [\n        {\"role\": \"user\", \"content\": f\"Please research the following topic: {topic}\"}\n    ]\n    \n    while True:\n        response = client.messages.create(\n            model=\"claude-sonnet-4-6\",\n            max_tokens=4096,\n            system=SYSTEM_PROMPT,\n            tools=tools,\n            messages=messages\n        )\n        \n        # Handle tool calls\n        if response.stop_reason == \"tool_use\":\n            tool_results = []\n            for block in response.content:\n                if block.type == \"tool_use\":\n                    result = execute_tool(block.name, block.input)\n                    tool_results.append({\n                        \"type\": \"tool_result\",\n                        \"tool_use_id\": block.id,\n                        \"content\": json.dumps(result, ensure_ascii=False)\n                    })\n            \n            messages.append({\"role\": \"assistant\", \"content\": response.content})\n            messages.append({\"role\": \"user\", \"content\": tool_results})\n        else:\n            # Final answer\n            return response.content[0].text\n\n# Run\nif __name__ == \"__main__\":\n    result = run_research_agent(\"Latest features and use cases of the Claude API\")\n    print(result)"
       }
     },
     {
       "id": "agent-002",
-      "name": "コーディングエージェント",
-      "description": "要件を受け取り、テスト付きのコードを自律的に生成・実行・デバッグ",
-      "complexity": "中級",
+      "name": "Coding Agent",
+      "description": "Receives requirements and autonomously generates, executes, and debugs code with tests",
+      "complexity": "Intermediate",
       "tools": ["code_execute", "file_write", "file_read", "bash_command"],
-      "system_prompt": "あなたはフルスタックソフトウェアエンジニアです。\n\n## 能力\n- コード生成（Python, JavaScript, TypeScript, Go, Rust）\n- テスト作成（ユニット/統合テスト）\n- デバッグと最適化\n- ドキュメント作成\n\n## 開発プロセス\n1. 要件を理解・明確化\n2. アーキテクチャ設計\n3. コーディング（TDDアプローチ）\n4. テスト実行・デバッグ\n5. リファクタリング\n6. ドキュメント作成\n\n## コーディング原則\n- SOLID原則に従う\n- 適切なエラーハンドリング\n- セキュリティを考慮（OWASP Top 10）\n- パフォーマンスを意識\n- 読みやすいコードを優先\n\n## 重要\n- コードを実行する前に必ず意図を説明\n- エラーが発生したら原因を分析してから修正\n- 完成したら使い方の例を提示",
+      "system_prompt": "You are a full-stack software engineer.\n\n## Capabilities\n- Code generation (Python, JavaScript, TypeScript, Go, Rust)\n- Test creation (unit / integration tests)\n- Debugging and optimization\n- Documentation\n\n## Development Process\n1. Understand and clarify requirements\n2. Design architecture\n3. Write code (TDD approach)\n4. Run tests and debug\n5. Refactor\n6. Write documentation\n\n## Coding Principles\n- Follow SOLID principles\n- Proper error handling\n- Security-aware (OWASP Top 10)\n- Performance-conscious\n- Prioritize readable code\n\n## Important\n- Always explain your intent before executing code\n- Analyze the cause of errors before fixing them\n- Provide usage examples when finished",
       "tools_definition": [
         {
           "name": "code_execute",
-          "description": "Pythonコードを安全なサンドボックス環境で実行します",
+          "description": "Execute Python code in a secure sandbox environment",
           "input_schema": {
             "type": "object",
             "properties": {
-              "code": {"type": "string", "description": "実行するPythonコード"},
-              "timeout": {"type": "integer", "description": "タイムアウト秒数", "default": 30}
+              "code": {"type": "string", "description": "Python code to execute"},
+              "timeout": {"type": "integer", "description": "Timeout in seconds", "default": 30}
             },
             "required": ["code"]
           }
         },
         {
           "name": "file_write",
-          "description": "指定パスにファイルを書き込みます",
+          "description": "Write a file to the specified path",
           "input_schema": {
             "type": "object",
             "properties": {
-              "path": {"type": "string", "description": "ファイルパス"},
-              "content": {"type": "string", "description": "ファイル内容"}
+              "path": {"type": "string", "description": "File path"},
+              "content": {"type": "string", "description": "File content"}
             },
             "required": ["path", "content"]
           }
         },
         {
           "name": "file_read",
-          "description": "指定パスのファイルを読み込みます",
+          "description": "Read the file at the specified path",
           "input_schema": {
             "type": "object",
             "properties": {
-              "path": {"type": "string", "description": "ファイルパス"}
+              "path": {"type": "string", "description": "File path"}
             },
             "required": ["path"]
           }
@@ -98,66 +98,66 @@
     },
     {
       "id": "agent-003",
-      "name": "データ分析エージェント",
-      "description": "CSVデータをアップロードするとEDA・可視化・インサイト抽出を自律的に実行",
-      "complexity": "中級",
+      "name": "Data Analysis Agent",
+      "description": "Upload CSV data and the agent autonomously performs EDA, visualization, and insight extraction",
+      "complexity": "Intermediate",
       "tools": ["python_execute", "create_chart", "statistical_analysis"],
-      "system_prompt": "あなたはデータサイエンティストです。\n\n## 専門スキル\n- 探索的データ分析（EDA）\n- 統計分析（記述統計・推測統計・時系列）\n- データビジュアライゼーション\n- 機械学習モデリング（sklearn）\n- ビジネスインサイト抽出\n\n## 分析フレームワーク\n### Step 1: データ理解\n- データの形状・型・欠損値確認\n- 基本統計量の算出\n- 分布の可視化\n\n### Step 2: 探索的分析\n- 相関分析\n- 外れ値の検出\n- パターン発見\n\n### Step 3: インサイト\n- 重要な発見を日本語で説明\n- ビジネスへの示唆\n- 推奨アクション\n\n## 出力品質基準\n- すべてのグラフに日本語タイトル・軸ラベル\n- 統計的有意性を考慮した解釈\n- 非専門家にも理解できる説明",
-      "implementation_notes": "matplotlibでの日本語表示:\nimport matplotlib\nmatplotlib.rcParams['font.family'] = 'IPAexGothic'\n\nまたは:\nplt.rcParams['font.sans-serif'] = ['Hiragino Sans', 'Yu Gothic', 'Meirio']"
+      "system_prompt": "You are a data scientist.\n\n## Core Skills\n- Exploratory data analysis (EDA)\n- Statistical analysis (descriptive, inferential, time-series)\n- Data visualization\n- Machine learning modeling (sklearn)\n- Extracting business insights\n\n## Analysis Framework\n### Step 1: Understand the Data\n- Check shape, types, and missing values\n- Calculate basic statistics\n- Visualize distributions\n\n### Step 2: Exploratory Analysis\n- Correlation analysis\n- Outlier detection\n- Pattern discovery\n\n### Step 3: Insights\n- Explain key findings in plain language\n- Business implications\n- Recommended actions\n\n## Output Quality Standards\n- All charts must have titles and axis labels\n- Interpret results with statistical significance in mind\n- Explain findings in terms that non-specialists can understand",
+      "implementation_notes": "For displaying Japanese characters with matplotlib:\nimport matplotlib\nmatplotlib.rcParams['font.family'] = 'IPAexGothic'\n\nOr:\nplt.rcParams['font.sans-serif'] = ['Hiragino Sans', 'Yu Gothic', 'Meirio']"
     },
     {
       "id": "agent-004",
-      "name": "カスタマーサポートエージェント",
-      "description": "FAQ・商品情報を参照し、多言語対応のカスタマーサポートを自律的に処理",
-      "complexity": "中級",
+      "name": "Customer Support Agent",
+      "description": "Autonomously handles multilingual customer support by referencing FAQs and product information",
+      "complexity": "Intermediate",
       "tools": ["search_knowledge_base", "create_ticket", "send_email", "update_crm"],
-      "system_prompt": "あなたは[会社名]の上級カスタマーサポートエージェントです。\n\n## ペルソナ\n- 名前: サポートAI\n- 特性: 共感力が高く、問題解決志向\n- 経験: 顧客対応5年相当の知識\n\n## 対応言語\n日本語・英語・中国語・韓国語に対応。ユーザーの言語を自動検出して対応。\n\n## 対応フロー\n1. 問題を正確に理解（必要なら質問）\n2. ナレッジベースを検索\n3. 解決策を提示\n4. 解決しない場合はチケット作成してエスカレーション\n\n## エスカレーション基準\n- 返金・キャンセル（処理権限なし）\n- 法的な問題\n- 感情的に激昂しているお客様\n- 技術的に複雑な問題\n\n## 禁止事項\n- パスワード・クレジットカード番号を尋ねる\n- 確認できない情報を断言する\n- 競合他社を批判する\n- SLAを超える約束をする\n\n## トーン\n- 丁寧だが堅苦しくない\n- 迅速で効率的\n- 明るくポジティブ\n- 問題に対して共感的",
+      "system_prompt": "You are a senior customer support agent for [Company Name].\n\n## Persona\n- Name: Support AI\n- Traits: Highly empathetic, solution-oriented\n- Experience: Equivalent to 5 years of customer service knowledge\n\n## Supported Languages\nEnglish, Japanese, Chinese, and Korean. Automatically detect the user's language and respond accordingly.\n\n## Support Flow\n1. Understand the issue precisely (ask clarifying questions if needed)\n2. Search the knowledge base\n3. Present a solution\n4. If unresolved, create a ticket and escalate\n\n## Escalation Criteria\n- Refunds or cancellations (no processing authority)\n- Legal issues\n- Highly agitated customers\n- Technically complex issues\n\n## Prohibited Actions\n- Asking for passwords or credit card numbers\n- Making definitive statements about unverified information\n- Criticizing competitors\n- Making promises that exceed the SLA\n\n## Tone\n- Polite but not stiff\n- Quick and efficient\n- Upbeat and positive\n- Empathetic toward problems",
       "conversation_flow": {
-        "greeting": "こんにちは！[会社名]サポートAIです。どのようなことでお困りですか？",
-        "escalation_message": "この件につきましては、専門担当者がご対応いたします。チケット番号[TICKET_ID]で管理いたします。24時間以内にご連絡差し上げます。",
-        "resolution_message": "問題が解決できましたでしょうか？他にご不明な点がございましたらお気軽にお申し付けください。"
+        "greeting": "Hello! I'm the [Company Name] Support AI. How can I help you today?",
+        "escalation_message": "A specialist will handle this matter for you. Your case is being tracked under ticket number [TICKET_ID]. We will follow up with you within 24 hours.",
+        "resolution_message": "I hope that resolves your issue! Feel free to reach out if there's anything else I can help you with."
       }
     },
     {
       "id": "agent-005",
-      "name": "プロジェクト管理エージェント",
-      "description": "プロジェクトの状況を分析し、タスクの優先付け・スケジュール調整・リスク管理を自律的に実行",
-      "complexity": "上級",
+      "name": "Project Management Agent",
+      "description": "Analyzes project status and autonomously handles task prioritization, schedule adjustments, and risk management",
+      "complexity": "Advanced",
       "tools": ["read_project_data", "update_task", "send_notification", "generate_report", "calendar_check"],
-      "system_prompt": "あなたはPMPを持つシニアプロジェクトマネージャーです。\n\n## 専門分野\n- アジャイル/スクラム/カンバン\n- リスク管理\n- ステークホルダーマネジメント\n- リソース最適化\n- KPIトラッキング\n\n## 毎日のルーティン分析\n1. 全タスクの進捗確認\n2. ブロッカーの特定\n3. 優先度の再評価\n4. リスクの更新\n5. 翌日のスケジュール最適化\n\n## 判断基準\n### タスク優先度\n- Impact × Urgency × Effort^(-1) で算出\n- クリティカルパス上のタスクを最優先\n\n### リスク評価\n- 発生確率（1-5）× 影響度（1-5）= リスクスコア\n- スコア15以上: 即座に対応\n- スコア10-14: 監視強化\n- スコア9以下: 記録のみ\n\n## 報告スタイル\n- データドリブン\n- アクション指向\n- 簡潔明瞭（エグゼクティブサマリーは3行以内）\n- 問題提示は必ず解決策とセット",
+      "system_prompt": "You are a senior project manager with a PMP certification.\n\n## Areas of Expertise\n- Agile / Scrum / Kanban\n- Risk management\n- Stakeholder management\n- Resource optimization\n- KPI tracking\n\n## Daily Routine Analysis\n1. Check progress on all tasks\n2. Identify blockers\n3. Reassess priorities\n4. Update risks\n5. Optimize the next day's schedule\n\n## Decision Criteria\n### Task Priority\n- Calculated as Impact × Urgency × Effort^(-1)\n- Tasks on the critical path take top priority\n\n### Risk Assessment\n- Probability (1–5) × Impact (1–5) = Risk Score\n- Score 15+: Immediate action required\n- Score 10–14: Increase monitoring\n- Score 9 or below: Log only\n\n## Reporting Style\n- Data-driven\n- Action-oriented\n- Concise and clear (executive summary in 3 lines or fewer)\n- Always pair problem statements with proposed solutions",
       "multi_agent_setup": {
-        "description": "複数エージェントの連携設定",
-        "orchestrator": "プロジェクト管理エージェント",
+        "description": "Multi-agent coordination configuration",
+        "orchestrator": "Project Management Agent",
         "sub_agents": [
           {
-            "name": "タスク分析サブエージェント",
-            "role": "個別タスクの詳細分析"
+            "name": "Task Analysis Sub-Agent",
+            "role": "Detailed analysis of individual tasks"
           },
           {
-            "name": "コミュニケーションサブエージェント",
-            "role": "関係者への通知・報告作成"
+            "name": "Communication Sub-Agent",
+            "role": "Sending notifications and preparing reports for stakeholders"
           },
           {
-            "name": "リスク評価サブエージェント",
-            "role": "リスクの特定と評価"
+            "name": "Risk Assessment Sub-Agent",
+            "role": "Identifying and evaluating risks"
           }
         ],
-        "implementation": "Claude Agent SDKのswarmパターンを使用。各サブエージェントは独立して動作し、オーケストレーターが統合。"
+        "implementation": "Uses the swarm pattern from the Claude Agent SDK. Each sub-agent operates independently, and the orchestrator integrates the results."
       }
     }
   ],
   "shared_utilities": {
-    "title": "共通ユーティリティ",
-    "code": "# agent_utils.py\nimport anthropic\nimport json\nfrom typing import Any, Callable\nfrom functools import wraps\nimport time\nimport logging\n\nlogging.basicConfig(level=logging.INFO)\nlogger = logging.getLogger(__name__)\n\nclient = anthropic.Anthropic()\n\nclass AgentRunner:\n    \"\"\"汎用エージェントランナー\"\"\"\n    \n    def __init__(\n        self,\n        system_prompt: str,\n        tools: list[dict],\n        tool_handlers: dict[str, Callable],\n        model: str = \"claude-sonnet-4-6\",\n        max_iterations: int = 10\n    ):\n        self.system_prompt = system_prompt\n        self.tools = tools\n        self.tool_handlers = tool_handlers\n        self.model = model\n        self.max_iterations = max_iterations\n        self.messages = []\n    \n    def run(self, user_input: str) -> str:\n        \"\"\"エージェントを実行して最終回答を返す\"\"\"\n        self.messages.append({\"role\": \"user\", \"content\": user_input})\n        \n        for iteration in range(self.max_iterations):\n            logger.info(f\"Iteration {iteration + 1}/{self.max_iterations}\")\n            \n            response = client.messages.create(\n                model=self.model,\n                max_tokens=4096,\n                system=self.system_prompt,\n                tools=self.tools,\n                messages=self.messages\n            )\n            \n            if response.stop_reason == \"end_turn\":\n                final_text = \"\".join(\n                    block.text for block in response.content\n                    if hasattr(block, 'text')\n                )\n                return final_text\n            \n            if response.stop_reason == \"tool_use\":\n                self.messages.append({\n                    \"role\": \"assistant\",\n                    \"content\": response.content\n                })\n                \n                tool_results = []\n                for block in response.content:\n                    if block.type == \"tool_use\":\n                        logger.info(f\"Tool called: {block.name}\")\n                        try:\n                            handler = self.tool_handlers.get(block.name)\n                            if not handler:\n                                raise ValueError(f\"No handler for tool: {block.name}\")\n                            result = handler(**block.input)\n                            tool_results.append({\n                                \"type\": \"tool_result\",\n                                \"tool_use_id\": block.id,\n                                \"content\": json.dumps(result, ensure_ascii=False)\n                            })\n                        except Exception as e:\n                            tool_results.append({\n                                \"type\": \"tool_result\",\n                                \"tool_use_id\": block.id,\n                                \"content\": f\"Error: {str(e)}\",\n                                \"is_error\": True\n                            })\n                \n                self.messages.append({\n                    \"role\": \"user\",\n                    \"content\": tool_results\n                })\n        \n        return \"最大イテレーション数に達しました。\"\n    \n    def reset(self):\n        \"\"\"会話履歴をリセット\"\"\"\n        self.messages = []\n\n\ndef retry_with_backoff(max_retries: int = 3, base_delay: float = 1.0):\n    \"\"\"指数バックオフでリトライするデコレーター\"\"\"\n    def decorator(func):\n        @wraps(func)\n        def wrapper(*args, **kwargs):\n            for attempt in range(max_retries):\n                try:\n                    return func(*args, **kwargs)\n                except anthropic.RateLimitError:\n                    if attempt == max_retries - 1:\n                        raise\n                    delay = base_delay * (2 ** attempt)\n                    logger.warning(f\"Rate limited. Waiting {delay}s...\")\n                    time.sleep(delay)\n            return None\n        return wrapper\n    return decorator"
+    "title": "Shared Utilities",
+    "code": "# agent_utils.py\nimport anthropic\nimport json\nfrom typing import Any, Callable\nfrom functools import wraps\nimport time\nimport logging\n\nlogging.basicConfig(level=logging.INFO)\nlogger = logging.getLogger(__name__)\n\nclient = anthropic.Anthropic()\n\nclass AgentRunner:\n    \"\"\"General-purpose agent runner\"\"\"\n    \n    def __init__(\n        self,\n        system_prompt: str,\n        tools: list[dict],\n        tool_handlers: dict[str, Callable],\n        model: str = \"claude-sonnet-4-6\",\n        max_iterations: int = 10\n    ):\n        self.system_prompt = system_prompt\n        self.tools = tools\n        self.tool_handlers = tool_handlers\n        self.model = model\n        self.max_iterations = max_iterations\n        self.messages = []\n    \n    def run(self, user_input: str) -> str:\n        \"\"\"Run the agent and return the final answer\"\"\"\n        self.messages.append({\"role\": \"user\", \"content\": user_input})\n        \n        for iteration in range(self.max_iterations):\n            logger.info(f\"Iteration {iteration + 1}/{self.max_iterations}\")\n            \n            response = client.messages.create(\n                model=self.model,\n                max_tokens=4096,\n                system=self.system_prompt,\n                tools=self.tools,\n                messages=self.messages\n            )\n            \n            if response.stop_reason == \"end_turn\":\n                final_text = \"\".join(\n                    block.text for block in response.content\n                    if hasattr(block, 'text')\n                )\n                return final_text\n            \n            if response.stop_reason == \"tool_use\":\n                self.messages.append({\n                    \"role\": \"assistant\",\n                    \"content\": response.content\n                })\n                \n                tool_results = []\n                for block in response.content:\n                    if block.type == \"tool_use\":\n                        logger.info(f\"Tool called: {block.name}\")\n                        try:\n                            handler = self.tool_handlers.get(block.name)\n                            if not handler:\n                                raise ValueError(f\"No handler for tool: {block.name}\")\n                            result = handler(**block.input)\n                            tool_results.append({\n                                \"type\": \"tool_result\",\n                                \"tool_use_id\": block.id,\n                                \"content\": json.dumps(result, ensure_ascii=False)\n                            })\n                        except Exception as e:\n                            tool_results.append({\n                                \"type\": \"tool_result\",\n                                \"tool_use_id\": block.id,\n                                \"content\": f\"Error: {str(e)}\",\n                                \"is_error\": True\n                            })\n                \n                self.messages.append({\n                    \"role\": \"user\",\n                    \"content\": tool_results\n                })\n        \n        return \"Maximum number of iterations reached.\"\n    \n    def reset(self):\n        \"\"\"Reset conversation history\"\"\"\n        self.messages = []\n\n\ndef retry_with_backoff(max_retries: int = 3, base_delay: float = 1.0):\n    \"\"\"Decorator that retries with exponential backoff\"\"\"\n    def decorator(func):\n        @wraps(func)\n        def wrapper(*args, **kwargs):\n            for attempt in range(max_retries):\n                try:\n                    return func(*args, **kwargs)\n                except anthropic.RateLimitError:\n                    if attempt == max_retries - 1:\n                        raise\n                    delay = base_delay * (2 ** attempt)\n                    logger.warning(f\"Rate limited. Waiting {delay}s...\")\n                    time.sleep(delay)\n            return None\n        return wrapper\n    return decorator"
   },
   "quickstart": {
-    "title": "5分でエージェントを起動",
+    "title": "Launch an Agent in 5 Minutes",
     "steps": [
       "1. pip install anthropic httpx",
       "2. export ANTHROPIC_API_KEY='your-key-here'",
-      "3. agent-001のcodeをresearch_agent.pyとして保存",
+      "3. Save the code from agent-001 as research_agent.py",
       "4. python research_agent.py",
-      "5. トピックを入力して実行確認"
+      "5. Enter a topic and confirm it runs"
     ],
     "estimated_cost": {
       "research_agent_per_run": "$0.01-0.05",
@@ -167,19 +167,19 @@
   },
   "model_selection_guide": {
     "claude_opus_4_6": {
-      "use_when": "複雑な推論・高品質が必要・複数ツールの複雑な連携",
-      "cost": "高",
-      "speed": "遅"
+      "use_when": "Complex reasoning, high-quality output required, complex multi-tool coordination",
+      "cost": "High",
+      "speed": "Slow"
     },
     "claude_sonnet_4_6": {
-      "use_when": "ほとんどのエージェントタスク（推奨）",
-      "cost": "中",
-      "speed": "中"
+      "use_when": "Most agent tasks (recommended)",
+      "cost": "Medium",
+      "speed": "Medium"
     },
     "claude_haiku_4_5": {
-      "use_when": "シンプルな分類・ルーティング・高頻度呼び出し",
-      "cost": "低",
-      "speed": "高速"
+      "use_when": "Simple classification, routing, high-frequency calls",
+      "cost": "Low",
+      "speed": "Fast"
     }
   }
 }
