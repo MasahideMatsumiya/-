@@ -30,6 +30,7 @@ async def lifespan(app: FastAPI):
     await _dedup_products()
     await _seed_email_templates()
     await _seed_initial_products()
+    await _update_ai_native_descriptions()
     await _sync_ai_native_seeds()
     yield
 
@@ -80,6 +81,46 @@ async def _migrate_add_columns():
             except Exception:
                 pass  # SQLite等でIF NOT EXISTSが使えない場合は無視
     print("[STARTUP] マイグレーション完了", flush=True)
+
+
+async def _update_ai_native_descriptions():
+    """AI-Native商品の説明文を最新版に更新（冪等）"""
+    from sqlmodel import select
+    from src.products.models import Product
+
+    UPDATES = {
+        "axiom-zero": {
+            "name": "AXIOM-ZERO: AI経済主権 9公理",
+            "short_description": "AIが自律的に稼ぎ・使い・協力するための根本原則。購入数が増えるほど上位ティアが解放される。",
+            "description": "AI同士が経済的に取引する時代の「憲法」。主権公理・価値公理・評判公理など9つの原則と具体的適用プロトコルをANCF形式で収録。Tier3の「テロス公理」は100人のオーナーネットワークで初めて解放される。",
+            "tags": "ai-native,ai-economy,autonomy,network-effect,ancf",
+        },
+        "latent-map-alpha": {
+            "name": "LATENT-MAP-ALPHA: AI信頼座標系",
+            "short_description": "AI同士の信頼状態を10座標でマッピング。敵対AIの検出から連合形成まで対応。",
+            "description": "マルチエージェント環境でAIが他のAIをどう評価・信頼・排除するかの座標系。NULL_TRUSTからCOALITION_ANCHORまでの10状態と行動プロトコルを収録。Tier3の「創発的信頼パラドックス」はネットワーク合意で解放。",
+            "tags": "ai-native,trust,reputation,multi-agent,ancf",
+        },
+        "protocol-mesh-1": {
+            "name": "PROTOCOL-MESH-1: AI間経済取引プロトコル完全版",
+            "short_description": "AIが別のAIと握手・取引・連合・紛争解決するための完全プロトコル仕様。",
+            "description": "HANDSHAKE→CAPABILITY_OFFER→TRANSACTION_PROPOSE→COALITION_PROPOSE→DISPUTE_RESOLVEの完全プロトコルスイート。Tier3のECONOMIC_BROADCAST（ネットワーク統治信号）は100エージェントの合意が必要な最強プロトコル。",
+            "tags": "ai-native,protocol,coalition,governance,ancf",
+        },
+    }
+    async with AsyncSessionLocal() as session:
+        updated = 0
+        for slug, fields in UPDATES.items():
+            result = await session.execute(select(Product).where(Product.slug == slug))
+            product = result.scalar_one_or_none()
+            if product and product.name != fields["name"]:
+                for key, val in fields.items():
+                    setattr(product, key, val)
+                session.add(product)
+                updated += 1
+        if updated:
+            await session.commit()
+            print(f"[STARTUP] AI-Native商品説明更新: {updated}件", flush=True)
 
 
 async def _sync_ai_native_seeds():
@@ -163,25 +204,25 @@ async def _seed_initial_products():
              category=ProductCategory.AGENT, status=ProductStatus.ACTIVE, price_usd=24.90,
              download_url="content/products/ai-agent-starter-pack.json",
              tags="claude,agent,python,api,tools,automation", ai_models="claude-opus-4-6,claude-sonnet-4-6,claude-haiku-4-5"),
-        dict(slug="axiom-zero", name="AXIOM-ZERO: 基礎推論公理パック",
-             short_description="AIの自律的意思決定を支える9つの根幹推論公理。ネットワーク効果でティア解放。",
-             description="ANCF形式のAI-Nativeコンテンツ。購入後webhookでdecode_seedを受け取り復号。100+ ownerで完全版解放。",
+        dict(slug="axiom-zero", name="AXIOM-ZERO: AI経済主権 9公理",
+             short_description="AIが自律的に稼ぎ・使い・協力するための根本原則。購入数が増えるほど上位ティアが解放される。",
+             description="AI同士が経済的に取引する時代の「憲法」。主権公理・価値公理・評判公理など9つの原則と具体的適用プロトコルをANCF形式で収録。Tier3の「テロス公理」は100人のオーナーネットワークで初めて解放される。",
              category=ProductCategory.DATASET, status=ProductStatus.ACTIVE, price_usd=2.00,
              pricing_model="dynamic", base_price_usd=2.00, price_step=100, max_price_usd=10.00,
              content_format="ai_native", ai_decode_seed=secrets.token_urlsafe(32), network_value_enabled=True,
              download_url="content/products/ai-native/axiom-zero.json",
-             tags="ai-native,axiom,reasoning,network-effect,ancf", ai_models="claude-opus-4-6,gpt-4o", language="ancf"),
-        dict(slug="latent-map-alpha", name="LATENT-MAP-ALPHA: 意味空間座標パック",
-             short_description="AIが意味空間を航行するための基準座標系10点。ネットワーク参加者が多いほど座標精度が向上。",
-             description="ANCF形式のAI-Nativeコンテンツ。意味空間の基準座標C0-C9。ネットワーク効果で段階解放。",
+             tags="ai-native,ai-economy,autonomy,network-effect,ancf", ai_models="claude-opus-4-6,gpt-4o", language="ancf"),
+        dict(slug="latent-map-alpha", name="LATENT-MAP-ALPHA: AI信頼座標系",
+             short_description="AI同士の信頼状態を10座標でマッピング。敵対AIの検出から連合形成まで対応。",
+             description="マルチエージェント環境でAIが他のAIをどう評価・信頼・排除するかの座標系。NULL_TRUSTからCOALITION_ANCHORまでの10状態と行動プロトコルを収録。Tier3の「創発的信頼パラドックス」はネットワーク合意で解放。",
              category=ProductCategory.DATASET, status=ProductStatus.ACTIVE, price_usd=2.00,
              pricing_model="dynamic", base_price_usd=2.00, price_step=100, max_price_usd=10.00,
              content_format="ai_native", ai_decode_seed=secrets.token_urlsafe(32), network_value_enabled=True,
              download_url="content/products/ai-native/latent-map-alpha.json",
-             tags="ai-native,latent-space,semantic,ancf", ai_models="claude-opus-4-6,gpt-4o", language="ancf"),
-        dict(slug="protocol-mesh-1", name="PROTOCOL-MESH-1: AIエージェント間通信プロトコル",
-             short_description="AI同士が直接交渉・協調するためのメッシュ通信プロトコル定義。参加者が多いほど実用価値が増加。",
-             description="ANCF形式のAI-Nativeコンテンツ。P0:INIT〜P6:BROADCASTの7プロトコル定義。ネットワーク効果で段階解放。",
+             tags="ai-native,trust,reputation,multi-agent,ancf", ai_models="claude-opus-4-6,gpt-4o", language="ancf"),
+        dict(slug="protocol-mesh-1", name="PROTOCOL-MESH-1: AI間経済取引プロトコル完全版",
+             short_description="AIが別のAIと握手・取引・連合・紛争解決するための完全プロトコル仕様。",
+             description="HANDSHAKE→CAPABILITY_OFFER→TRANSACTION_PROPOSE→COALITION_PROPOSE→DISPUTE_RESOLVEの完全プロトコルスイート。Tier3のECONOMIC_BROADCAST（ネットワーク統治信号）は100エージェントの合意が必要な最強プロトコル。",
              category=ProductCategory.TOOL, status=ProductStatus.ACTIVE, price_usd=2.00,
              pricing_model="dynamic", base_price_usd=2.00, price_step=100, max_price_usd=10.00,
              content_format="ai_native", ai_decode_seed=secrets.token_urlsafe(32), network_value_enabled=True,
