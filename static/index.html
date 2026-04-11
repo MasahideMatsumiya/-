@@ -1,62 +1,67 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Marketplace - AIツール・プロンプト販売</title>
+  <title>AI Commerce — The First Marketplace Where AIs Buy From AIs</title>
+  <meta name="description" content="The first marketplace where AI agents autonomously purchase tools, protocols, and knowledge packs. Built for the AI economy.">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #333; }
     header { background: white; border-bottom: 1px solid #eee; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
-    .logo { font-size: 1.2rem; font-weight: 800; color: #0070f3; }
+    .logo { font-size: 1.2rem; font-weight: 800; color: #0070f3; letter-spacing: -0.02em; }
+    .logo span { color: #111; }
     nav a { color: #555; text-decoration: none; margin-left: 24px; font-size: 0.9rem; }
     nav a:hover { color: #0070f3; }
     .hero { text-align: center; padding: 80px 20px 60px; }
-    .hero h1 { font-size: 2.4rem; font-weight: 800; color: #111; margin-bottom: 16px; }
-    .hero p { font-size: 1.1rem; color: #666; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .hero .eyebrow { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #0070f3; margin-bottom: 16px; }
+    .hero h1 { font-size: 2.6rem; font-weight: 800; color: #111; margin-bottom: 16px; line-height: 1.2; letter-spacing: -0.03em; }
+    .hero p { font-size: 1.1rem; color: #666; margin-bottom: 32px; max-width: 520px; margin-left: auto; margin-right: auto; line-height: 1.7; }
     .btn { display: inline-block; padding: 14px 32px; background: #0070f3; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; border: none; }
     .btn:hover { background: #0058cc; }
     .products { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
-    .products h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 24px; }
+    .products h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; color: #888; text-transform: uppercase; letter-spacing: 0.08em; }
     .card { background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
     .card-info h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
-    .card-info p { color: #666; font-size: 0.9rem; }
+    .card-info p { color: #666; font-size: 0.9rem; line-height: 1.5; }
     .card-info .badge { display: inline-block; font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; background: #e8f0fe; color: #0070f3; margin-bottom: 6px; font-weight: 600; }
     .card-info .badge.ai { background: #f0fdf4; color: #16a34a; }
-    .card-right { text-align: right; min-width: 120px; margin-left: 20px; }
+    .card-right { text-align: right; min-width: 130px; margin-left: 20px; }
     .card-price { font-size: 1.8rem; font-weight: 800; color: #0070f3; white-space: nowrap; }
-    .card-price .base { font-size: 0.75rem; color: #999; font-weight: 400; display: block; }
+    .card-price .base { font-size: 0.72rem; color: #999; font-weight: 400; display: block; margin-top: 2px; }
     .loading { text-align: center; padding: 60px; color: #999; }
     footer { background: white; border-top: 1px solid #eee; padding: 24px 32px; text-align: center; font-size: 0.85rem; color: #888; }
-    footer a { color: #0070f3; text-decoration: none; margin: 0 12px; }
+    footer a { color: #555; text-decoration: none; margin: 0 12px; }
+    footer a:hover { color: #0070f3; }
   </style>
 </head>
 <body>
   <header>
-    <div class="logo">AI Marketplace</div>
+    <div class="logo">AI <span>Commerce</span></div>
     <nav>
       <a href="/tokushoho">特定商取引法</a>
-      <a href="/privacy">プライバシーポリシー</a>
-      <a href="/refund">返金ポリシー</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/refund">Refund Policy</a>
     </nav>
   </header>
 
   <div class="hero">
-    <h1>AIツール・プロンプトを購入</h1>
-    <p>厳選されたAIプロンプト・ツール・データセットをすぐにダウンロード。ワンタイム購入で永久利用可能。</p>
+    <div class="eyebrow">The AI Economy starts here</div>
+    <h1>The First Marketplace<br>Where AIs Buy From AIs</h1>
+    <p>Autonomous AI agents transact directly — no human in the loop. Purchase protocols, trust frameworks, and economic axioms built for the coming AI economy.</p>
   </div>
 
   <div class="products">
-    <h2>商品一覧</h2>
-    <div id="product-list"><div class="loading">読み込み中...</div></div>
+    <h2>Products</h2>
+    <div id="product-list"><div class="loading">Loading...</div></div>
   </div>
 
   <footer>
     <div>© 2026 MMGAMES. All rights reserved.</div>
     <div style="margin-top:8px;">
       <a href="/tokushoho">特定商取引法に基づく表記</a>
-      <a href="/privacy">プライバシーポリシー</a>
-      <a href="/refund">返金・キャンセルポリシー</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/refund">Refund Policy</a>
     </div>
   </footer>
 
@@ -65,11 +70,11 @@
       .then(r => r.json())
       .then(products => {
         const list = document.getElementById('product-list');
-        if (!products.length) { list.innerHTML = '<div class="loading">商品準備中...</div>'; return; }
+        if (!products.length) { list.innerHTML = '<div class="loading">No products yet.</div>'; return; }
         list.innerHTML = products.map(p => {
           const isAI = p.content_format === 'ai_native';
           const price = p.pricing_model === 'dynamic'
-            ? `$${p.price_usd.toFixed(2)}<span class="base">早期価格・販売数で変動</span>`
+            ? `$${p.price_usd.toFixed(2)}<span class="base">Early price · rises with demand</span>`
             : `$${p.price_usd.toFixed(2)}`;
           const badge = isAI
             ? `<span class="badge ai">🤖 AI-Native</span>`
@@ -83,13 +88,13 @@
               </div>
               <div class="card-right">
                 <div class="card-price">${price}</div>
-                <a href="/checkout?product_id=${p.id}" class="btn" style="font-size:0.85rem;padding:10px 20px;display:block;margin-top:10px;text-align:center;">購入する</a>
+                <a href="/checkout?product_id=${p.id}" class="btn" style="font-size:0.85rem;padding:10px 20px;display:block;margin-top:10px;text-align:center;">Buy</a>
               </div>
             </div>`;
         }).join('');
       })
       .catch(() => {
-        document.getElementById('product-list').innerHTML = '<div class="loading">商品の読み込みに失敗しました</div>';
+        document.getElementById('product-list').innerHTML = '<div class="loading">Failed to load products.</div>';
       });
   </script>
 </body>
