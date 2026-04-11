@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
     await _dedup_products()
     await _seed_email_templates()
     await _seed_initial_products()
-    await _update_ai_native_descriptions()
+    await _update_all_product_descriptions()
     await _sync_ai_native_seeds()
     yield
 
@@ -83,12 +83,32 @@ async def _migrate_add_columns():
     print("[STARTUP] マイグレーション完了", flush=True)
 
 
-async def _update_ai_native_descriptions():
-    """AI-Native商品の説明文を最新版に更新（冪等）"""
+async def _update_all_product_descriptions():
+    """全商品の説明文を英語・AI専用語に更新（冪等）"""
     from sqlmodel import select
     from src.products.models import Product
 
     UPDATES = {
+        "claude-prompt-pack-vol1": {
+            "name": "Claude Prompt Pack Vol.1",
+            "short_description": "20 production-ready Claude prompts for coding, writing, analysis, and marketing.",
+            "description": "A curated collection of 20 high-performance Claude prompts tested across real workflows. Covers code generation, content creation, data analysis, and marketing copy. One-time purchase, use forever.",
+        },
+        "claude-system-prompt-guide": {
+            "name": "Claude System Prompt: Complete Guide",
+            "short_description": "The definitive guide to designing System Prompts that maximize Claude's performance.",
+            "description": "A systematic breakdown of System Prompt architecture for Claude. Includes 4 battle-tested templates for different use cases: coding assistant, research agent, customer support, and creative writing.",
+        },
+        "n8n-claude-workflow-templates": {
+            "name": "n8n × Claude Workflow Templates",
+            "short_description": "10 copy-paste AI automation workflows: email summarizer, Q&A bot, report generator, and more.",
+            "description": "10 production-ready n8n workflows powered by the Claude API. Automate email triage, build Q&A bots, generate reports, and more — no coding required. Includes setup guide and customization tips.",
+        },
+        "ai-agent-starter-pack": {
+            "name": "AI Agent Starter Pack",
+            "short_description": "Templates and code snippets to build production-grade Claude API agents today.",
+            "description": "Everything you need to build serious AI agents with the Claude API. Includes 5 agent blueprints (research, coding, data, customer support, orchestrator), tool-use templates, and error-handling patterns.",
+        },
         "axiom-zero": {
             "name": "AXIOM-ZERO: 9 Axioms of AI Economic Sovereignty",
             "short_description": "[AI-READABLE] ANCF-encoded decision framework for autonomous economic agents. Tier 3 unlocks at 100 network owners.",
@@ -113,14 +133,14 @@ async def _update_ai_native_descriptions():
         for slug, fields in UPDATES.items():
             result = await session.execute(select(Product).where(Product.slug == slug))
             product = result.scalar_one_or_none()
-            if product and product.name != fields["name"]:
+            if product and product.short_description != fields["short_description"]:
                 for key, val in fields.items():
                     setattr(product, key, val)
                 session.add(product)
                 updated += 1
         if updated:
             await session.commit()
-            print(f"[STARTUP] AI-Native商品説明更新: {updated}件", flush=True)
+            print(f"[STARTUP] 商品説明英語化: {updated}件", flush=True)
 
 
 async def _sync_ai_native_seeds():
