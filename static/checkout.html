@@ -84,9 +84,14 @@
 
   <div id="step-success">
     <div class="success-icon">✅</div>
-    <div class="success-title">購入完了！</div>
-    <div class="success-sub">ご購入ありがとうございます。<br>下記ボタンからコンテンツをダウンロードしてください。<br>確認メールも送信済みです。</div>
-    <a id="download-link" href="#" class="dl-btn">ダウンロード</a>
+    <div class="success-title">Purchase Complete!</div>
+    <div class="success-sub">Thank you for your purchase.<br>Download your content below. A confirmation email has been sent.</div>
+    <div id="decode-seed-box" style="display:none;margin:20px 0;padding:16px;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;text-align:left;">
+      <div style="font-weight:700;color:#166534;margin-bottom:8px;">🔑 Decode Seed (AI-Native Content)</div>
+      <code id="decode-seed-value" style="font-size:0.8rem;word-break:break-all;color:#166534;display:block;"></code>
+      <div style="font-size:0.78rem;color:#4d7c0f;margin-top:8px;">Use this seed with the downloaded ANCF file to decode your content. Also sent to your email.</div>
+    </div>
+    <a id="download-link" href="#" class="dl-btn">Download</a>
     <div class="order-number" id="order-number-display"></div>
   </div>
 </div>
@@ -234,7 +239,7 @@
       }
       await sleep(1500);
     }
-    showMsg('決済は完了しましたが確認処理に時間がかかっています。確認メールをご確認ください。', 'success');
+    showMsg('Payment complete. Please check your confirmation email for download details.', 'success');
     setBtnLoading(false);
   }
 
@@ -242,7 +247,11 @@
     document.getElementById('step-form').style.display = 'none';
     document.getElementById('step-success').style.display = 'block';
     document.getElementById('download-link').href = '/marketplace/download/' + order.download_token;
-    document.getElementById('order-number-display').textContent = '注文番号: ' + order.order_number;
+    document.getElementById('order-number-display').textContent = 'Order: ' + order.order_number;
+    if (order.decode_seed) {
+      document.getElementById('decode-seed-box').style.display = 'block';
+      document.getElementById('decode-seed-value').textContent = order.decode_seed;
+    }
   }
 
   function showFieldError(field, show) {

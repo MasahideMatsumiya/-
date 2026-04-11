@@ -31,6 +31,7 @@ class OrderPublic(BaseModel):
     download_token: Optional[str] = None
     download_count: int
     paid_at: Optional[object] = None
+    decode_seed: Optional[str] = None  # AI-Native商品の復号キー
 
     class Config:
         from_attributes = True

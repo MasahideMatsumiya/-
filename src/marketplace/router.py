@@ -176,12 +176,14 @@ async def _fulfill_order(order: Order, session: AsyncSession):
         try:
             from src.crm.email import send_purchase_email
             download_url = f"{settings.app_url}/marketplace/download/{order.download_token}"
+            decode_seed = product.ai_decode_seed if product.content_format == "ai_native" else None
             await send_purchase_email(
                 customer_id=order.customer_id,
                 product_name=product.name,
                 download_url=download_url,
                 order_number=order.order_number,
                 session=session,
+                decode_seed=decode_seed,
             )
         except Exception:
             pass  # メール送信失敗はサイレントに処理
@@ -251,6 +253,11 @@ async def get_order_by_id(order_id: int, session: AsyncSession = Depends(get_ses
                 print(f"[POLLING] Order fulfilled: {order.order_number}", flush=True)
         except Exception as e:
             print(f"[POLLING ERROR] {type(e).__name__}: {e}", flush=True)
+
+    # AI-Native商品の場合はdecode_seedを付与
+    product = await session.get(Product, order.product_id)
+    if product and product.content_format == "ai_native" and order.status == OrderStatus.PAID:
+        order.__dict__["decode_seed"] = product.ai_decode_seed
 
     return order
 

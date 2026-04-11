@@ -172,16 +172,28 @@ async def send_purchase_email(
     download_url: str,
     order_number: str,
     session: AsyncSession,
+    decode_seed: str | None = None,
 ):
     """購入直後の配信メール"""
+    variables = {
+        "product_name": product_name,
+        "download_url": download_url,
+        "order_number": order_number,
+    }
+    if decode_seed:
+        variables["decode_seed_section"] = f"""
+<div style="margin:20px 0;padding:16px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;">
+  <p style="font-weight:700;color:#166534;margin-bottom:8px;">🔑 Decode Seed (AI-Native Content)</p>
+  <code style="font-size:0.85rem;word-break:break-all;color:#166534;">{decode_seed}</code>
+  <p style="font-size:0.8rem;color:#4d7c0f;margin-top:8px;">Use this seed with the downloaded ANCF file to decode your content.</p>
+</div>"""
+    else:
+        variables["decode_seed_section"] = ""
+
     await send_trigger_email(
         customer_id=customer_id,
         trigger="purchase",
-        variables={
-            "product_name": product_name,
-            "download_url": download_url,
-            "order_number": order_number,
-        },
+        variables=variables,
         session=session,
     )
 

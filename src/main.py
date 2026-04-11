@@ -169,25 +169,37 @@ async def _sync_ai_native_seeds():
 
 
 async def _seed_email_templates():
-    """起動時に購入確認メールテンプレートを自動登録"""
+    """起動時に購入確認メールテンプレートを自動登録・更新"""
     from sqlmodel import select
     from src.crm.models import EmailTemplate
+    NEW_SUBJECT = "【AI Commerce】Purchase Confirmed - {{order_number}}"
+    NEW_HTML = """<h2>Hi {{name}}, your purchase is confirmed!</h2>
+<p>Product: <strong>{{product_name}}</strong></p>
+<p>Order: {{order_number}}</p>
+{{decode_seed_section}}
+<p><a href="{{download_url}}" style="background:#0070f3;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;">Download</a></p>
+<p style="color:#888;font-size:0.85rem;">Download link expires in 30 days.</p>"""
+    NEW_TEXT = "Hi {{name}}, your purchase is confirmed!\nProduct: {{product_name}}\nOrder: {{order_number}}\nDownload: {{download_url}}"
     async with AsyncSessionLocal() as session:
-        existing = await session.execute(
+        result = await session.execute(
             select(EmailTemplate).where(EmailTemplate.trigger == "purchase")
         )
-        if existing.scalar_one_or_none():
+        existing = result.scalar_one_or_none()
+        if existing:
+            if existing.subject != NEW_SUBJECT:
+                existing.subject = NEW_SUBJECT
+                existing.body_html = NEW_HTML
+                existing.body_text = NEW_TEXT
+                session.add(existing)
+                await session.commit()
+                print("[STARTUP] 購入確認メールテンプレートを更新しました", flush=True)
             return
         session.add(EmailTemplate(
-            name="購入確認メール",
+            name="Purchase Confirmation",
             trigger="purchase",
-            subject="【AI Marketplace】ご購入ありがとうございます - {{order_number}}",
-            body_html="""<h2>{{name}} 様、ご購入ありがとうございます！</h2>
-<p>商品: <strong>{{product_name}}</strong></p>
-<p>注文番号: {{order_number}}</p>
-<p><a href="{{download_url}}" style="background:#0070f3;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;">ダウンロードする</a></p>
-<p>ダウンロードリンクは30日間有効です。</p>""",
-            body_text="{{name}} 様、ご購入ありがとうございます！\n商品: {{product_name}}\n注文番号: {{order_number}}\nダウンロード: {{download_url}}",
+            subject=NEW_SUBJECT,
+            body_html=NEW_HTML,
+            body_text=NEW_TEXT,
         ))
         await session.commit()
         print("[STARTUP] 購入確認メールテンプレートを登録しました", flush=True)
