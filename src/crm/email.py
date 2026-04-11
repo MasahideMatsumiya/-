@@ -93,7 +93,7 @@ def _send_email(to_email: str, subject: str, body_html: str, body_text: str) -> 
                 return True
             else:
                 print(f"[EMAIL ERROR] Resend {resp.status_code}: {resp.text[:200]}", flush=True)
-                return False
+                # Resend失敗時はSMTPにフォールバック
         except Exception as e:
             print(f"[EMAIL ERROR] Resend {type(e).__name__}: {e}", flush=True)
             return False
