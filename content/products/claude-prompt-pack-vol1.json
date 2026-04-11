@@ -1,178 +1,178 @@
 {
   "product": "Claude Prompt Pack Vol.1",
   "version": "1.0.0",
-  "description": "Claude向け高品質プロンプトテンプレート20選。コード生成・文章作成・分析など実務ですぐ使えるプロンプト集。",
-  "license": "Personal Use / 個人利用",
+  "description": "20 high-quality prompt templates for Claude. A ready-to-use collection for code generation, writing, analysis, and more — built for real-world work.",
+  "license": "Personal Use",
   "prompts": [
     {
       "id": 1,
-      "category": "コード生成",
-      "title": "コードレビュー＆改善提案",
-      "prompt": "以下のコードをレビューしてください。\n\n```\n{{CODE}}\n```\n\n以下の観点で分析し、改善案をコード付きで提示してください：\n1. バグ・潜在的エラー\n2. パフォーマンス改善\n3. 可読性・保守性\n4. セキュリティリスク\n5. ベストプラクティス準拠\n\n各問題には優先度（高/中/低）を付けてください。",
+      "category": "Code Generation",
+      "title": "Code Review & Improvement Suggestions",
+      "prompt": "Please review the following code.\n\n```\n{{CODE}}\n```\n\nAnalyze it from the perspectives below and provide improvement suggestions with updated code:\n1. Bugs and potential errors\n2. Performance improvements\n3. Readability and maintainability\n4. Security risks\n5. Best practice compliance\n\nAssign a priority level (High / Medium / Low) to each issue.",
       "variables": ["CODE"],
-      "use_case": "コードレビュー自動化、プルリクエストチェック",
-      "example_output": "### 優先度：高\n**バグ: 境界値チェック不足**\n..."
+      "use_case": "Automated code review, pull request checks",
+      "example_output": "### Priority: High\n**Bug: Missing boundary check**\n..."
     },
     {
       "id": 2,
-      "category": "コード生成",
-      "title": "テストコード自動生成",
-      "prompt": "以下の関数に対して、包括的なユニットテストを生成してください。\n\n```{{LANGUAGE}}\n{{FUNCTION_CODE}}\n```\n\nテストフレームワーク: {{TEST_FRAMEWORK}}\n\n要件：\n- 正常系テスト（複数パターン）\n- 異常系テスト（エラーハンドリング確認）\n- 境界値テスト\n- モック/スタブが必要な場合は含める\n- テストの説明コメントを日本語で追加",
+      "category": "Code Generation",
+      "title": "Automated Unit Test Generation",
+      "prompt": "Generate comprehensive unit tests for the following function.\n\n```{{LANGUAGE}}\n{{FUNCTION_CODE}}\n```\n\nTest framework: {{TEST_FRAMEWORK}}\n\nRequirements:\n- Happy path tests (multiple patterns)\n- Error handling tests (edge cases and exceptions)\n- Boundary value tests\n- Include mocks/stubs where necessary\n- Add descriptive comments to each test",
       "variables": ["LANGUAGE", "FUNCTION_CODE", "TEST_FRAMEWORK"],
-      "use_case": "テスト駆動開発、レガシーコードのテスト追加"
+      "use_case": "Test-driven development, adding tests to legacy code"
     },
     {
       "id": 3,
-      "category": "コード生成",
-      "title": "APIエンドポイント設計＆実装",
-      "prompt": "以下の要件でREST APIエンドポイントを設計・実装してください。\n\n機能: {{FEATURE_DESCRIPTION}}\nフレームワーク: {{FRAMEWORK}}\n言語: {{LANGUAGE}}\n\n出力してください：\n1. エンドポイント定義（メソッド、パス、説明）\n2. リクエスト/レスポンスのスキーマ\n3. バリデーションロジック\n4. エラーハンドリング\n5. 実装コード\n6. curlでのテスト例",
+      "category": "Code Generation",
+      "title": "REST API Endpoint Design & Implementation",
+      "prompt": "Design and implement a REST API endpoint based on the following requirements.\n\nFeature: {{FEATURE_DESCRIPTION}}\nFramework: {{FRAMEWORK}}\nLanguage: {{LANGUAGE}}\n\nPlease provide:\n1. Endpoint definition (method, path, description)\n2. Request/response schemas\n3. Validation logic\n4. Error handling\n5. Implementation code\n6. curl test examples",
       "variables": ["FEATURE_DESCRIPTION", "FRAMEWORK", "LANGUAGE"],
-      "use_case": "API開発の高速化"
+      "use_case": "Accelerating API development"
     },
     {
       "id": 4,
-      "category": "コード生成",
-      "title": "SQLクエリ最適化",
-      "prompt": "以下のSQLクエリを分析し最適化してください。\n\n```sql\n{{SQL_QUERY}}\n```\n\nテーブル定義：\n```sql\n{{TABLE_SCHEMA}}\n```\n\n現在の問題: {{PERFORMANCE_ISSUE}}\n\n提供してください：\n1. クエリの問題点の説明\n2. 最適化されたクエリ\n3. 追加すべきインデックス\n4. 改善前後のパフォーマンス予測\n5. EXPLAINの読み方アドバイス",
+      "category": "Code Generation",
+      "title": "SQL Query Optimization",
+      "prompt": "Analyze and optimize the following SQL query.\n\n```sql\n{{SQL_QUERY}}\n```\n\nTable definitions:\n```sql\n{{TABLE_SCHEMA}}\n```\n\nCurrent issue: {{PERFORMANCE_ISSUE}}\n\nPlease provide:\n1. Explanation of the query's problems\n2. Optimized query\n3. Indexes to add\n4. Estimated performance improvement before and after\n5. Advice on reading EXPLAIN output",
       "variables": ["SQL_QUERY", "TABLE_SCHEMA", "PERFORMANCE_ISSUE"],
-      "use_case": "データベースパフォーマンス改善"
+      "use_case": "Database performance improvement"
     },
     {
       "id": 5,
-      "category": "コード生成",
-      "title": "エラーメッセージ解析＆デバッグ",
-      "prompt": "以下のエラーを解析してデバッグを手伝ってください。\n\nエラーメッセージ：\n```\n{{ERROR_MESSAGE}}\n```\n\n関連コード：\n```{{LANGUAGE}}\n{{CODE}}\n```\n\n環境: {{ENVIRONMENT}}\n\n回答してください：\n1. エラーの原因（根本原因分析）\n2. 修正方法（コード付き）\n3. 同じエラーを防ぐためのベストプラクティス\n4. 関連する可能性がある他の問題",
+      "category": "Code Generation",
+      "title": "Error Message Analysis & Debugging",
+      "prompt": "Analyze the following error and help me debug it.\n\nError message:\n```\n{{ERROR_MESSAGE}}\n```\n\nRelated code:\n```{{LANGUAGE}}\n{{CODE}}\n```\n\nEnvironment: {{ENVIRONMENT}}\n\nPlease address:\n1. Root cause of the error\n2. How to fix it (with updated code)\n3. Best practices to prevent the same error\n4. Other potential related issues",
       "variables": ["ERROR_MESSAGE", "LANGUAGE", "CODE", "ENVIRONMENT"],
-      "use_case": "デバッグ効率化"
+      "use_case": "Streamlining debugging"
     },
     {
       "id": 6,
-      "category": "文章作成",
-      "title": "技術ブログ記事生成",
-      "prompt": "以下のトピックについて、エンジニア向け技術ブログ記事を作成してください。\n\nトピック: {{TOPIC}}\n対象読者: {{TARGET_AUDIENCE}}\n記事の長さ: {{LENGTH}}文字程度\n\n構成：\n1. 魅力的なタイトル（3案）\n2. リード文（読者の興味を引く導入）\n3. 本文（見出し付き、コード例含む）\n4. まとめ\n5. 参考リンクのプレースホルダー\n\nSEOキーワード: {{SEO_KEYWORDS}}",
+      "category": "Writing",
+      "title": "Technical Blog Post Generation",
+      "prompt": "Write a technical blog post for engineers on the following topic.\n\nTopic: {{TOPIC}}\nTarget audience: {{TARGET_AUDIENCE}}\nApproximate length: {{LENGTH}} characters\n\nStructure:\n1. Compelling title (3 options)\n2. Lead paragraph (hook to engage readers)\n3. Body (with headings and code examples)\n4. Conclusion\n5. Placeholder for reference links\n\nSEO keywords: {{SEO_KEYWORDS}}",
       "variables": ["TOPIC", "TARGET_AUDIENCE", "LENGTH", "SEO_KEYWORDS"],
-      "use_case": "技術ブログ運営、Zenn/Qiita投稿"
+      "use_case": "Running a tech blog, posting on dev platforms"
     },
     {
       "id": 7,
-      "category": "文章作成",
-      "title": "プレスリリース・お知らせ文",
-      "prompt": "以下の情報をもとにプレスリリースを作成してください。\n\n発表内容: {{ANNOUNCEMENT}}\n会社名: {{COMPANY_NAME}}\n発表日: {{DATE}}\n担当者: {{CONTACT_PERSON}}\n\n形式：\n1. ヘッドライン（インパクトのある1文）\n2. サブヘッドライン\n3. リード段落（5W1H）\n4. 詳細説明（3段落）\n5. 引用（責任者コメント）\n6. 会社概要\n7. お問い合わせ先\n\nトーン: {{TONE}}（例：フォーマル/カジュアル）",
+      "category": "Writing",
+      "title": "Press Release & Announcement",
+      "prompt": "Write a press release based on the following information.\n\nAnnouncement: {{ANNOUNCEMENT}}\nCompany name: {{COMPANY_NAME}}\nRelease date: {{DATE}}\nContact person: {{CONTACT_PERSON}}\n\nFormat:\n1. Headline (a strong single sentence)\n2. Subheadline\n3. Lead paragraph (5W1H)\n4. Detailed description (3 paragraphs)\n5. Quote (comment from a key spokesperson)\n6. Company overview\n7. Contact information\n\nTone: {{TONE}} (e.g., formal / casual)",
       "variables": ["ANNOUNCEMENT", "COMPANY_NAME", "DATE", "CONTACT_PERSON", "TONE"],
-      "use_case": "PR・広報業務効率化"
+      "use_case": "Streamlining PR and communications work"
     },
     {
       "id": 8,
-      "category": "文章作成",
-      "title": "メールテンプレート生成",
-      "prompt": "以下の状況に合わせたビジネスメールを作成してください。\n\n状況: {{SITUATION}}\n送信者: {{SENDER_ROLE}}\n受信者: {{RECIPIENT_ROLE}}\n主要メッセージ: {{KEY_MESSAGE}}\n希望するアクション: {{DESIRED_ACTION}}\n\n以下を含めてください：\n- 件名（3案）\n- 本文（敬語・ビジネス文体）\n- 署名テンプレート\n\n文字数: {{LENGTH}}文字以内",
+      "category": "Writing",
+      "title": "Business Email Template Generation",
+      "prompt": "Write a business email tailored to the following situation.\n\nSituation: {{SITUATION}}\nSender: {{SENDER_ROLE}}\nRecipient: {{RECIPIENT_ROLE}}\nKey message: {{KEY_MESSAGE}}\nDesired action: {{DESIRED_ACTION}}\n\nPlease include:\n- Subject line (3 options)\n- Body (professional business tone)\n- Signature template\n\nMax length: {{LENGTH}} characters",
       "variables": ["SITUATION", "SENDER_ROLE", "RECIPIENT_ROLE", "KEY_MESSAGE", "DESIRED_ACTION", "LENGTH"],
-      "use_case": "ビジネスコミュニケーション効率化"
+      "use_case": "Streamlining business communication"
     },
     {
       "id": 9,
-      "category": "分析",
-      "title": "競合分析レポート作成",
-      "prompt": "以下の競合他社を分析するフレームワークを提供し、分析を実施してください。\n\n自社プロダクト: {{OWN_PRODUCT}}\n競合リスト: {{COMPETITORS}}\n分析軸: {{ANALYSIS_DIMENSIONS}}\n\n分析内容：\n1. 機能比較マトリックス（表形式）\n2. 各競合の強み・弱み\n3. ポジショニングマップ\n4. 自社の差別化ポイント\n5. 市場ギャップ（機会）\n6. 対応すべき脅威\n7. 推奨アクション（優先度付き）",
+      "category": "Analysis",
+      "title": "Competitive Analysis Report",
+      "prompt": "Provide a framework for analyzing the following competitors and conduct the analysis.\n\nOur product: {{OWN_PRODUCT}}\nCompetitor list: {{COMPETITORS}}\nAnalysis dimensions: {{ANALYSIS_DIMENSIONS}}\n\nAnalysis content:\n1. Feature comparison matrix (table format)\n2. Strengths and weaknesses of each competitor\n3. Positioning map\n4. Our differentiation points\n5. Market gaps (opportunities)\n6. Threats to address\n7. Recommended actions (prioritized)",
       "variables": ["OWN_PRODUCT", "COMPETITORS", "ANALYSIS_DIMENSIONS"],
-      "use_case": "市場調査、事業戦略立案"
+      "use_case": "Market research, business strategy planning"
     },
     {
       "id": 10,
-      "category": "分析",
-      "title": "ユーザーフィードバック分析",
-      "prompt": "以下のユーザーフィードバックを分析してください。\n\nフィードバック一覧：\n```\n{{FEEDBACK_LIST}}\n```\n\n分析してください：\n1. 感情分析（ポジティブ/ネガティブ/ニュートラル の比率）\n2. 頻出テーマ・キーワードのカテゴリ分類\n3. 最も重要な問題点（上位5件）\n4. 最も評価されている点（上位5件）\n5. 改善提案（具体的なアクションアイテム）\n6. NPS予測スコアと根拠",
+      "category": "Analysis",
+      "title": "User Feedback Analysis",
+      "prompt": "Analyze the following user feedback.\n\nFeedback list:\n```\n{{FEEDBACK_LIST}}\n```\n\nPlease analyze:\n1. Sentiment analysis (ratio of positive / negative / neutral)\n2. Categorization of frequent themes and keywords\n3. Most critical issues (top 5)\n4. Most appreciated aspects (top 5)\n5. Improvement suggestions (specific action items)\n6. Estimated NPS score with rationale",
       "variables": ["FEEDBACK_LIST"],
-      "use_case": "プロダクト改善、カスタマーサクセス"
+      "use_case": "Product improvement, customer success"
     },
     {
       "id": 11,
-      "category": "分析",
-      "title": "KPIダッシュボード設計",
-      "prompt": "以下のビジネス目標に対するKPIダッシュボードを設計してください。\n\nビジネス目標: {{BUSINESS_GOAL}}\nフェーズ: {{PHASE}}（例：スタートアップ/グロース/成熟）\n計測できるデータ: {{AVAILABLE_DATA}}\n\n提供してください：\n1. 主要KPI（5〜7個）と計算式\n2. 補助指標（Leading/Lagging の分類付き）\n3. アラート閾値の推奨\n4. 週次レポートのテンプレート\n5. データ取得方法の提案",
+      "category": "Analysis",
+      "title": "KPI Dashboard Design",
+      "prompt": "Design a KPI dashboard for the following business objectives.\n\nBusiness goal: {{BUSINESS_GOAL}}\nPhase: {{PHASE}} (e.g., startup / growth / mature)\nAvailable data: {{AVAILABLE_DATA}}\n\nPlease provide:\n1. Primary KPIs (5–7) with formulas\n2. Supporting metrics (classified as Leading / Lagging)\n3. Recommended alert thresholds\n4. Weekly report template\n5. Suggested data collection methods",
       "variables": ["BUSINESS_GOAL", "PHASE", "AVAILABLE_DATA"],
-      "use_case": "事業分析、経営ダッシュボード構築"
+      "use_case": "Business analysis, management dashboard development"
     },
     {
       "id": 12,
-      "category": "分析",
-      "title": "リスク分析マトリックス",
-      "prompt": "以下のプロジェクト・事業に対してリスク分析を実施してください。\n\nプロジェクト概要: {{PROJECT_DESCRIPTION}}\nステークホルダー: {{STAKEHOLDERS}}\nタイムライン: {{TIMELINE}}\n\n分析してください：\n1. リスク一覧（発生確率×影響度マトリックス）\n2. 各リスクの詳細説明\n3. 緩和策（Mitigation Strategy）\n4. コンティンジェンシープラン\n5. リスクオーナーの割り当て案\n6. モニタリング方法",
+      "category": "Analysis",
+      "title": "Risk Analysis Matrix",
+      "prompt": "Conduct a risk analysis for the following project or business.\n\nProject overview: {{PROJECT_DESCRIPTION}}\nStakeholders: {{STAKEHOLDERS}}\nTimeline: {{TIMELINE}}\n\nPlease analyze:\n1. Risk register (probability × impact matrix)\n2. Detailed description of each risk\n3. Mitigation strategies\n4. Contingency plans\n5. Proposed risk ownership assignments\n6. Monitoring methods",
       "variables": ["PROJECT_DESCRIPTION", "STAKEHOLDERS", "TIMELINE"],
-      "use_case": "プロジェクト管理、意思決定支援"
+      "use_case": "Project management, decision support"
     },
     {
       "id": 13,
-      "category": "プロダクト開発",
-      "title": "PRD（製品要件定義書）テンプレート",
-      "prompt": "以下のアイデアについてPRD（Product Requirements Document）を作成してください。\n\nプロダクト名: {{PRODUCT_NAME}}\nアイデア概要: {{IDEA}}\nターゲットユーザー: {{TARGET_USER}}\n解決する問題: {{PROBLEM}}\n\nPRDに含める内容：\n1. エグゼクティブサマリー\n2. 問題定義と機会\n3. 目標・成功指標（OKR形式）\n4. ユーザーストーリー（5〜10件）\n5. 機能要件（MVP/フェーズ2分類）\n6. 非機能要件\n7. 除外スコープ\n8. 依存関係・制約事項\n9. リリース基準",
+      "category": "Product Development",
+      "title": "PRD (Product Requirements Document) Template",
+      "prompt": "Create a PRD (Product Requirements Document) for the following idea.\n\nProduct name: {{PRODUCT_NAME}}\nIdea overview: {{IDEA}}\nTarget users: {{TARGET_USER}}\nProblem being solved: {{PROBLEM}}\n\nPRD contents:\n1. Executive summary\n2. Problem definition and opportunity\n3. Goals and success metrics (OKR format)\n4. User stories (5–10)\n5. Functional requirements (MVP / Phase 2 classification)\n6. Non-functional requirements\n7. Out-of-scope items\n8. Dependencies and constraints\n9. Release criteria",
       "variables": ["PRODUCT_NAME", "IDEA", "TARGET_USER", "PROBLEM"],
-      "use_case": "プロダクトマネジメント、新機能企画"
+      "use_case": "Product management, new feature planning"
     },
     {
       "id": 14,
-      "category": "プロダクト開発",
-      "title": "ユーザーインタビュー質問設計",
-      "prompt": "以下の検証したい仮説に対するユーザーインタビューの質問リストを設計してください。\n\n検証したい仮説: {{HYPOTHESIS}}\nインタビュー対象: {{INTERVIEWEE_PROFILE}}\nインタビュー時間: {{DURATION}}分\n\n設計してください：\n1. オープニング質問（アイスブレイク）\n2. 現状把握質問（課題の深掘り）\n3. 仮説検証質問（バイアスのかからない形式）\n4. ソリューション探索質問\n5. クロージング質問\n6. インタビュー進行ガイド\n7. 記録シートテンプレート",
+      "category": "Product Development",
+      "title": "User Interview Question Design",
+      "prompt": "Design a user interview question list to validate the following hypothesis.\n\nHypothesis to validate: {{HYPOTHESIS}}\nInterviewee profile: {{INTERVIEWEE_PROFILE}}\nInterview duration: {{DURATION}} minutes\n\nPlease design:\n1. Opening questions (icebreakers)\n2. Current state questions (deep-dive into pain points)\n3. Hypothesis validation questions (unbiased format)\n4. Solution exploration questions\n5. Closing questions\n6. Interview facilitation guide\n7. Notes sheet template",
       "variables": ["HYPOTHESIS", "INTERVIEWEE_PROFILE", "DURATION"],
-      "use_case": "ユーザーリサーチ、プロダクト検証"
+      "use_case": "User research, product validation"
     },
     {
       "id": 15,
-      "category": "マーケティング",
-      "title": "LP（ランディングページ）コピー",
-      "prompt": "以下の製品・サービスのランディングページコピーを作成してください。\n\n製品名: {{PRODUCT_NAME}}\nUSP（独自の強み）: {{USP}}\nターゲット顧客: {{TARGET_CUSTOMER}}\n価格: {{PRICE}}\nCTA目標: {{CTA_GOAL}}\n\n作成してください：\n1. ヒーローセクション（キャッチコピー + サブコピー + CTA）\n2. ペイン・ゲイン・ソリューション（PGS）セクション\n3. 機能・ベネフィット一覧（5〜7項目）\n4. 社会的証明セクション（お客様の声テンプレート3件）\n5. FAQ（5問）\n6. 最終CTA セクション",
+      "category": "Marketing",
+      "title": "Landing Page Copy",
+      "prompt": "Create landing page copy for the following product or service.\n\nProduct name: {{PRODUCT_NAME}}\nUSP (unique selling proposition): {{USP}}\nTarget customer: {{TARGET_CUSTOMER}}\nPrice: {{PRICE}}\nCTA goal: {{CTA_GOAL}}\n\nPlease create:\n1. Hero section (headline + subheadline + CTA)\n2. Pain-Gain-Solution (PGS) section\n3. Features & benefits list (5–7 items)\n4. Social proof section (3 customer testimonial templates)\n5. FAQ (5 questions)\n6. Final CTA section",
       "variables": ["PRODUCT_NAME", "USP", "TARGET_CUSTOMER", "PRICE", "CTA_GOAL"],
-      "use_case": "マーケティング、セールスページ作成"
+      "use_case": "Marketing, sales page creation"
     },
     {
       "id": 16,
-      "category": "マーケティング",
-      "title": "SNSコンテンツカレンダー生成",
-      "prompt": "以下の条件でSNSコンテンツカレンダーを作成してください。\n\nブランド: {{BRAND}}\n対象SNS: {{PLATFORMS}}\n期間: {{PERIOD}}\nコンテンツテーマ: {{THEMES}}\n投稿頻度: {{FREQUENCY}}\n\n各投稿について提供してください：\n- 投稿日・時間帯\n- 投稿フォーマット（テキスト/画像/動画/リール）\n- キャプション\n- ハッシュタグ（10〜15個）\n- 画像プロンプト（Midjourney/DALL-E用）\n- エンゲージメント促進CTA",
+      "category": "Marketing",
+      "title": "Social Media Content Calendar Generation",
+      "prompt": "Create a social media content calendar for the following parameters.\n\nBrand: {{BRAND}}\nPlatforms: {{PLATFORMS}}\nPeriod: {{PERIOD}}\nContent themes: {{THEMES}}\nPosting frequency: {{FREQUENCY}}\n\nFor each post, provide:\n- Post date and time\n- Content format (text / image / video / reel)\n- Caption\n- Hashtags (10–15)\n- Image prompt (for Midjourney / DALL-E)\n- Engagement CTA",
       "variables": ["BRAND", "PLATFORMS", "PERIOD", "THEMES", "FREQUENCY"],
-      "use_case": "SNSマーケティング運用効率化"
+      "use_case": "Streamlining social media marketing operations"
     },
     {
       "id": 17,
-      "category": "AI活用",
-      "title": "Claude System Prompt設計",
-      "prompt": "以下のユースケースに最適なClaude用System Promptを設計してください。\n\nユースケース: {{USE_CASE}}\nペルソナ: {{PERSONA}}\n主要タスク: {{MAIN_TASKS}}\n制約条件: {{CONSTRAINTS}}\n出力形式: {{OUTPUT_FORMAT}}\n\n設計してください：\n1. ロール定義（明確なペルソナ設定）\n2. 能力・スキルの宣言\n3. 行動ガイドライン\n4. 制約・禁止事項\n5. 出力形式の指定\n6. Few-shot例（3件）\n7. エラーハンドリング指示\n\n最終的なSystem Promptを完全な形で出力してください。",
+      "category": "AI Usage",
+      "title": "Claude System Prompt Design",
+      "prompt": "Design an optimal System Prompt for Claude for the following use case.\n\nUse case: {{USE_CASE}}\nPersona: {{PERSONA}}\nMain tasks: {{MAIN_TASKS}}\nConstraints: {{CONSTRAINTS}}\nOutput format: {{OUTPUT_FORMAT}}\n\nPlease design:\n1. Role definition (clear persona setup)\n2. Capabilities and skills declaration\n3. Behavioral guidelines\n4. Constraints and prohibitions\n5. Output format specification\n6. Few-shot examples (3)\n7. Error handling instructions\n\nOutput the final System Prompt in complete, ready-to-use form.",
       "variables": ["USE_CASE", "PERSONA", "MAIN_TASKS", "CONSTRAINTS", "OUTPUT_FORMAT"],
-      "use_case": "AI開発、チャットボット構築"
+      "use_case": "AI development, chatbot building"
     },
     {
       "id": 18,
-      "category": "AI活用",
-      "title": "プロンプトチェーン設計",
-      "prompt": "以下の複雑なタスクをプロンプトチェーンに分解してください。\n\nタスク全体: {{COMPLEX_TASK}}\n入力データ: {{INPUT_DATA}}\n最終出力: {{DESIRED_OUTPUT}}\n\n設計してください：\n1. タスク分解図（ステップ一覧）\n2. 各ステップのプロンプト\n3. ステップ間のデータ受け渡し方法\n4. エラーチェックポイント\n5. 並列化できるステップの特定\n6. 実装コード例（Python）",
+      "category": "AI Usage",
+      "title": "Prompt Chain Design",
+      "prompt": "Break down the following complex task into a prompt chain.\n\nOverall task: {{COMPLEX_TASK}}\nInput data: {{INPUT_DATA}}\nDesired output: {{DESIRED_OUTPUT}}\n\nPlease design:\n1. Task decomposition diagram (list of steps)\n2. Prompt for each step\n3. Data handoff method between steps\n4. Error checkpoints\n5. Identification of steps that can be parallelized\n6. Example implementation code (Python)",
       "variables": ["COMPLEX_TASK", "INPUT_DATA", "DESIRED_OUTPUT"],
-      "use_case": "AI自動化パイプライン構築"
+      "use_case": "Building AI automation pipelines"
     },
     {
       "id": 19,
-      "category": "業務効率化",
-      "title": "議事録・ミーティングサマリー",
-      "prompt": "以下のミーティング内容からプロフェッショナルな議事録を作成してください。\n\nミーティング種別: {{MEETING_TYPE}}\n参加者: {{PARTICIPANTS}}\n日時: {{DATE_TIME}}\n\n発言内容・メモ：\n```\n{{RAW_NOTES}}\n```\n\n出力してください：\n1. エグゼクティブサマリー（3行以内）\n2. 議題別ディスカッション要約\n3. 決定事項一覧\n4. アクションアイテム（担当者・期限付き）\n5. 次回ミーティングのアジェンダ案\n6. 共有不要な内密事項のフラグ（もしあれば）",
+      "category": "Productivity",
+      "title": "Meeting Minutes & Summary",
+      "prompt": "Create professional meeting minutes from the following meeting content.\n\nMeeting type: {{MEETING_TYPE}}\nAttendees: {{PARTICIPANTS}}\nDate and time: {{DATE_TIME}}\n\nNotes and discussion:\n```\n{{RAW_NOTES}}\n```\n\nPlease output:\n1. Executive summary (3 lines or fewer)\n2. Discussion summary by agenda item\n3. Decisions made\n4. Action items (with owner and deadline)\n5. Proposed agenda for next meeting\n6. Flag for any confidential items not to be shared (if applicable)",
       "variables": ["MEETING_TYPE", "PARTICIPANTS", "DATE_TIME", "RAW_NOTES"],
-      "use_case": "ミーティング効率化、議事録作成"
+      "use_case": "More efficient meetings, meeting minutes creation"
     },
     {
       "id": 20,
-      "category": "業務効率化",
-      "title": "週次レポート自動生成",
-      "prompt": "以下の情報から週次レポートを作成してください。\n\n期間: {{WEEK}}\n担当者: {{NAME}}\nロール: {{ROLE}}\n\n今週の活動：\n```\n{{ACTIVITIES}}\n```\n\n数値実績：\n```\n{{METRICS}}\n```\n\nレポートを作成してください：\n1. 今週のハイライト（3点）\n2. 達成事項（KPI対比）\n3. 進行中タスクの状況\n4. 課題・ブロッカー\n5. 来週の計画\n6. 支援が必要なこと\n7. 学びと気づき",
+      "category": "Productivity",
+      "title": "Automated Weekly Report Generation",
+      "prompt": "Create a weekly report from the following information.\n\nPeriod: {{WEEK}}\nName: {{NAME}}\nRole: {{ROLE}}\n\nThis week's activities:\n```\n{{ACTIVITIES}}\n```\n\nMetrics:\n```\n{{METRICS}}\n```\n\nPlease create the report with:\n1. Highlights of the week (3 points)\n2. Accomplishments (vs. KPI targets)\n3. Status of in-progress tasks\n4. Challenges and blockers\n5. Plan for next week\n6. Areas where support is needed\n7. Learnings and insights",
       "variables": ["WEEK", "NAME", "ROLE", "ACTIVITIES", "METRICS"],
-      "use_case": "週次報告書作成自動化"
+      "use_case": "Automating weekly report creation"
     }
   ],
   "usage_guide": {
-    "how_to_use": "{{VARIABLE_NAME}} の部分をあなたの情報に置き換えてClaudeに送信してください。",
+    "how_to_use": "Replace the {{VARIABLE_NAME}} placeholders with your own information and send the prompt to Claude.",
     "tips": [
-      "変数を具体的に記入するほど、より精度の高い出力が得られます",
-      "出力が長すぎる場合は「簡潔に」、短すぎる場合は「詳しく」と追加指示してください",
-      "継続的な対話で深掘りすると品質が上がります",
-      "プロンプトをチームで共有して標準化にご活用ください"
+      "The more specific your variable inputs, the higher quality the output will be",
+      "If the output is too long, add 'be concise'; if too short, add 'elaborate in more detail'",
+      "Following up with additional questions in the same conversation improves quality",
+      "Share prompts with your team to standardize workflows"
     ],
     "model_recommendations": {
       "best": "claude-opus-4-6",
