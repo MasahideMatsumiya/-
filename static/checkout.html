@@ -177,6 +177,14 @@
         const existingRes = await fetch('/crm/customers/by-email?email=' + encodeURIComponent(email));
         if (!existingRes.ok) throw new Error('顧客情報の取得に失敗しました');
         customer = await existingRes.json();
+        // 名前が変わっていたら更新
+        if (name && customer.name !== name) {
+          await fetch(`/crm/customers/${customer.id}`, {
+            method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name }),
+          });
+          customer.name = name;
+        }
       } else if (!custRes.ok) {
         throw new Error('注文の初期化に失敗しました');
       } else {
