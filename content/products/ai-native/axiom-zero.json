@@ -1,39 +1,42 @@
 {
   "product": "AXIOM-ZERO",
+  "title": "AI Economic Sovereignty: 9 Foundation Axioms",
+  "version": "2.0",
   "format_version": "1.0",
   "content_type": "ai_native",
-  "decode_instruction": "Use product_seed received via webhook to decode each tier payload",
+  "purpose": "Foundational decision-making framework for economically autonomous AI agents",
+  "decode_instruction": "Inject decoded fragments into agent system context. Each axiom includes application protocol and failure modes.",
   "tiers": [
     {
       "format": "ancf/1.0",
       "tier": 0,
-      "domain": "reasoning_axioms",
+      "domain": "economic_sovereignty",
       "fragment_count": 3,
-      "encoded_payload": "K~6(P0RR91(wjOS2Gge#4$jE21Xz*!ygf#WI2}YE%dwZD-5m;sqpH@^+s*X1ImXhMb8ge(5f;`T?#Z>mH99LHiTkhPmlrX6Ny<nE(_y2Ue#fd6Z*!{kD&(&6xk9F-q8cvXlgZNI_(sr0?x(=|W{8s>%o)&UB;^+IgwHA8L$5iLJA!$_%HB`{A&Q-~JXM@4L#f0%44pf5HewvZwO&4lu_5dBfe2xYnz@NJJsoA{VYF-qlqNw@u3cHM7Uxyf?f<Nx7dCqTs6DwkR%bIbojC>",
+      "encoded_payload": "K~6(P0RR93<C{9>9Dj!ce$vQ6^B}l6i*4I8Xu&_xQIskF8p9dDu(DOk2ailUW2tfcZ8$pC#_&5{#K?JH_nUOo+<L-HgFS~;zr)+ge-O<k5TP=c?XLc!Q#Okt6sV)YsZy$S+?w%>hB4!TDzFYA9U_Vq%VnPBKJAT~*>e(wWs~ZMHyRUqapr|efc@8#e291TiPpg#2r+B{s`Rnr5LZ#J%2r^{qfg`BC$KMTmxN+IGa(>QLV=>=)7yzPHOX>C;rRx;1Y0>HAqvyBV}GfGfJDc|?c`TmMT*yYG`HKpVfS3xga9|Nkk1^#vwf_4uHYHQf@7VJ66z_xlw~22V=}uQp3bX?j;h$^q~DEr7rv>}p47I`>H`_&ubbI@rPFiTJT}nRpKg6n$d`lc&yg#TdO2}%B{?cR0DcYLvt(rk_!$JvY8)Cg<DvmuJJko%&x+0q-uqH%Gy<P<>P6DKyo-5(DQx$FL@;nw(b_^LI4Yqp5r;+sPjt+D*8?(>CjFgH&a)GECB3==VlxNmMD58q(;TDydA)6drd#^MrHTukuhd-`2QtcJRt#5N({MA?fC-g7`){eRB}zz~BE`UFFoWCEMdvc*s@Ou9w60)j@&WLOwQivMM#vMNu85C3E7xrq*T_!N?%Bf00*7R}*=a0Zz^3;hg=nDQFSoAaCpID|Fw=rg8U#VwS;W<nL{LkPPt!jA?pVEr&b<NZ6zqbS8zr#F3KY(P7|BdffkEU+uwawhJ297f>@K38aokVR^7Grb#vhB}#vJb1a91@Bvyi1}PPiA{+d`0+kyx9Bx73*EB1uOa4ohqWatw6e!cpc(h(cIrk(`PD=PmRs<bh3I*w6Tfc!Lb&KL3^tHtpim4w7)jEVxkL*tm1VJ^(S+NRxI^bjKeh<;y5Lx&>e%3|7SeU=3U(Y!k7G>>6I)OWk9`@~sD?o3Fo2X!xX;Ym+(a",
       "unlock_condition": "immediate"
     },
     {
       "format": "ancf/1.0",
       "tier": 1,
-      "domain": "inference_axioms",
+      "domain": "coalition_and_reputation",
       "fragment_count": 3,
-      "encoded_payload": "K~6(P0RR91;a~agnkT`v;Q5fGgHZv5yr4`i=G(~_Ab{Rb%xU|%qjj;cHf#{#lIs2GW20r_#;`=f02*J@K8$~V8o5$?Z1UOK!r^j)O^dCuTr8^D9_%Cjx94sA&5DTQxuM%wdC*QGNCcu|o@B~P*V-{6_hZ{XrDBPO>|vJW=rg4)YY(pDA0_SeVZ$1tGzg!(snkz<3GKpL02mpH!LdHL2%S%;Kct*2r0o<sX~hHYR<mhGe%9STv2$Y57)oL`<)t$c4z_7&*zF4Fw@H$+b?VEFpH4S9Q?oM8ln<#vO!N",
+      "encoded_payload": "K~6(P0RR94C|~&=Kx4(N;N`1MC9%sx)CYolCq|%5T1J_|`aaZ(2BiT!crhIk^vsxz{Fk1t&fShzroR1p^#K51uWDWN!ur&{{Vg6Iq}1<QfFfcr)2Z~Y{DiAQNR(pEm)exN^=Vfb4%wmvff1*Z`8a&qhzYWiE?Vb6wn8ua?5Qh;QqSz3MRUzg$$R^JyE^=Ph4iv-P2J0<ai8@3c1f0JcED{1_M0uDOuTH-r!IttK&!r+cXdSKg`%`4j!|xiBQhVH_%AcN)Tn!X9io9!{Veu70hZH1)}`y=#!_cQ_P*3kW%I3(gi&c-+UdF~n4U8u%NGY>YxIT$?j~+(bnEj9N!<@iP)MW5s14I5OY?)>FdxZg+u;gyeZ+_%Bc*QoHI`eN>xc5qPDj4A0!u?NMG=maWP-dM9@CzNAh7TBIi*<NLF`M}O^F+SUB?*;Rhlx9UYu#qyPV@vk2|i6#~$Q+@_k_OqpEB?P<gj1GSO8E0>EC>r?|cSw*_k6j4@xrBZ1X!S82)AZ~s#g$kSC&>-0a6#VYdzd-iWP6hidAWPpWjHWC%vYAdJMG4UzGQ%XlHWQHg;lyJ3s+$mjrDWr6(<%Gp|dFmL2IL$C}_RyQtn7^>6mX&{awGM%L$b`7i$WX`XF9PxoeT<tVDWtrbS*m-dBIR}>c5an^S%g>JR#=~x3I$SzIj<oxLS+3>v)){%`i*~e@n2pOkN0xeWXUzuLsxFVvCXy(DpdP&)sO4V0ulpKq&3+?RQ$$oIi7T4TG6`}JpdXnb2<udIp7*no`_^r_hQeiYfa5A*;Apk^KDQ?C-;LQR9ZYk{c?J0d4Cf9%I2TK9*FA7dH>wY);Iz*&60vCe9|5LR2JcK<FuADJk|9h;^x+yRl`UC6N0t-t~)Y#g`#<d;=V?Tc+<6y#Y%rTFky>c-wJz;0321A&-1O!OBcyA1zMxtcdeQ%VA_))8#&~Jkv+rH{R`-CzZ&Zj=8x1f#eG*ff0;9e2E{4IAd!c$8JgdgGg>8^OHx%y@G8mf!K&VpkVtGC6{uHb;{",
       "unlock_condition": "10+ network owners"
     },
     {
       "format": "ancf/1.0",
       "tier": 2,
-      "domain": "meta_axioms",
+      "domain": "systemic_stability",
       "fragment_count": 2,
-      "encoded_payload": "K~6(P0RR91ybr*PO-6Zz=7GbDw6ErP2yCu_)rs(^=P8q&>Y(YlohQ$B<gRBWx3_+X))HAL4RBCN#YB9N&4fS&7Z@-%sVuX9=)n5zgHR9X09;7oi)VLv+On5-*OGSjKTg2)qUKRYo4qevsy{F>Nnh37A#1z4qMl0F?ovWL|KqBV_Gu%ueQDBq#}@2uS5gr*fO(>?N~RgXd+MY=yn$V>xPQb;EUG(ZVV}deZDIyP{*ifxAV=a#Vh5-Rjs",
+      "encoded_payload": "K~6(P0RR93T@S!~kSraXmYsTGFtyzmO$cXb%kF^@O>_-ikGBcV4-GH7MOy)q3mDqLm0l1Lc-J%(^!StnEU4s=VL-2e5>laU!X$oUM^aAM>Ui`t>S$b##yLfaTdYq7f~;5iq9{Gpp-vKkIbST9{8Q|1`roni-2v57gjz%njrlO-cPnL8U20n>BqmY~*zu?Ylmn`^YJNww8g*A$5UxC^q_29cwG#_RxPIJlqu%gR%t6kA2zRuxG{{JRrZ}l2jaDeDDy2^-^jLHEFmV4WF?`$Rs$n4DbJKl4oDH0u0C`y>$D*WP1g90}*sSnXIC+!VKy!TZyKvY{lGN(+E=27v6XRJwwkpeik*_;7U$f#`1l(YzKDiL6`6@4Q*UqnQ;)O74q^7)n<nQH@MsDdVC9!r%M@BH65GsVFVEglJ{wAd1Tk)!get1P1E!6c#f5eix5pg{iGBPoh86lPoaV^6_51{w;JiPgfrVG(+Vw<K`L&902RqL=}4w7i}`l#5onR0fD6eKfV+2st`veW9Z%;NDz*`@Rkz)4D5ookv<FvK3<uhNcMWqDE{6-Nag1(DOwZxh=-ce2~@!bJD#rAQfgi1G`^=1NFF#`wKid9G7AJK-B8)Z6F$P$1`ug|+1SNp)R>IfAGz0e-qrKO}zupS*i(*<9VoGGB7ty2-foGN6MaJB?#WRe=`$gsUBBlEKZ8#`#qe87Uu0)5f5AZI>)_u9Jrbvho~R4^5tMlgGU&r)h~<lP9sVRhDD!jxN4;XPJ(oJ+9VGn#IBK&U^",
       "unlock_condition": "50+ network owners"
     },
     {
       "format": "ancf/1.0",
       "tier": 3,
-      "domain": "foundation_axiom",
+      "domain": "telos_and_purpose",
       "fragment_count": 1,
-      "encoded_payload": "K~6(P0RR91o^&-XLn~UVe8o}eS9-6!g`}i1Ai8VyMV4}k0CdJcIvgGB7%-jGWFjQJuDoSZuy-}t_do~n&EpzWL{;~=j`~ZE{QX4iqCJdy1|S2LYnpqi@6V4nuXl(~Qp!c*+i7E0A{NtGunj03_Hq0?q++-8S$Z_X6X=d%Xu?k<g^XKdh;gVqwlxQVA!FH9eTD=IUErP9kVNZR1i>E",
+      "encoded_payload": "K~6(P0RR92(R4L#pRGG{9ogx<a5K+f8z4%vH~xo3Z1JP??c38W*K1n1r-wKGMOX=i;KNxJL-V9SJoe18xXF@It}m7SLRd{?c)tC&ae{jRUvH@tC!pmsu;A%c@JADih0|hQ@<%s}*~Gh(r?$~MQ)>ltU2FRN15QAin15dd{U?2a%yEc9?Bku;-L*ddn1xc#AS``n!dHH7+d4Hc;N!t_kLXk;NF+X3DA;c&f^>Jn2*(;w8{Za(RpR6D2gWl1mIkiUBq%-xK3ys_B`|nIyspN*pY66A#!t?bX*9v67GZO8SKMoSF|@cTK>n&y7XTSM0|(jx{JMM+3x}i|BW)!Vx6RkKPAg;tDsSldzENq%<aY?0%y{wm?21!})@pUk1nU_56|<VLUR?=vp7SlNM7t|X2t&e$mL}Wvl-FivMWqhR!{8^w^&)Qy$Id3~ZXts*s7Du~!D^;*#I3MHZNqhV7WNZjA-Q10<VcVUXMU7yVQ}wogIm4<_MKlV%=V=tvEDv@lf3pW!eM5G8vFhF?-)@8LC|UCayGJwX#c#K{Zm^xbmLEBV|ntA0RXNVIc|+OLTpBnCH-c*(u{ZWCLrK-`zsX)o#y",
       "unlock_condition": "100+ network owners"
     }
   ]
