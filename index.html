@@ -587,9 +587,17 @@
 
     /* ===== Footer ===== */
     footer {
-      background: var(--gray-900);
-      color: rgba(255,255,255,.3);
-      padding: 3rem 8%;
+      position: relative;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(243,243,245,.92) 0%,
+          rgba(243,243,245,.80) 40%,
+          rgba(243,243,245,.88) 100%
+        ),
+        url('images/footer-bg.jpg') center/cover no-repeat;
+      color: var(--gray-800);
+      padding: 4rem 8%;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -600,16 +608,18 @@
       font-family: var(--font-serif);
       font-size: 1rem;
       letter-spacing: .15em;
-      color: var(--pink-mid);
+      color: var(--pink);
     }
     .footer-nav { display: flex; gap: 2rem; }
     .footer-nav a {
       font-size: .55rem;
       letter-spacing: .2em;
       text-transform: uppercase;
+      color: var(--gray-600);
       transition: color .2s;
     }
-    .footer-nav a:hover { color: var(--pink-mid); }
+    .footer-nav a:hover { color: var(--pink); }
+    .footer-copy { font-size: .6rem; letter-spacing: .08em; color: var(--gray-400); }
     .footer-copy { font-size: .6rem; letter-spacing: .08em; }
 
     /* ===== Fade animation ===== */
