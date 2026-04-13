@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>出荷票 山根由香</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+body{font-family:'Hiragino Kaku Gothic Pro','Meiryo',sans-serif;background:#eee}
+.no-print{background:#333;color:#fff;padding:10px 20px;display:flex;align-items:center;gap:12px}
+.no-print button{background:#c00;color:#fff;border:none;padding:8px 20px;font-size:14px;font-weight:bold;border-radius:4px;cursor:pointer}
+.no-print span{font-size:12px;color:#ccc}
+@media print{.no-print{display:none!important}body{background:#fff}@page{size:A4;margin:0}}
+.slip{width:210mm;min-height:297mm;padding:6mm 8mm;background:#fff;margin:16px auto;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+@media print{.slip{margin:0;box-shadow:none;padding:5mm 7mm}}
+.sec-lbl{font-size:10px;font-weight:bold;color:#555;letter-spacing:2px;margin-bottom:4px}
+.top-row{display:flex;align-items:baseline;gap:12px;border-bottom:3px solid #000;padding-bottom:4px;margin-bottom:6px}
+.ord-num{font-size:32px;font-weight:bold;min-width:40px}
+.cust-name{font-size:20px;font-weight:bold;flex:1;line-height:1.3}
+.stamps{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.stamp{font-size:16px;font-weight:bold;border:2px solid #000;border-radius:3px;padding:1px 8px;min-width:38px;text-align:center;background:#fff;color:#000}
+.stamp.on{background:#000!important;color:#fff!important}
+.info-row{display:grid;grid-template-columns:1fr 1fr 2fr;gap:6px 12px;margin-bottom:6px}
+.f-lbl{font-size:9px;color:#555;font-weight:bold;margin-bottom:1px}
+.f-val{font-size:15px;font-weight:bold;padding:2px 5px;border:1px solid #ccc;border-radius:2px;background:#fafafa;min-height:24px}
+.f-val.red{font-size:26px;color:#c00!important;border:2px solid #c00;background:#fff!important}
+.sz-lbl{font-size:9px;color:#555;font-weight:bold;margin-right:2px}
+.sz-box{font-size:16px;font-weight:bold;border:2px solid #000;border-radius:3px;padding:2px 10px;min-width:44px;text-align:center;background:#fff;color:#000}
+.sz-box.on{background:#000!important;color:#fff!important}
+.sz-addr{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center;margin-bottom:6px}
+.sz-row{display:flex;gap:8px;align-items:center}
+.addr{font-size:11px;line-height:1.5;border-left:2px solid #ccc;padding-left:10px}
+.prod-pref{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start;margin-bottom:4px}
+.prod-blk{border:1px solid #ccc;border-radius:3px;padding:4px 8px;background:#fafafa}
+.prod-line{font-size:20px;font-weight:bold;padding:1px 0;letter-spacing:1px}
+.pref{font-size:18px;font-weight:bold;padding:4px 8px;border:2px solid #000;border-radius:3px;white-space:nowrap;text-align:center;align-self:center}
+.cl-cat{font-size:11px;font-weight:bold;background:#000;color:#fff!important;padding:2px 8px;border-radius:2px;display:inline-block;margin-bottom:5px;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+.cl{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin-bottom:6px}
+.cl-item{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:bold}
+.cb{width:18px;height:18px;border:2px solid #000;border-radius:2px;display:inline-block;flex-shrink:0}
+.divider{border:none;border-top:2px dashed #999;margin:8px 0}
+.det-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.det-ttl{font-size:11px;font-weight:bold;letter-spacing:2px;color:#555}
+.det-meta{font-size:10px;color:#555}
+table.items{width:100%;border-collapse:collapse;margin-bottom:4px;font-size:11px}
+table.items th{background:#eee;border:1px solid #999;padding:3px 5px;text-align:left}
+table.items td{border:1px solid #ccc;padding:4px 5px;vertical-align:top}
+table.items .r{text-align:right;white-space:nowrap}
+.tot-row{display:flex;justify-content:flex-end;margin-top:4px}
+table.tot{font-size:11px;border-collapse:collapse}
+table.tot td{padding:2px 6px}
+table.tot td:last-child{text-align:right;font-weight:bold;min-width:80px}
+table.tot .grand td{border-top:2px solid #000;font-size:13px;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="no-print">
+  <button onclick="window.print()">🖨 印刷 / PDF保存</button>
+  <span>用紙A4・余白なし を選択してください</span>
+</div>
+
+<div class="slip">
+  <div class="sec-lbl">出 荷 票</div>
+  <div class="top-row">
+    <div class="ord-num"></div>
+    <div class="cust-name">山根さま、心愛ちゃん</div>
+  </div>
+  <div class="stamps">
+    <span class="stamp on">毎</span>
+    <span class="stamp">都度</span>
+    <span class="stamp">TR</span>
+  </div>
+  <div class="info-row">
+    <div><div class="f-lbl">出荷日</div><div class="f-val red">4/17</div></div>
+    <div><div class="f-lbl">配達希望日</div><div class="f-val">4/19</div></div>
+    <div><div class="f-lbl">配達希望時間</div><div class="f-val">指定なし</div></div>
+  </div>
+  <div class="sz-addr">
+    <div class="sz-row">
+      <span class="sz-lbl">配送サイズ</span>
+      <span class="sz-box">CP</span>
+      <span class="sz-box on">60</span>
+      <span class="sz-box">80</span>
+      <span class="sz-box">100</span>
+    </div>
+    <div class="addr">〒301-0853 茨城県龍ケ崎市松ケ丘２－２１－１<br>山根&nbsp;由香</div>
+  </div>
+  <div class="prod-pref">
+    <div class="prod-blk">
+      <div class="f-lbl">商品内容</div>
+      <div class="prod-line">BC&nbsp;&nbsp;3</div>
+    </div>
+    <div class="pref">茨城県</div>
+  </div>
+  <div class="f-lbl" style="margin-bottom:4px;">同梱チェック</div>
+  <div class="cl-cat">定期便（8回目）</div>
+  <div class="cl">
+    <label class="cl-item"><span class="cb"></span>月刊誌</label>
+    <label class="cl-item"><span class="cb"></span>サンクスカード</label>
+    <label class="cl-item"><span class="cb"></span>定期便クーポン</label>
+  </div>
+  <hr class="divider">
+  <div class="det-hd">
+    <div class="det-ttl">明 細 表</div>
+    <div class="det-meta">定期便 8回目 ／ 毎月定期</div>
+  </div>
+  <table class="items">
+    <thead><tr><th style="width:55%">商品名</th><th style="width:12%;text-align:right">単価</th><th style="width:10%;text-align:right">数量</th><th style="width:13%;text-align:right">合計</th></tr></thead>
+    <tbody>
+      <tr><td>【定期便】バディバディ腸活&amp;口腔ケアドライフード　チキン</td><td class="r">¥2,565</td><td class="r">3</td><td class="r">¥7,695</td></tr>
+    </tbody>
+  </table>
+  <div class="tot-row">
+    <table class="tot">
+      <tr><td>小計</td><td>¥7,695</td></tr>
+      <tr><td>配送</td><td>¥0</td></tr>
+      <tr class="grand"><td>合計</td><td>¥7,695</td></tr>
+    </table>
+  </div>
+</div>
+</body>
+</html>
