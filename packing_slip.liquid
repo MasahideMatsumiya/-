@@ -311,7 +311,8 @@
       {%- for item in order.line_items -%}
         {%- assign t = item.title -%}
         {%- assign abbr = "" -%}
-        {%- if t contains "ドライフード" -%}
+        {%- if t contains "トライアル" -%}{%- assign abbr = "食いつき" -%}
+        {%- elsif t contains "ドライフード" -%}
           {%- if t contains "チキン" -%}{%- assign abbr = "BC" -%}
           {%- elsif t contains "ベニソン" -%}{%- assign abbr = "BV" -%}
           {%- elsif t contains "ポーク" -%}{%- assign abbr = "BP" -%}
@@ -321,7 +322,6 @@
           {%- elsif t contains "ホース" -%}{%- assign abbr = "WH" -%}
           {%- endif -%}
         {%- elsif t contains "モリンガミルク" -%}{%- assign abbr = "MM" -%}
-        {%- elsif t contains "トライアル" -%}{%- assign abbr = "食いつき" -%}
         {%- endif -%}
         {%- assign disp_qty = item.quantity -%}
         {%- if t contains "定期プラン1.2kg" -%}{%- assign disp_qty = item.quantity | times: 3 -%}{%- endif -%}
