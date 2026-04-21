@@ -13,6 +13,7 @@ import base64
 import glob
 from pathlib import Path
 
+import pdfplumber
 import anthropic
 import gspread
 from google.oauth2.service_account import Credentials
@@ -21,108 +22,181 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── 設定 ──────────────────────────────────────────────
-SPREADSHEET_ID  = os.getenv("SPREADSHEET_ID_SHIPPING", "18LnySuVy4-soHDxCeyh97WpeFaJqvZT4Aci0itZtRCw")
-CLAUDE_API_KEY  = os.getenv("CLAUDE_API_KEY")
+SPREADSHEET_ID   = os.getenv("SPREADSHEET_ID_SHIPPING", "18LnySuVy4-soHDxCeyh97WpeFaJqvZT4Aci0itZtRCw")
+CLAUDE_API_KEY   = os.getenv("CLAUDE_API_KEY")
 CREDENTIALS_FILE = os.getenv("CREDENTIALS_FILE", "credentials.json")
-PDF_FOLDER      = os.getenv("PDF_FOLDER", "./pdfs")
-SHEET_NAME      = "シート1"
+PDF_FOLDER       = os.getenv("PDF_FOLDER", "./pdfs")
+SHEET_NAME       = "シート1"
 
-# 配送サイズ → 列番号（1-based: A=1, B=2, ...）
-# A:注文番号 B:会員番号 C:クリックポスト D:60サイズ E:N式60
-# F:新A式60  G:70サイズ H:80サイズ     I:新A式80  J:100サイズ
-# K:食いつき L:発送先
 SIZE_TO_COL = {
     "CP":  3,   # C列: クリックポスト
     "60":  6,   # F列: 新A式60
     "80":  9,   # I列: 新A式80
     "100": 10,  # J列: 100サイズ
 }
-PREFECTURE_COL = 12  # L列: 発送先
+PREFECTURE_COL = 12  # L列
 
-EXTRACT_PROMPT = """\
+PREFS = (
+    "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
+    "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
+    "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県",
+    "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県",
+    "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県",
+    "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県",
+    "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
+)
+PREF_PATTERN = re.compile("|".join(PREFS))
+
+# Claude fallback 用プロンプト（geometry 失敗時のみ使用）
+FALLBACK_PROMPT = """\
 この出荷票PDFから配送情報を抽出してください。
 
-以下のJSON形式のみを返してください（説明文・マークダウン不要）：
+以下のJSON形式のみを返してください：
 {
   "orders": [
     {
-      "order_number": "2620",
+      "order_number": "2622",
       "shipping_size": "60",
       "prefecture": "栃木県"
     }
   ]
 }
 
-【配送サイズの読み方 - 最重要】
-「配送サイズ」欄に CP・60・80・100 の4つの四角いボタンが横並びになっています。
+「配送サイズ」欄の CP・60・80・100 のうち、
+太い黒枠で囲まれているものが選択済みサイズです。
+BC/BP/BV の後ろの数字（袋数）は配送サイズと無関係です。
 
-ボタンの見た目：
-- 選択されたサイズ → 「明らかに太くて黒い枠線（ボールドボーダー）」のボタン
-- 選択されていないサイズ → 「細くて薄い枠線」のボタン
-
-4つのボタンを比較して、枠線が最も太く黒いボタンが選択されたサイズです。
-
-絶対に守ること：
-- BC, BP, BV などの後ろの数字は商品の「袋数」であり、配送サイズとは無関係です
-- 商品数量・金額・合計額・袋数は完全に無視してください
-- 「配送サイズ」欄の4つのボタンの枠線の太さだけで判断してください
-
-shipping_size：
-- "CP"  … CP ボタンの枠線が最も太い場合
-- "60"  … 60 ボタンの枠線が最も太い場合
-- "80"  … 80 ボタンの枠線が最も太い場合
-- "100" … 100 ボタンの枠線が最も太い場合
-
-prefecture：都道府県名のみ（例：東京都、神奈川県）
+prefecture：都道府県名のみ
 order_number：注文番号の数字のみ
 """
 
 
-# ── PDF 解析 ──────────────────────────────────────────
-def extract_orders_from_pdf(pdf_path: str) -> list[dict]:
-    """Claude API で出荷票 PDF から配送情報を抽出して返す"""
-    client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
+# ── pdfplumber で配送サイズを取得 ─────────────────────
+def detect_size_from_geometry(page) -> str | None:
+    """
+    配送サイズ欄のボタン（CP/60/80/100）の枠線の太さを比較し、
+    最も太い枠線のサイズを返す。失敗時は None。
+    """
+    words = page.extract_words()
+    rects = page.rects
 
+    # サイズラベルの中心座標を取得
+    size_centers: dict[str, tuple[float, float]] = {}
+    for w in words:
+        if w["text"] in ("CP", "60", "80", "100"):
+            cx = (w["x0"] + w["x1"]) / 2
+            cy = (w["top"] + w["bottom"]) / 2
+            size_centers[w["text"]] = (cx, cy)
+
+    if len(size_centers) < 2:
+        return None
+
+    # 各サイズ付近の最大 linewidth を計算
+    scores: dict[str, float] = {}
+    for size, (cx, cy) in size_centers.items():
+        best = 0.0
+        for rect in rects:
+            rcx = (rect["x0"] + rect["x1"]) / 2
+            rcy = (rect["top"] + rect["bottom"]) / 2
+            dist = ((rcx - cx) ** 2 + (rcy - cy) ** 2) ** 0.5
+            if dist < 40:
+                lw = float(rect.get("linewidth") or 0)
+                # 黒塗り（fill）も太枠とみなす
+                fill = rect.get("non_stroking_color")
+                if fill is not None and fill not in (1, (1, 1, 1), [1, 1, 1]):
+                    lw = max(lw, 3.0)
+                best = max(best, lw)
+        scores[size] = best
+
+    if not scores or max(scores.values()) == 0:
+        return None
+
+    sorted_vals = sorted(scores.values(), reverse=True)
+    # 1位が2位より明確に大きい場合のみ返す
+    if sorted_vals[0] > sorted_vals[1]:
+        return max(scores, key=lambda k: scores[k])
+
+    return None
+
+
+# ── pdfplumber でテキスト情報を取得 ───────────────────
+def extract_from_text(page) -> dict:
+    """注文番号・都道府県をテキストから抽出"""
+    text = page.extract_text() or ""
+
+    # 注文番号：「注文番号 XXXX」または先頭の4〜5桁数字
+    m = re.search(r"注文番号\s+(\d+)", text)
+    order_number = m.group(1) if m else ""
+    if not order_number:
+        m = re.search(r"^\s*(\d{4,5})\b", text, re.MULTILINE)
+        order_number = m.group(1) if m else ""
+
+    # 都道府県
+    m = PREF_PATTERN.search(text)
+    prefecture = m.group(0) if m else ""
+
+    return {"order_number": order_number, "prefecture": prefecture}
+
+
+# ── Claude fallback（geometry 失敗時のみ） ────────────
+def extract_via_claude(pdf_path: str) -> list[dict]:
+    client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
     with open(pdf_path, "rb") as f:
         pdf_b64 = base64.standard_b64encode(f.read()).decode("utf-8")
 
     response = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=2048,
+        max_tokens=1024,
         messages=[{
             "role": "user",
             "content": [
-                {
-                    "type": "document",
-                    "source": {
-                        "type": "base64",
-                        "media_type": "application/pdf",
-                        "data": pdf_b64,
-                    },
-                },
-                {"type": "text", "text": EXTRACT_PROMPT},
+                {"type": "document",
+                 "source": {"type": "base64",
+                            "media_type": "application/pdf",
+                            "data": pdf_b64}},
+                {"type": "text", "text": FALLBACK_PROMPT},
             ],
         }],
     )
-
     raw = response.content[0].text.strip()
     if "```" in raw:
         parts = raw.split("```")
         raw = parts[1] if len(parts) > 1 else parts[0]
         if raw.startswith("json"):
             raw = raw[4:]
+    return json.loads(raw.strip()).get("orders", [])
 
-    data = json.loads(raw.strip())
-    return data.get("orders", [])
+
+# ── メイン PDF 解析 ───────────────────────────────────
+def extract_orders_from_pdf(pdf_path: str) -> list[dict]:
+    results = []
+
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            info = extract_from_text(page)
+            if not info["order_number"]:
+                continue
+
+            size = detect_size_from_geometry(page)
+            if size:
+                print(f"  [geometry] サイズ検出: {size}")
+                info["shipping_size"] = size
+                results.append(info)
+            else:
+                print(f"  [geometry] 検出失敗 → Claude API にフォールバック")
+                try:
+                    claude_orders = extract_via_claude(pdf_path)
+                    results.extend(claude_orders)
+                except Exception as e:
+                    print(f"  ERROR (Claude fallback): {e}")
+
+    return results
 
 
 # ── Google Sheets 更新 ────────────────────────────────
 def append_orders_to_sheet(gc: gspread.Client, orders: list[dict]):
-    """発送管理表に注文を1行ずつ追記する"""
     ws = gc.open_by_key(SPREADSHEET_ID).worksheet(SHEET_NAME)
-
-    # 重複チェック用：既存の注文番号を取得
-    existing = ws.col_values(1)  # A列
+    existing = ws.col_values(1)
 
     for order in orders:
         order_num = str(order.get("order_number", "")).strip()
@@ -132,22 +206,18 @@ def append_orders_to_sheet(gc: gspread.Client, orders: list[dict]):
         if not order_num:
             print(f"  ⚠  注文番号が空のためスキップ")
             continue
-
         if order_num in existing:
             print(f"  ⚠  注文 {order_num} はすでに存在します（スキップ）")
             continue
 
-        # 12列分の空行を作成（A〜L）
         row = [""] * 12
-        row[0] = order_num                       # A: 注文番号
-
+        row[0] = order_num
         col = SIZE_TO_COL.get(size)
         if col:
-            row[col - 1] = 1                     # 該当サイズ列: 1
+            row[col - 1] = 1
         else:
-            print(f"  ⚠  注文 {order_num}: 配送サイズ '{size}' が不明")
-
-        row[PREFECTURE_COL - 1] = pref           # L: 発送先
+            print(f"  ⚠  注文 {order_num}: サイズ '{size}' 不明")
+        row[PREFECTURE_COL - 1] = pref
 
         ws.append_row(row, value_input_option="USER_ENTERED")
         print(f"  OK  注文 {order_num}: {size}サイズ  {pref}")
@@ -171,8 +241,6 @@ def main():
             orders = extract_orders_from_pdf(pdf_path)
             print(f"  抽出: {len(orders)} 件")
             all_orders.extend(orders)
-        except json.JSONDecodeError as e:
-            print(f"  ERROR: JSON parse error - {e}")
         except Exception as e:
             print(f"  ERROR: {e}")
 
@@ -184,7 +252,6 @@ def main():
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
     creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=scopes)
     gc = gspread.authorize(creds)
-
     append_orders_to_sheet(gc, all_orders)
 
     print("\n=== 完了 ===")
