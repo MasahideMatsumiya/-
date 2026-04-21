@@ -13,6 +13,8 @@ import base64
 import glob
 from pathlib import Path
 
+from __future__ import annotations
+
 import pdfplumber
 import anthropic
 import gspread
