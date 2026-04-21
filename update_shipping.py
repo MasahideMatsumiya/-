@@ -74,49 +74,57 @@ order_number：注文番号の数字のみ
 # ── pdfplumber で配送サイズを取得 ─────────────────────
 def detect_size_from_geometry(page) -> str | None:
     """
-    配送サイズ欄のボタン（CP/60/80/100）の枠線の太さを比較し、
-    最も太い枠線のサイズを返す。失敗時は None。
+    黒塗り矩形（fill≈0）のx範囲内に含まれる最右のサイズラベルを返す。
+    選択されたサイズはCPから選択サイズまでを覆う黒矩形で示される。
     """
     words = page.extract_words()
     rects = page.rects
 
-    # サイズラベルの中心座標を取得
-    size_centers: dict[str, tuple[float, float]] = {}
+    size_labels: dict[str, tuple[float, float]] = {}
     for w in words:
         if w["text"] in ("CP", "60", "80", "100"):
             cx = (w["x0"] + w["x1"]) / 2
             cy = (w["top"] + w["bottom"]) / 2
-            size_centers[w["text"]] = (cx, cy)
+            size_labels[w["text"]] = (cx, cy)
 
-    if len(size_centers) < 2:
+    if len(size_labels) < 2:
         return None
 
-    # 各サイズ付近の最大 linewidth を計算
-    scores: dict[str, float] = {}
-    for size, (cx, cy) in size_centers.items():
-        best = 0.0
-        for rect in rects:
-            rcx = (rect["x0"] + rect["x1"]) / 2
-            rcy = (rect["top"] + rect["bottom"]) / 2
-            dist = ((rcx - cx) ** 2 + (rcy - cy) ** 2) ** 0.5
-            if dist < 40:
-                lw = float(rect.get("linewidth") or 0)
-                # 黒塗り（fill）も太枠とみなす
-                fill = rect.get("non_stroking_color")
-                if fill is not None and fill not in (1, (1, 1, 1), [1, 1, 1]):
-                    lw = max(lw, 3.0)
-                best = max(best, lw)
-        scores[size] = best
+    label_y = sum(cy for _, cy in size_labels.values()) / len(size_labels)
 
-    if not scores or max(scores.values()) == 0:
+    # 黒塗り矩形（fill < 0.3）をサイズ行付近（±80px）から探す
+    dark_rects = []
+    for r in rects:
+        fill = r.get("non_stroking_color")
+        if fill is None:
+            continue
+        is_dark = (
+            (isinstance(fill, (int, float)) and fill < 0.3) or
+            (isinstance(fill, (list, tuple)) and len(fill) >= 3
+             and all(v < 0.3 for v in fill[:3]))
+        )
+        if not is_dark:
+            continue
+        rect_cy = (r["top"] + r["bottom"]) / 2
+        if abs(rect_cy - label_y) > 80:
+            continue
+        dark_rects.append(r)
+
+    if not dark_rects:
         return None
 
-    sorted_vals = sorted(scores.values(), reverse=True)
-    # 1位が2位より明確に大きい場合のみ返す
-    if sorted_vals[0] > sorted_vals[1]:
-        return max(scores, key=lambda k: scores[k])
+    # 黒矩形のx範囲内に含まれるサイズラベルのうち最も右のものを返す
+    candidates: list[tuple[float, str]] = []
+    for size, (cx, cy) in size_labels.items():
+        for r in dark_rects:
+            if r["x0"] <= cx <= r["x1"]:
+                candidates.append((cx, size))
+                break
 
-    return None
+    if not candidates:
+        return None
+
+    return max(candidates, key=lambda t: t[0])[1]
 
 
 # ── pdfplumber でテキスト情報を取得 ───────────────────
@@ -170,6 +178,7 @@ def extract_via_claude(pdf_path: str) -> list[dict]:
 # ── メイン PDF 解析 ───────────────────────────────────
 def extract_orders_from_pdf(pdf_path: str) -> list[dict]:
     results = []
+    needs_claude = False
 
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
@@ -183,12 +192,19 @@ def extract_orders_from_pdf(pdf_path: str) -> list[dict]:
                 info["shipping_size"] = size
                 results.append(info)
             else:
-                print(f"  [geometry] 検出失敗 → Claude API にフォールバック")
-                try:
-                    claude_orders = extract_via_claude(pdf_path)
-                    results.extend(claude_orders)
-                except Exception as e:
-                    print(f"  ERROR (Claude fallback): {e}")
+                print(f"  [geometry] 検出失敗")
+                needs_claude = True
+
+    if needs_claude:
+        print(f"  → Claude API にフォールバック")
+        try:
+            claude_orders = extract_via_claude(pdf_path)
+            found_nums = {o["order_number"] for o in results}
+            for o in claude_orders:
+                if o.get("order_number") not in found_nums:
+                    results.append(o)
+        except Exception as e:
+            print(f"  ERROR (Claude fallback): {e}")
 
     return results
 
