@@ -6,14 +6,14 @@
   1. pdfs/ フォルダにその日の出荷票PDFを入れる
   2. python3 update_shipping.py を実行
 """
+from __future__ import annotations
+
 import os
 import re
 import json
 import base64
 import glob
 from pathlib import Path
-
-from __future__ import annotations
 
 import pdfplumber
 import anthropic
