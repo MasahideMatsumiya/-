@@ -447,12 +447,15 @@
       gap: 0;
       padding: 0;
     }
+    .special-imgs {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+    }
     .special-img {
-      aspect-ratio: 1;
       overflow: hidden;
       background: var(--gray-800);
     }
-    .special-img img { width: 100%; height: 100%; object-fit: cover; }
+    .special-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .special-img-placeholder {
       width: 100%; height: 100%;
       display: flex;
@@ -639,7 +642,8 @@
       .about-img-accent { width: 45%; right: -1rem; bottom: -1rem; }
       .products-grid { grid-template-columns: 1fr 1fr; }
       .special { grid-template-columns: 1fr; }
-      .special-img { aspect-ratio: 16/9; }
+      .special-imgs { grid-template-rows: auto; grid-template-columns: 1fr 1fr; }
+      .special-img { aspect-ratio: 1; }
       .events-inner { grid-template-columns: 1fr; gap: 2rem; }
       nav .nav-line { display: none; }
       nav { gap: 1.5rem; }
@@ -673,6 +677,7 @@
       .products-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
 
       /* Special */
+      .special-imgs { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
       .special-img { aspect-ratio: 4/3; }
       .special-text { padding: 3rem 6%; }
 
@@ -845,8 +850,13 @@
 
 <!-- ===== SPECIAL ===== -->
 <section class="special" id="special">
-  <div class="special-img">
-    <img src="images/special-macaron.jpg" alt="オリジナルマカロン生地">
+  <div class="special-imgs">
+    <div class="special-img">
+      <img src="images/special-macaron-pink.jpg" alt="ピンクのマカロン生地">
+    </div>
+    <div class="special-img">
+      <img src="images/special-macaron-gray.jpg" alt="グレーのマカロン生地">
+    </div>
   </div>
   <div class="special-text reveal">
     <div class="sec-label">Exclusive Collaboration</div>
