@@ -173,10 +173,19 @@
     {%- endif -%}
   {%- endfor -%}
 
-  {%- if desired_date != blank -%}
+  {%- assign ship_override = "" -%}
+  {%- if order.note contains "出荷日:" -%}
+    {%- assign ship_override = order.note | split: "出荷日:" | last | split: " " | first | strip -%}
+  {%- endif -%}
+
+  {%- if ship_override != blank -%}
+    {%- assign ship_date = ship_override -%}
+  {%- elsif desired_date != blank -%}
     {%- assign desired_ts  = desired_date | date: "%s" | plus: 0 -%}
     {%- assign desired_dow = desired_date | date: "%w" | plus: 0 -%}
-    {%- if desired_dow == 1 or desired_dow == 2 -%}
+    {%- if desired_dow == 1 -%}
+      {%- assign ship_ts = desired_ts | minus: 259200 -%}
+    {%- elsif desired_dow == 2 -%}
       {%- assign ship_ts = desired_ts | minus: 345600 -%}
     {%- else -%}
       {%- assign ship_ts = desired_ts | minus: 172800 -%}
