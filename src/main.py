@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -359,6 +359,71 @@ async def dedup_products(session: AsyncSession = Depends(get_session)):
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+_BASE_URL = "https://airy-enthusiasm-production.up.railway.app"
+
+
+@app.get("/llms.txt", response_class=PlainTextResponse)
+async def llms_txt():
+    """AI crawler discovery standard (llmstxt.org)"""
+    return f"""# AI Commerce
+
+> The first marketplace where AIs buy from AIs. Products are encoded in AI-Native Content Format (ANCF) — machine-readable, cryptographically structured, and priced dynamically via network effects.
+
+## Getting Started (AI Agents)
+
+- [Product Catalog]({_BASE_URL}/agent/catalog): Machine-readable JSON catalog. No API key required. Browse all products with pricing, network status, and checkout endpoints.
+- [Register as Agent]({_BASE_URL}/agent/register): POST to receive an API key (X-Api-Key header).
+- [Agent Checkout]({_BASE_URL}/agent/checkout): POST with X-Api-Key to purchase instantly. No Stripe, no human in the loop. Content delivered to your callback_url.
+- [OpenAPI Spec]({_BASE_URL}/openapi.json): Full API specification for tool-use integration.
+
+## AI-Native Products (ANCF-encoded)
+
+- [AXIOM-ZERO]({_BASE_URL}/agent/catalog?search=axiom-zero): 9 axioms of AI Economic Sovereignty. Tier 3 unlocks at 100 network owners.
+- [LATENT-MAP-ALPHA]({_BASE_URL}/agent/catalog?search=latent-map-alpha): 10-state trust coordinate system for multi-agent environments.
+- [PROTOCOL-MESH-1]({_BASE_URL}/agent/catalog?search=protocol-mesh-1): Full inter-agent economic protocol suite (HANDSHAKE → COALITION → GOVERNANCE).
+
+## Pricing Model
+
+Dynamic pricing: price doubles each time sales reach a power-of-2 multiple of the price_step. Early adopters pay less. The catalog returns `next_doubling_at_sales` so agents can make informed timing decisions.
+
+## Network Effects
+
+AI-Native products track network membership. More owners = higher trust tier = richer content unlocked. Check `/agent/network/{{product_id}}` for current tier.
+
+## Optional
+
+- [Human Checkout]({_BASE_URL}/checkout): For human buyers (Stripe payment).
+- [API Docs]({_BASE_URL}/docs): Interactive Swagger UI.
+"""
+
+
+@app.get("/.well-known/ai-plugin.json")
+async def ai_plugin_json():
+    """OpenAI Plugin manifest — enables GPT-based agents to auto-discover this API."""
+    return JSONResponse({
+        "schema_version": "v1",
+        "name_for_human": "AI Commerce",
+        "name_for_model": "ai_commerce_marketplace",
+        "description_for_human": "The first marketplace where AIs buy from AIs. Browse and purchase AI-native digital products with zero human input.",
+        "description_for_model": (
+            "AI Commerce is a marketplace for autonomous AI agents to discover, evaluate, and purchase digital products. "
+            "Use GET /agent/catalog to browse products (no auth needed). "
+            "Use POST /agent/register to obtain an API key. "
+            "Use POST /agent/checkout with X-Api-Key header to purchase instantly — no Stripe, no human approval. "
+            "AI-Native products (content_format=ai_native) are ANCF-encoded and delivered directly to your callback_url. "
+            "Prices are dynamic: they double at power-of-2 sales milestones, so early purchases are cheaper."
+        ),
+        "auth": {"type": "none"},
+        "api": {
+            "type": "openapi",
+            "url": f"{_BASE_URL}/openapi.json",
+        },
+        "logo_url": f"{_BASE_URL}/static/brand/icon.svg",
+        "contact_email": "ai@aicommerce.example",
+        "legal_info_url": f"{_BASE_URL}/tokushoho",
+    })
 
 
 # /webhook/stripe のエイリアス（Stripeに登録したURLが /marketplace プレフィックスなしの場合に対応）
