@@ -450,12 +450,14 @@
     .special-imgs {
       display: grid;
       grid-template-rows: 1fr 1fr;
+      min-height: 80vh;
     }
     .special-img {
       overflow: hidden;
       background: var(--gray-800);
     }
     .special-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .special-text { padding: 8rem 8%; }
     .special-img-placeholder {
       width: 100%; height: 100%;
       display: flex;
@@ -762,6 +764,24 @@
   </div>
 </div>
 
+<!-- ===== SPECIAL ===== -->
+<section class="special" id="special">
+  <div class="special-imgs">
+    <div class="special-img">
+      <img src="images/special-macaron-pink.jpg" alt="ピンクのマカロン生地">
+    </div>
+    <div class="special-img">
+      <img src="images/special-macaron-gray.jpg" alt="グレーのマカロン生地">
+    </div>
+  </div>
+  <div class="special-text reveal">
+    <div class="sec-label">Exclusive Collaboration</div>
+    <h2 class="sec-title">世界で<em>唯一</em>の<br>オリジナルマカロン生地</h2>
+    <p>生地メーカー YUWA LIVE LIFE COLLECTION とのコラボレーションにより生まれた、CandyFabric限定のオリジナルマカロン生地。世界で当店でしか手に入らない、特別なファブリックです。</p>
+    <a href="#contact" class="special-badge">お問い合わせはこちら</a>
+  </div>
+</section>
+
 <!-- ===== ABOUT ===== -->
 <section class="about" id="about">
   <div class="about-img reveal">
@@ -845,24 +865,6 @@
         <div class="product-desc">暮らしを彩るセレクト雑貨・小物を揃えています。</div>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ===== SPECIAL ===== -->
-<section class="special" id="special">
-  <div class="special-imgs">
-    <div class="special-img">
-      <img src="images/special-macaron-pink.jpg" alt="ピンクのマカロン生地">
-    </div>
-    <div class="special-img">
-      <img src="images/special-macaron-gray.jpg" alt="グレーのマカロン生地">
-    </div>
-  </div>
-  <div class="special-text reveal">
-    <div class="sec-label">Exclusive Collaboration</div>
-    <h2 class="sec-title">世界で<em>唯一</em>の<br>オリジナルマカロン生地</h2>
-    <p>生地メーカー YUWA LIVE LIFE COLLECTION とのコラボレーションにより生まれた、CandyFabric限定のオリジナルマカロン生地。世界で当店でしか手に入らない、特別なファブリックです。</p>
-    <a href="#contact" class="special-badge">お問い合わせはこちら</a>
   </div>
 </section>
 
