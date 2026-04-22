@@ -10,11 +10,11 @@ from __future__ import annotations
 
 import os
 import re
-import json
 import base64
 import glob
 from pathlib import Path
 
+import fitz  # PyMuPDF
 import pdfplumber
 import anthropic
 import gspread
@@ -49,164 +49,78 @@ PREFS = (
 )
 PREF_PATTERN = re.compile("|".join(PREFS))
 
-# Claude fallback 用プロンプト（geometry 失敗時のみ使用）
-FALLBACK_PROMPT = """\
-この出荷票PDFから配送情報を抽出してください。
+VISION_PROMPT = """\
+この出荷票の画像を見てください。
 
-以下のJSON形式のみを返してください：
-{
-  "orders": [
-    {
-      "order_number": "2622",
-      "shipping_size": "60",
-      "prefecture": "栃木県"
-    }
-  ]
-}
+「配送サイズ」の行に CP / 60 / 80 / 100 という4つの選択肢があります。
+そのうち1つだけが黒い太枠または黒い背景でハイライトされています。
 
-「配送サイズ」欄の CP・60・80・100 のうち、
-太い黒枠で囲まれているものが選択済みサイズです。
-BC/BP/BV の後ろの数字（袋数）は配送サイズと無関係です。
-
-prefecture：都道府県名のみ
-order_number：注文番号の数字のみ
+CP、60、80、100 のどれが選択されていますか？
+選択されているサイズだけを1語で答えてください（例: 60）。
 """
 
 
-# ── pdfplumber で配送サイズを取得 ─────────────────────
-def detect_size_from_geometry(page) -> str | None:
-    """
-    黒塗り矩形（fill≈0）のx範囲内に含まれる最右のサイズラベルを返す。
-    選択されたサイズはCPから選択サイズまでを覆う黒矩形で示される。
-    """
-    words = page.extract_words()
-    rects = page.rects
-
-    size_labels: dict[str, tuple[float, float]] = {}
-    for w in words:
-        if w["text"] in ("CP", "60", "80", "100"):
-            cx = (w["x0"] + w["x1"]) / 2
-            cy = (w["top"] + w["bottom"]) / 2
-            size_labels[w["text"]] = (cx, cy)
-
-    if len(size_labels) < 2:
-        return None
-
-    label_y = sum(cy for _, cy in size_labels.values()) / len(size_labels)
-
-    # 黒塗り矩形（fill < 0.3）をサイズ行付近（±80px）から探す
-    dark_rects = []
-    for r in rects:
-        fill = r.get("non_stroking_color")
-        if fill is None:
-            continue
-        is_dark = (
-            (isinstance(fill, (int, float)) and fill < 0.3) or
-            (isinstance(fill, (list, tuple)) and len(fill) >= 3
-             and all(v < 0.3 for v in fill[:3]))
-        )
-        if not is_dark:
-            continue
-        rect_cy = (r["top"] + r["bottom"]) / 2
-        if abs(rect_cy - label_y) > 80:
-            continue
-        dark_rects.append(r)
-
-    if not dark_rects:
-        return None
-
-    # 黒矩形のx範囲内に含まれるサイズラベルのうち最も右のものを返す
-    candidates: list[tuple[float, str]] = []
-    for size, (cx, cy) in size_labels.items():
-        for r in dark_rects:
-            if r["x0"] <= cx <= r["x1"]:
-                candidates.append((cx, size))
-                break
-
-    if not candidates:
-        return None
-
-    return max(candidates, key=lambda t: t[0])[1]
-
-
-# ── pdfplumber でテキスト情報を取得 ───────────────────
+# ── テキスト抽出（注文番号・都道府県） ────────────────
 def extract_from_text(page) -> dict:
-    """注文番号・都道府県をテキストから抽出"""
     text = page.extract_text() or ""
 
-    # 注文番号：「注文番号 XXXX」または先頭の4〜5桁数字
     m = re.search(r"注文番号\s+(\d+)", text)
     order_number = m.group(1) if m else ""
     if not order_number:
         m = re.search(r"^\s*(\d{4,5})\b", text, re.MULTILINE)
         order_number = m.group(1) if m else ""
 
-    # 都道府県
     m = PREF_PATTERN.search(text)
     prefecture = m.group(0) if m else ""
 
     return {"order_number": order_number, "prefecture": prefecture}
 
 
-# ── Claude fallback（geometry 失敗時のみ） ────────────
-def extract_via_claude(pdf_path: str) -> list[dict]:
-    client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
-    with open(pdf_path, "rb") as f:
-        pdf_b64 = base64.standard_b64encode(f.read()).decode("utf-8")
+# ── Claude Vision でサイズ検出 ────────────────────────
+def detect_size_via_vision(pdf_path: str, page_num: int) -> str:
+    doc = fitz.open(pdf_path)
+    pix = doc[page_num].get_pixmap(matrix=fitz.Matrix(2, 2))
+    img_b64 = base64.b64encode(pix.tobytes("png")).decode("utf-8")
+    doc.close()
 
+    client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
     response = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=1024,
+        max_tokens=16,
         messages=[{
             "role": "user",
             "content": [
-                {"type": "document",
-                 "source": {"type": "base64",
-                            "media_type": "application/pdf",
-                            "data": pdf_b64}},
-                {"type": "text", "text": FALLBACK_PROMPT},
+                {"type": "image",
+                 "source": {"type": "base64", "media_type": "image/png", "data": img_b64}},
+                {"type": "text", "text": VISION_PROMPT},
             ],
         }],
     )
-    raw = response.content[0].text.strip()
-    if "```" in raw:
-        parts = raw.split("```")
-        raw = parts[1] if len(parts) > 1 else parts[0]
-        if raw.startswith("json"):
-            raw = raw[4:]
-    return json.loads(raw.strip()).get("orders", [])
+
+    answer = response.content[0].text.strip()
+    for size in ("100", "80", "60", "CP"):
+        if size in answer:
+            return size
+    return ""
 
 
 # ── メイン PDF 解析 ───────────────────────────────────
 def extract_orders_from_pdf(pdf_path: str) -> list[dict]:
     results = []
-    needs_claude = False
 
     with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages:
+        for i, page in enumerate(pdf.pages):
             info = extract_from_text(page)
             if not info["order_number"]:
                 continue
 
-            size = detect_size_from_geometry(page)
+            size = detect_size_via_vision(pdf_path, i)
             if size:
-                print(f"  [geometry] サイズ検出: {size}")
+                print(f"  [Vision] 注文 {info['order_number']}: サイズ={size}  {info['prefecture']}")
                 info["shipping_size"] = size
                 results.append(info)
             else:
-                print(f"  [geometry] 検出失敗")
-                needs_claude = True
-
-    if needs_claude:
-        print(f"  → Claude API にフォールバック")
-        try:
-            claude_orders = extract_via_claude(pdf_path)
-            found_nums = {o["order_number"] for o in results}
-            for o in claude_orders:
-                if o.get("order_number") not in found_nums:
-                    results.append(o)
-        except Exception as e:
-            print(f"  ERROR (Claude fallback): {e}")
+                print(f"  ⚠  注文 {info['order_number']}: サイズ検出失敗")
 
     return results
 
