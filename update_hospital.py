@@ -1,24 +1,21 @@
 #!/usr/bin/env python3
 """
-Shopify 顧客/注文PDF → 動物病院売上票 自動入力スクリプト
+Shopify Admin API → 動物病院売上票 自動入力スクリプト
 
 使い方:
-  1. Shopify の顧客ページでタグ「病院」等で絞り込み、注文詳細を PDF にする
-  2. pdfs/ フォルダに PDF を入れる
-  3. python3 update_hospital.py を実行
+  python3 update_hospital.py --month 2026-03
 
-※ Buddy-Buddy の update.py / update_shipping.py と同じ構造。
+対象月の各病院タグ付き顧客の注文を Shopify から取得し、
+病院ごとのシートの該当月ブロックに書き込む。
 """
 from __future__ import annotations
 
 import os
-import re
 import json
-import base64
-import glob
-from pathlib import Path
+import argparse
+from calendar import monthrange
 
-import anthropic
+import requests
 import gspread
 from google.oauth2.service_account import Credentials
 from dotenv import load_dotenv
@@ -26,145 +23,176 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── 設定 ──────────────────────────────────────────────
-SPREADSHEET_ID   = os.getenv("SPREADSHEET_ID_HOSPITAL", "1XaLdUELAPoH-ru_joS4sNx7OKgxlprniZr_mAJAtkQM")
-CLAUDE_API_KEY   = os.getenv("CLAUDE_API_KEY")
+SHOPIFY_SHOP     = os.getenv("SHOPIFY_SHOP_DOMAIN", "buddy-buddy.myshopify.com")
+SHOPIFY_TOKEN    = os.getenv("SHOPIFY_ADMIN_TOKEN")
+SPREADSHEET_ID   = os.getenv("SPREADSHEET_ID_HOSPITAL")
 CREDENTIALS_FILE = os.getenv("CREDENTIALS_FILE", "credentials.json")
-PDF_FOLDER       = os.getenv("PDF_FOLDER", "./pdfs")
 
-# クーポンコード → 病院名（画像から判明している分のみ。実PDFで追加する）
-COUPON_TO_HOSPITAL = {
-    "40217": "CHICOどうぶつ診療所",
+API_VERSION = "2024-10"
+
+# 病院タグ → 設定（キックバック率・書込先シート名）
+HOSPITALS = {
+    "CHICOどうぶつ診療所": {"kickback_rate": 0.30, "sheet_name": "CHICOどうぶつ診療所"},
+    "viviANDOG":            {"kickback_rate": 0.20, "sheet_name": "viviANDOG"},
 }
 
-# 動物病院売上票の行レイアウト（1月ブロックあたりの相対行番号）
-# 実PDF確認後に微調整。画像観察ベースの現状値。
+# 愛犬名が入っている顧客メタフィールド（実環境で namespace/key を要確認）
+PET_METAFIELD_NAMESPACE = "custom"
+PET_METAFIELD_KEY       = "pet_names"
+
+# Shopify 商品名 → スプレッドシートのドロップダウン値マップ（実PDFで追記）
+PRODUCT_NAME_MAP = {
+    "【定期便】バディバディ腸活&口腔ケアドライフード ポーク": "【毎月】ポーク",
+    "【定期便】バディバディ腸活&口腔ケアドライフード チキン": "【毎月】チキン",
+    "【定期便】バディバディ腸活&口腔ケアドライフード ベニソン": "【毎月】ベニソン",
+}
+
+# 月ブロック内の相対行番号（画像観察ベース。実シートで要検証）
 ROW_OFFSETS = {
-    "該当月":    1,
-    "名前":      2,
-    "愛犬①":    3,
-    "愛犬②":    4,
-    "愛犬③":    5,
-    "受注日":    6,
-    "注文番号":  7,
-    "商品":      8,   # 商品は複数行（8〜14）に渡る可能性あり
-    "クーポン名": 15,
-    "合計金額税抜": 16,
-    "30%":       17,
+    "該当月":        1,
+    "名前":          2,
+    "愛犬①":        3,
+    "愛犬②":        4,
+    "愛犬③":        5,
+    "受注日":        6,
+    "注文番号":      7,
+    "商品":          8,   # 商品は複数行（8〜14）
+    "合計金額税抜": 17,
+    "キックバック": 18,
 }
 
-# 月ブロックの開始行（画像から判定: 1, 19, 38, 57, ...）
-# 各ブロック 18行 + ヘッダ1行 = 19行間隔
-BLOCK_HEIGHT = 19
+FIRST_DATA_COL    = 2  # B列
+COLS_PER_CUSTOMER = 2  # データ列 + 数量列
 
-# 顧客列ペア（B+C, D+E, F+G, ...）
-# 各顧客は「データ列」と「数量列」の2列を占有
-FIRST_DATA_COL = 2  # B列
-COLS_PER_CUSTOMER = 2
-
-# ── 抽出プロンプト ────────────────────────────────────
-EXTRACT_PROMPT = """\
-この Shopify の注文PDFから、病院キックバック集計に必要な情報を抽出してください。
-以下のJSON形式のみを返してください（説明文・マークダウン不要）:
-
-{
-  "orders": [
-    {
-      "order_number": "1718",
-      "order_date": "2025-09-25",
-      "customer_name": "谷 麻美",
-      "pets": ["マロンくん", "メルちゃん"],
-      "items": [
-        {"product": "【毎月】ポーク", "quantity": 4}
-      ],
-      "coupon_code": "40217",
-      "subtotal_ex_tax": 10309
+# ── Shopify GraphQL クライアント ──────────────────────
+def gql(query: str, variables: dict | None = None) -> dict:
+    url = f"https://{SHOPIFY_SHOP}/admin/api/{API_VERSION}/graphql.json"
+    headers = {
+        "X-Shopify-Access-Token": SHOPIFY_TOKEN,
+        "Content-Type": "application/json",
     }
-  ]
-}
-
-注意:
-- order_date は YYYY-MM-DD
-- customer_name は姓名（例「谷 麻美」）
-- pets は愛犬名の配列（いない場合は []）
-- coupon_code は Shopify のディスカウントコード（例 40217）
-- subtotal_ex_tax は税抜の合計金額（円、整数）
-- 1PDFに複数注文がある場合は orders 配列に複数入れてよい
-- 同月に同じ顧客が2回買っている場合も、別注文として別要素にする
-"""
+    resp = requests.post(url, json={"query": query, "variables": variables or {}}, headers=headers, timeout=30)
+    resp.raise_for_status()
+    data = resp.json()
+    if "errors" in data:
+        raise RuntimeError(f"GraphQL error: {data['errors']}")
+    return data["data"]
 
 
-# ── PDF 解析 ──────────────────────────────────────────
-def extract_orders_from_pdf(pdf_path: str) -> list[dict]:
-    """Claude API で Shopify 注文PDF から情報を抽出して返す"""
-    client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
-
-    with open(pdf_path, "rb") as f:
-        pdf_b64 = base64.standard_b64encode(f.read()).decode("utf-8")
-
-    response = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=4096,
-        messages=[{
-            "role": "user",
-            "content": [
-                {
-                    "type": "document",
-                    "source": {
-                        "type": "base64",
-                        "media_type": "application/pdf",
-                        "data": pdf_b64,
-                    },
-                },
-                {"type": "text", "text": EXTRACT_PROMPT},
-            ],
-        }],
-    )
-
-    raw = response.content[0].text.strip()
-    if "```" in raw:
-        parts = raw.split("```")
-        raw = parts[1] if len(parts) > 1 else parts[0]
-        if raw.startswith("json"):
-            raw = raw[4:]
-
-    data = json.loads(raw.strip())
-    return data.get("orders", [])
-
-
-# ── シート名の決定 ────────────────────────────────────
-def sheet_name_for_coupon(coupon_code: str) -> str:
-    """クーポンコードから病院シート名を決める（現状は全病院共通で1シート想定）"""
-    # 画像では全病院が同じシート内の別ブロックとして並んでいる
-    # 病院別にシートが分かれている場合はここで切り替える
-    return "シート1"
-
-
-# ── 月ブロックの開始行を探す ──────────────────────────
-def find_block_start_row(ws: gspread.Worksheet, year_month: str, coupon_code: str) -> int | None:
+def get_customers_by_tag(tag: str) -> list[dict]:
+    """指定タグの顧客を全件取得（メタフィールド含む）"""
+    query = """
+    query ($q: String!, $cursor: String) {
+      customers(first: 50, query: $q, after: $cursor) {
+        edges {
+          node {
+            id
+            displayName
+            firstName
+            lastName
+            metafields(first: 20) {
+              edges { node { namespace key value type } }
+            }
+          }
+          cursor
+        }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
     """
-    'YYYY.M' 形式の該当月 + クーポンコードを含むブロックの開始行を返す。
-    画像の例: 1行目「該当月 2025.8」+ P列に病院情報、19行目「クーポンコード: 40217. CHICOどうぶつ診療所」...
-    """
-    col_a = ws.col_values(1)  # A列（ラベル列）
-    # 「該当月」と書かれた行を全て探す
-    candidate_rows = [i + 1 for i, v in enumerate(col_a) if v == "該当月"]
+    customers: list[dict] = []
+    cursor = None
+    while True:
+        data = gql(query, {"q": f"tag:'{tag}'", "cursor": cursor})
+        edges = data["customers"]["edges"]
+        customers.extend(e["node"] for e in edges)
+        if not data["customers"]["pageInfo"]["hasNextPage"]:
+            break
+        cursor = data["customers"]["pageInfo"]["endCursor"]
+    return customers
 
-    for row in candidate_rows:
-        # その行の B 列が year_month と一致するか確認
+
+def get_orders_for_customer(customer_id: str, year: int, month: int) -> list[dict]:
+    """顧客の指定月の注文を取得"""
+    numeric_id = customer_id.split("/")[-1]  # gid://shopify/Customer/123 → 123
+    first_day = f"{year:04d}-{month:02d}-01"
+    last_day_num = monthrange(year, month)[1]
+    last_day = f"{year:04d}-{month:02d}-{last_day_num:02d}"
+
+    query = """
+    query ($q: String!) {
+      orders(first: 100, query: $q, sortKey: CREATED_AT) {
+        edges {
+          node {
+            id
+            name
+            createdAt
+            totalPriceSet    { shopMoney { amount } }
+            subtotalPriceSet { shopMoney { amount } }
+            totalTaxSet      { shopMoney { amount } }
+            taxesIncluded
+            lineItems(first: 50) {
+              edges {
+                node {
+                  title
+                  quantity
+                  originalUnitPriceSet { shopMoney { amount } }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    """
+    q = f"customer_id:{numeric_id} AND created_at:>={first_day} AND created_at:<={last_day}T23:59:59"
+    data = gql(query, {"q": q})
+    return [e["node"] for e in data["orders"]["edges"]]
+
+
+# ── 顧客メタフィールドから愛犬名 ──────────────────────
+def extract_pet_names(customer: dict) -> list[str]:
+    for edge in customer.get("metafields", {}).get("edges", []):
+        mf = edge["node"]
+        if mf["namespace"] != PET_METAFIELD_NAMESPACE or mf["key"] != PET_METAFIELD_KEY:
+            continue
+        value = mf["value"]
+        # 値は JSON配列 / カンマ区切り / 単一文字列 のいずれか
+        if value.startswith("["):
+            try:
+                return [str(v) for v in json.loads(value)]
+            except json.JSONDecodeError:
+                pass
+        if "," in value or "、" in value:
+            return [v.strip() for v in value.replace("、", ",").split(",") if v.strip()]
+        return [value.strip()] if value.strip() else []
+    return []
+
+
+def compute_subtotal_ex_tax(order: dict) -> int:
+    """税抜合計 = 合計 ÷ 1.1（消費税10%内税前提）"""
+    total = float(order["totalPriceSet"]["shopMoney"]["amount"])
+    return round(total / 1.1)
+
+
+def format_product_title(title: str) -> str:
+    return PRODUCT_NAME_MAP.get(title, title)
+
+
+# ── スプレッドシート書込 ──────────────────────────────
+def find_block_start_row(ws: gspread.Worksheet, year_month: str) -> int | None:
+    """A列が「該当月」かつ B列に YYYY.M を含む行を返す"""
+    col_a = ws.col_values(1)
+    candidates = [i + 1 for i, v in enumerate(col_a) if v == "該当月"]
+    for row in candidates:
         b_val = ws.cell(row, 2).value or ""
         if year_month in b_val:
-            # さらに直上行のクーポンコードも確認（最初のブロックはクーポン行が無い可能性あり）
-            if row > 1:
-                prev = ws.cell(row - 1, 1).value or ""
-                if coupon_code and coupon_code not in prev:
-                    continue
             return row
     return None
 
 
-# ── 空いている顧客列を探す ────────────────────────────
 def find_empty_customer_col(ws: gspread.Worksheet, block_start_row: int) -> int:
-    """指定ブロックの「名前」行で、値が空の最初のデータ列を返す（1-indexed）"""
+    """「名前」行で空の最初のデータ列（1-indexed）を返す"""
     name_row = block_start_row + ROW_OFFSETS["名前"] - 1
     row_values = ws.row_values(name_row)
     col = FIRST_DATA_COL
@@ -173,91 +201,117 @@ def find_empty_customer_col(ws: gspread.Worksheet, block_start_row: int) -> int:
     return col
 
 
-# ── Google Sheets 書込 ────────────────────────────────
-def write_order_to_sheet(ws: gspread.Worksheet, block_start_row: int, data_col: int, order: dict):
-    """1注文を動物病院売上票の1顧客列ペアに書き込む"""
+def a1(row: int, col: int) -> str:
+    return gspread.utils.rowcol_to_a1(row, col)
+
+
+def write_order_to_sheet(
+    ws: gspread.Worksheet,
+    block_start_row: int,
+    data_col: int,
+    customer_name: str,
+    pets: list[str],
+    order: dict,
+    year_month: str,
+    kickback_rate: float,
+) -> None:
     qty_col = data_col + 1
-    year_month = order["order_date"][:7].replace("-", ".")  # 2025-09-25 → 2025.09 → 2025.9 表記に合わせる
-    # 先頭ゼロ除去（09→9）
-    y, m = year_month.split(".")
-    year_month = f"{y}.{int(m)}"
+    y, m, d = order["createdAt"][:10].split("-")
+    date_str = f"{y}年{int(m)}月{int(d)}日"
+    order_name = order["name"].lstrip("#")
+    subtotal_ex_tax = compute_subtotal_ex_tax(order)
+    kickback_amount = round(subtotal_ex_tax * kickback_rate)
 
-    updates = [
-        (block_start_row + ROW_OFFSETS["該当月"] - 1, data_col, year_month),
-        (block_start_row + ROW_OFFSETS["名前"] - 1,   data_col, order["customer_name"]),
-        (block_start_row + ROW_OFFSETS["受注日"] - 1, data_col, f"{order['order_date'].replace('-', '年', 1).replace('-', '月')}日"),
-        (block_start_row + ROW_OFFSETS["注文番号"] - 1, data_col, order["order_number"]),
-        (block_start_row + ROW_OFFSETS["合計金額税抜"] - 1, data_col, order["subtotal_ex_tax"]),
-    ]
+    updates: list[dict] = []
 
-    # 愛犬名
-    for i, pet in enumerate(order.get("pets", [])[:3]):
+    def add(row_offset: int, col: int, value):
+        row = block_start_row + row_offset - 1
+        updates.append({"range": a1(row, col), "values": [[value]]})
+
+    add(ROW_OFFSETS["該当月"],       data_col, year_month)
+    add(ROW_OFFSETS["名前"],         data_col, customer_name)
+    add(ROW_OFFSETS["受注日"],       data_col, date_str)
+    add(ROW_OFFSETS["注文番号"],     data_col, order_name)
+    add(ROW_OFFSETS["合計金額税抜"], data_col, subtotal_ex_tax)
+    add(ROW_OFFSETS["キックバック"], data_col, kickback_amount)
+
+    for i, pet in enumerate(pets[:3]):
         label = ["愛犬①", "愛犬②", "愛犬③"][i]
-        updates.append((block_start_row + ROW_OFFSETS[label] - 1, data_col, pet))
+        add(ROW_OFFSETS[label], data_col, pet)
 
-    # 商品と数量（最大7行）
-    for i, item in enumerate(order.get("items", [])[:7]):
-        product_row = block_start_row + ROW_OFFSETS["商品"] - 1 + i
-        updates.append((product_row, data_col, item["product"]))
-        updates.append((product_row, qty_col, item["quantity"]))
+    for i, edge in enumerate(order["lineItems"]["edges"][:7]):
+        item = edge["node"]
+        add(ROW_OFFSETS["商品"] + i, data_col, format_product_title(item["title"]))
+        add(ROW_OFFSETS["商品"] + i, qty_col,  item["quantity"])
 
-    for row, col, value in updates:
-        ws.update_cell(row, col, value)
-
-    print(f"  OK  {order['customer_name']} / 注文{order['order_number']}  →  row={block_start_row}, col={data_col}")
+    ws.batch_update(updates, value_input_option="USER_ENTERED")
+    print(f"  OK  {customer_name} / {order['name']} / 税抜 ¥{subtotal_ex_tax:,} / KB ¥{kickback_amount:,}  (row={block_start_row}, col={data_col})")
 
 
 # ── メイン ────────────────────────────────────────────
 def main():
-    print("=== 動物病院売上票 自動入力 ===\n")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--month", required=True, help="対象月 (例: 2026-03)")
+    parser.add_argument("--dry-run", action="store_true", help="Shopify から取得するが書込はしない")
+    args = parser.parse_args()
 
-    pdf_files = sorted(glob.glob(os.path.join(PDF_FOLDER, "*.pdf")))
-    if not pdf_files:
-        print(f"ERROR: {PDF_FOLDER} にPDFファイルがありません")
-        return
+    if not SHOPIFY_TOKEN:
+        raise SystemExit("ERROR: SHOPIFY_ADMIN_TOKEN が設定されていません（.env を確認）")
+    if not SPREADSHEET_ID:
+        raise SystemExit("ERROR: SPREADSHEET_ID_HOSPITAL が設定されていません")
 
-    print(f"PDFファイル {len(pdf_files)} 件を処理します")
+    year, month = map(int, args.month.split("-"))
+    year_month = f"{year}.{month}"
 
-    all_orders: list[dict] = []
-    for pdf_path in pdf_files:
-        fname = Path(pdf_path).name
-        print(f"\n[解析] {fname}")
-        try:
-            orders = extract_orders_from_pdf(pdf_path)
-            print(f"  抽出: {len(orders)} 件")
-            all_orders.extend(orders)
-        except json.JSONDecodeError as e:
-            print(f"  ERROR: JSON parse error - {e}")
-        except Exception as e:
-            print(f"  ERROR: {e}")
+    print(f"=== 動物病院売上票 自動入力: {year_month} ===")
+    if args.dry_run:
+        print("(dry-run: 書込は行いません)\n")
 
-    if not all_orders:
-        print("\nERROR: 注文データを取得できませんでした")
-        return
-
-    # Google Sheets 接続
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
     creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=scopes)
     gc = gspread.authorize(creds)
+    sh = gc.open_by_key(SPREADSHEET_ID) if not args.dry_run else None
 
-    sh = gc.open_by_key(SPREADSHEET_ID)
+    for tag, config in HOSPITALS.items():
+        print(f"\n[病院] {tag} (kickback {int(config['kickback_rate']*100)}%)")
 
-    print(f"\n[スプレッドシート書込]")
-    for order in all_orders:
-        coupon = str(order.get("coupon_code", "")).strip()
-        hospital = COUPON_TO_HOSPITAL.get(coupon, "(不明な病院)")
-        y_m = order["order_date"][:7].replace("-", ".")
-        y, m = y_m.split(".")
-        year_month = f"{y}.{int(m)}"
-
-        ws = sh.worksheet(sheet_name_for_coupon(coupon))
-        block_row = find_block_start_row(ws, year_month, coupon)
-        if block_row is None:
-            print(f"  ⚠  {year_month} / クーポン{coupon} のブロックが見つかりません（スキップ）")
+        customers = get_customers_by_tag(tag)
+        print(f"  対象顧客: {len(customers)} 名")
+        if not customers:
             continue
 
-        data_col = find_empty_customer_col(ws, block_row)
-        write_order_to_sheet(ws, block_row, data_col, order)
+        ws = None
+        block_row = None
+        if not args.dry_run:
+            try:
+                ws = sh.worksheet(config["sheet_name"])
+            except gspread.WorksheetNotFound:
+                print(f"  ⚠ シート '{config['sheet_name']}' が見つかりません（スキップ）")
+                continue
+            block_row = find_block_start_row(ws, year_month)
+            if block_row is None:
+                print(f"  ⚠ '{config['sheet_name']}' に {year_month} ブロックが見つかりません（スキップ）")
+                continue
+
+        for customer in customers:
+            orders = get_orders_for_customer(customer["id"], year, month)
+            pets = extract_pet_names(customer)
+            if not orders:
+                print(f"  -   {customer['displayName']}: {year_month} の注文なし")
+                continue
+
+            for order in orders:
+                if args.dry_run:
+                    subtotal = compute_subtotal_ex_tax(order)
+                    kb = round(subtotal * config["kickback_rate"])
+                    print(f"  [dry] {customer['displayName']} / {order['name']} / 税抜 ¥{subtotal:,} / KB ¥{kb:,} / pets={pets}")
+                else:
+                    data_col = find_empty_customer_col(ws, block_row)
+                    write_order_to_sheet(
+                        ws, block_row, data_col,
+                        customer["displayName"], pets, order, year_month,
+                        config["kickback_rate"],
+                    )
 
     print("\n=== 完了 ===")
 

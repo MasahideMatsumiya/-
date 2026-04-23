@@ -1,67 +1,80 @@
 # 動物病院売上票 自動入力ツール
 
-Shopify の注文PDFから、動物病院売上票（Google スプレッドシート）へキックバック集計用のデータを自動入力するツール。
-
-Buddy-Buddy の `update.py` / `update_shipping.py` と同じ構造（Claude API で PDF 解析 + gspread で Sheets 書込）。
+Shopify Admin API から直接、動物病院売上票（Google スプレッドシート）へキックバック集計用のデータを自動入力するツール。
 
 ## 処理フロー
 
 ```
-[Shopify]
-  ↓ タグ「病院」等で絞込 → 注文詳細を PDF 出力
-[pdfs/*.pdf]
-  ↓ Claude API (claude-sonnet-4-6) でJSON抽出
-[注文データ (JSON)]
-  ↓ gspread + Google サービスアカウント
-[動物病院売上票 の該当月ブロックの空列]
+[Shopify Admin API (GraphQL)]
+  ├─ 病院タグ付き顧客を取得 (customers?tag=CHICOどうぶつ診療所)
+  ├─ 顧客メタフィールドから愛犬名を取得
+  └─ 指定月の注文を取得（税抜・商品・数量）
+      ↓ gspread + Google サービスアカウント
+[動物病院売上票 の病院別シート / 該当月ブロック / 空列]
 ```
+
+## 対応病院 / キックバック率
+
+| 顧客タグ | キックバック率 | 書込先シート |
+|---|---:|---|
+| `CHICOどうぶつ診療所` | 30% | `CHICOどうぶつ診療所` |
+| `viviANDOG` | 20% | `viviANDOG` |
+
+追加するときは `update_hospital.py` の `HOSPITALS` に追記。
 
 ## 事前準備
 
-1. Python 3.10+
-2. 依存関係をインストール
+### 1. Python 環境
 
-   ```
-   pip install -r requirements.txt
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-3. `.env` を作成（`.env.example` をコピーして値を埋める）
-   - `CLAUDE_API_KEY` … https://console.anthropic.com で発行
-   - `SPREADSHEET_ID_HOSPITAL` … 動物病院売上票のスプレッドシートID
-   - `CREDENTIALS_FILE` … Google サービスアカウント JSON のパス
+### 2. Shopify Admin API トークン発行
 
-4. `credentials.json` を配置（リポジトリには含めない。`.gitignore` 済み）
-   - Google Cloud Console でサービスアカウントを作成 → JSON鍵をダウンロード
-   - 対象スプレッドシートをサービスアカウントのメールアドレスに「編集者」で共有
+1. 管理画面 → 設定 → アプリと販売チャネル → **アプリを開発**
+2. 「カスタムアプリを作成」
+3. Admin API アクセススコープ:
+   - `read_customers`
+   - `read_orders`
+   - `read_customer_metafields`
+4. インストール → Admin API アクセストークン（`shpat_...`）を控える
+
+### 3. Google サービスアカウント
+
+1. Google Cloud Console → IAM → サービスアカウント → 作成
+2. JSON 鍵をダウンロード → `credentials.json` として配置
+3. Google Sheets API を有効化
+4. 動物病院売上票をサービスアカウントのメールに「編集者」で共有
+
+### 4. `.env` 作成
+
+```bash
+cp .env.example .env
+# エディタで値を埋める
+```
 
 ## 使い方
 
 ```bash
-# 1. pdfs/ に Shopify からエクスポートした PDF を入れる
-cp ~/Downloads/shopify-export.pdf pdfs/
+# dry-run: Shopify 取得のみ（書込なし）で動作確認
+python3 update_hospital.py --month 2026-03 --dry-run
 
-# 2. 実行
-python3 update_hospital.py
+# 本番: スプレッドシートへ書き込む
+python3 update_hospital.py --month 2026-03
 ```
 
-## 対応クーポンコード
+## 実環境で要調整の設定
 
-| コード | 病院名 |
-|---|---|
-| 40217 | CHICOどうぶつ診療所 |
+`update_hospital.py` 冒頭:
 
-※実PDFを確認次第、`update_hospital.py` の `COUPON_TO_HOSPITAL` に追記。
-
-## 調整が必要な箇所（実PDF受領後）
-
-`update_hospital.py` 冒頭の以下を実サンプルで検証・調整:
-
-- `ROW_OFFSETS` … スプレッドシートの月ブロック内の行レイアウト
-- `BLOCK_HEIGHT` … 月ブロック1つあたりの行数
+- `PET_METAFIELD_NAMESPACE` / `PET_METAFIELD_KEY` … 愛犬名メタフィールドの namespace/key
+- `PRODUCT_NAME_MAP` … Shopify 商品名 → スプレッドシート商品ドロップダウン値
+- `ROW_OFFSETS` … 月ブロック内の行レイアウト
 - `FIRST_DATA_COL` / `COLS_PER_CUSTOMER` … 顧客列の配置
-- `sheet_name_for_coupon()` … 病院別にシートが分かれている場合の切替
 
 ## 備考
 
-- 同一月に同じ顧客が複数回購入した場合は、別の列として追加されます
-- すでに書き込まれている列はスキップせず、「名前」が空の次の列に追記します
+- 同月に同じ顧客が複数回購入した場合、**別の列として**追加（「名前」行で空の次の列を自動検出）
+- シート名が `HOSPITALS` の `sheet_name` と一致しない場合はスキップ
+- 該当月ブロックが見つからない場合もスキップ（事前にスプレッドシート側でブロックを作っておく前提）
