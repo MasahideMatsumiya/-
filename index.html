@@ -505,6 +505,67 @@
       color: var(--white);
     }
 
+    /* ===== News ===== */
+    .news {
+      background: var(--white);
+      padding: 2.8rem 8%;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .news-inner {
+      display: flex;
+      align-items: baseline;
+      gap: 3rem;
+      max-width: 860px;
+    }
+    .news-label {
+      font-family: var(--font-serif);
+      font-size: .72rem;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--pink);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .news-divider {
+      width: 1px;
+      height: 1.1rem;
+      background: var(--gray-300);
+      flex-shrink: 0;
+      align-self: center;
+    }
+    .news-item {
+      display: flex;
+      align-items: baseline;
+      gap: 1.8rem;
+      flex-wrap: wrap;
+    }
+    .news-date {
+      font-family: var(--font-sans);
+      font-size: .62rem;
+      letter-spacing: .14em;
+      color: var(--gray-400);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .news-text {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-weight: 400;
+      letter-spacing: .06em;
+      color: var(--gray-800);
+      line-height: 1.6;
+    }
+    .news-text em {
+      font-style: italic;
+      color: var(--pink);
+    }
+    @media (max-width: 600px) {
+      .news { padding: 2rem 6%; }
+      .news-inner { flex-direction: column; gap: 1rem; }
+      .news-divider { display: none; }
+      .news-item { gap: .8rem; }
+    }
+
     /* ===== Events ===== */
     .events { background: var(--pink-pale); }
     .event-card { border-top-color: var(--pink-lt); }
@@ -755,6 +816,18 @@
     <span>Original Macaron Fabric</span><span class="dot">✦</span>
     <span>Handmade Select</span><span class="dot">✦</span>
     <span>Since 2013</span><span class="dot">✦</span>
+  </div>
+</div>
+
+<!-- ===== NEWS ===== -->
+<div class="news" id="news">
+  <div class="news-inner">
+    <div class="news-label">News</div>
+    <div class="news-divider"></div>
+    <div class="news-item">
+      <div class="news-date">2026.5.8 — 5.10</div>
+      <div class="news-text"><em>2026 JAPAN HOBBY SHOW</em>&ensp;出店決定</div>
+    </div>
   </div>
 </div>
 
