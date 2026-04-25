@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candy Fabric | 輸入生地・ハンドメイド素材のセレクトショップ</title>
+  <meta name="description" content="2013年より、厳選した輸入ツイードやリボンを中心に、上質な生地や大人可愛いアクセサリー・雑貨を取り揃えるCandyFabric。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Reset ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gray-100: #f3f3f5;
+      --gray-200: #e6e6ea;
+      --gray-300: #d0d0d6;
+      --gray-400: #a0a0aa;
+      --gray-600: #68686f;
+      --gray-800: #38383f;
+      --gray-900: #1a1a1f;
+      --pink:     #d4788a;
+      --pink-lt:  #f7e2e6;
+      --pink-mid: #e8a0ae;
+      --pink-pale:#fdf0f2;
+      --white:    #ffffff;
+      --font-serif: 'Cormorant Garamond', 'Times New Roman', serif;
+      --font-sans:  'Montserrat', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--gray-100);
+      color: var(--gray-800);
+      font-weight: 300;
+      letter-spacing: .04em;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ===== Header ===== */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      height: 72px;
+      background: rgba(243,243,245,.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(212,120,138,.18);
+      transition: background .4s;
+    }
+    .logo-mark {
+      font-family: var(--font-serif);
+      font-size: 1.3rem;
+      font-weight: 400;
+      letter-spacing: .18em;
+      color: var(--gray-900);
+    }
+    .logo-mark span { color: var(--pink); font-style: italic; }
+    nav {
+      display: flex;
+      gap: 2.5rem;
+    }
+    nav a {
+      font-size: .62rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      transition: color .25s;
+    }
+    nav a:hover { color: var(--pink); }
+    .nav-line {
+      width: 32px;
+      height: 1px;
+      background: var(--pink);
+      margin-left: 2.5rem;
+    }
+
+    /* ===== Hamburger ===== */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 8px;
+      z-index: 101;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 1px;
+      background: var(--gray-800);
+      transition: all .3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    /* ===== Mobile nav drawer ===== */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      top: 72px; left: 0; right: 0; bottom: 0;
+      background: rgba(243,243,245,.98);
+      backdrop-filter: blur(16px);
+      z-index: 99;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      font-size: 1.5rem;
+      font-family: var(--font-serif);
+      font-weight: 300;
+      letter-spacing: .12em;
+      color: var(--gray-800);
+      transition: color .2s;
+    }
+    .mobile-nav a:hover { color: var(--pink); }
+
+    /* ===== Hero ===== */
+    .hero {
+      position: relative;
+      height: 100vh;
+      min-height: 600px;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: var(--gray-200);
+    }
+    .hero-bg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    /* Elegant gray overlay */
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(30,28,26,.08) 0%,
+        rgba(30,28,26,.15) 40%,
+        rgba(30,28,26,.55) 100%
+      );
+    }
+    .hero-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0 8% 7%;
+      color: var(--white);
+    }
+    .hero-eyebrow {
+      font-family: var(--font-sans);
+      font-size: .58rem;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--pink-mid);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--pink-mid);
+    }
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-weight: 300;
+      line-height: 1.1;
+      letter-spacing: .06em;
+      margin-bottom: 1.2rem;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--pink-lt);
+    }
+    .hero-sub {
+      font-size: .72rem;
+      letter-spacing: .14em;
+      color: rgba(255,255,255,.7);
+      margin-bottom: 2.5rem;
+      line-height: 2;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: .62rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--white);
+      border-bottom: 1px solid rgba(255,255,255,.4);
+      padding-bottom: .4rem;
+      transition: border-color .3s, gap .3s;
+    }
+    .hero-cta:hover { border-color: var(--pink-mid); gap: 1.5rem; }
+    .hero-cta::after {
+      content: '→';
+      font-size: .8rem;
+    }
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      right: 5%;
+      bottom: 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .8rem;
+      color: rgba(255,255,255,.5);
+      font-size: .55rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    .scroll-bar {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, rgba(255,255,255,.5), transparent);
+      animation: scrollDown 1.8s infinite;
+    }
+    @keyframes scrollDown {
+      0% { transform: scaleY(0); transform-origin: top; }
+      50% { transform: scaleY(1); transform-origin: top; }
+      51% { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    /* ===== Marquee strip ===== */
+    .marquee-strip {
+      background: var(--pink);
+      color: var(--white);
+      font-size: .55rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      padding: .9rem 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .marquee-inner {
+      display: inline-block;
+      animation: marquee 20s linear infinite;
+    }
+    .marquee-inner span { margin: 0 2.5rem; }
+    .marquee-inner .dot { color: rgba(255,255,255,.5); }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+
+    /* ===== Section base ===== */
+    section { padding: 7rem 8%; }
+    .sec-label {
+      font-size: .58rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--pink);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .sec-label::before {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 1px;
+      background: var(--pink);
+    }
+    .sec-title {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 300;
+      line-height: 1.3;
+      letter-spacing: .04em;
+      color: var(--gray-900);
+    }
+    .sec-title em { font-style: italic; color: var(--pink); }
+
+    /* ===== About ===== */
+    .about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8%;
+      align-items: center;
+      background: var(--white);
+    }
+    .about-img {
+      position: relative;
+    }
+    .about-img-main {
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      background: var(--gray-200);
+    }
+    .about-img-main img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform .8s;
+    }
+    .about-img-main:hover img { transform: scale(1.04); }
+    .about-img-accent {
+      position: absolute;
+      bottom: -2rem;
+      right: -2rem;
+      width: 55%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: var(--gray-200);
+      border: 6px solid var(--white);
+    }
+    .about-img-accent img { width: 100%; height: 100%; object-fit: cover; }
+    .about-year {
+      position: absolute;
+      top: -1.5rem;
+      left: -1.5rem;
+      width: 80px;
+      height: 80px;
+      background: var(--gray-900);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--pink-mid);
+      font-family: var(--font-serif);
+    }
+    .about-year .num { font-size: 1.2rem; letter-spacing: .05em; }
+    .about-year .txt { font-size: .45rem; letter-spacing: .2em; text-transform: uppercase; }
+    .about-text { padding-top: 2rem; }
+    .about-text p {
+      font-size: .82rem;
+      line-height: 2.2;
+      color: var(--gray-600);
+      margin-bottom: 1.5rem;
+    }
+    .about-divider {
+      width: 40px;
+      height: 1px;
+      background: var(--pink);
+      margin: 2rem 0;
+    }
+    .about-stats {
+      display: flex;
+      gap: 3rem;
+    }
+    .stat-num {
+      font-family: var(--font-serif);
+      font-size: 2.2rem;
+      font-weight: 300;
+      color: var(--gray-900);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: .58rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      margin-top: .4rem;
+    }
+
+    /* ===== Products ===== */
+    .products { background: #6b6b6b; }
+    .products-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 4rem;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5px;
+      background: var(--gray-300);
+    }
+    .product-card {
+      background: var(--white);
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .product-card-img {
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: var(--gray-200);
+      position: relative;
+    }
+    .product-card-img img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform .7s;
+    }
+    .product-card:hover .product-card-img img { transform: scale(1.06); }
+    .product-placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .8rem;
+      font-size: .6rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      transition: all .4s;
+    }
+    .product-placeholder .icon { font-size: 2rem; }
+    .product-card:hover .product-placeholder { color: var(--pink); }
+    .product-card-body { padding: 1.5rem; }
+    .product-cat {
+      font-size: .55rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--pink);
+      margin-bottom: .5rem;
+    }
+    .product-name {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--gray-900);
+      margin-bottom: .5rem;
+    }
+    .product-desc {
+      font-size: .72rem;
+      line-height: 1.9;
+      color: var(--gray-600);
+    }
+
+    /* ===== Special — full-bleed ===== */
+    .special {
+      background: var(--gray-600);
+      color: var(--white);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      padding: 0;
+    }
+    .special-imgs {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      min-height: 80vh;
+    }
+    .special-img {
+      overflow: hidden;
+      background: var(--gray-800);
+    }
+    .special-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .special-text { padding: 8rem 8%; }
+    .special-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      background: linear-gradient(135deg, #2a1f22, #1a1a1f);
+      color: var(--pink-mid);
+      font-size: .7rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    .special-img-placeholder .big { font-size: 4rem; }
+    .special-text {
+      padding: 6rem 8%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .special-text .sec-label { color: var(--pink-mid); }
+    .special-text .sec-label::before { background: var(--pink-mid); }
+    .special-text .sec-title { color: var(--white); }
+    .special-text p {
+      font-size: .78rem;
+      line-height: 2.2;
+      color: rgba(255,255,255,.55);
+      margin: 1.5rem 0;
+    }
+    .special-badge {
+      display: inline-block;
+      border: 1px solid rgba(212,120,138,.4);
+      color: var(--pink-mid);
+      font-size: .58rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      padding: .6rem 1.4rem;
+      margin-top: 1rem;
+      align-self: flex-start;
+      transition: all .3s;
+    }
+    .special-badge:hover {
+      background: var(--pink);
+      border-color: var(--pink);
+      color: var(--white);
+    }
+
+    /* ===== News ===== */
+    .news {
+      background: var(--white);
+      padding: 2.8rem 8%;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .news-inner {
+      display: flex;
+      align-items: baseline;
+      gap: 3rem;
+      max-width: 860px;
+    }
+    .news-label {
+      font-family: var(--font-serif);
+      font-size: .72rem;
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--pink);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .news-divider {
+      width: 1px;
+      height: 1.1rem;
+      background: var(--gray-300);
+      flex-shrink: 0;
+      align-self: center;
+    }
+    .news-item {
+      display: flex;
+      align-items: baseline;
+      gap: 1.8rem;
+      flex-wrap: wrap;
+    }
+    .news-date {
+      font-family: var(--font-sans);
+      font-size: .62rem;
+      letter-spacing: .14em;
+      color: var(--gray-400);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .news-text {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-weight: 400;
+      letter-spacing: .06em;
+      color: var(--gray-800);
+      line-height: 1.6;
+    }
+    .news-text em {
+      font-style: italic;
+      color: var(--pink);
+    }
+    @media (max-width: 600px) {
+      .news { padding: 2rem 6%; }
+      .news-inner { flex-direction: column; gap: 1rem; }
+      .news-divider { display: none; }
+      .news-item { gap: .8rem; }
+    }
+
+    /* ===== Events ===== */
+    .events { background: var(--pink-pale); }
+    .event-card { border-top-color: var(--pink-lt); }
+    .events-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      margin-top: 4rem;
+    }
+    .event-card {
+      border-top: 1px solid var(--gray-300);
+      padding-top: 2rem;
+    }
+    .event-country {
+      font-size: .58rem;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--pink);
+      margin-bottom: 1rem;
+    }
+    .event-card h3 {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      font-weight: 300;
+      color: var(--gray-900);
+      margin-bottom: 1rem;
+    }
+    .event-card p {
+      font-size: .76rem;
+      line-height: 2;
+      color: var(--gray-600);
+      margin-bottom: 1.5rem;
+    }
+    .city-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .city-tag {
+      font-size: .58rem;
+      letter-spacing: .12em;
+      padding: .3rem .9rem;
+      border: 1px solid var(--pink-lt);
+      color: var(--pink);
+    }
+
+    /* ===== Contact ===== */
+    .contact {
+      background: var(--white);
+      text-align: center;
+    }
+    .contact .sec-label { justify-content: center; }
+    .contact .sec-label::before { display: none; }
+    .contact .sec-title { margin-bottom: 1rem; }
+    .contact-sub {
+      font-size: .76rem;
+      color: var(--gray-600);
+      line-height: 2;
+      margin-bottom: 3.5rem;
+    }
+    .sns-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .sns-btn {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      border: 1px solid var(--gray-300);
+      padding: .9rem 2rem;
+      font-size: .6rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--gray-600);
+      transition: all .25s;
+    }
+    .sns-btn:hover {
+      border-color: var(--pink);
+      color: var(--pink);
+      background: var(--pink-pale);
+    }
+    .sns-icon { font-size: 1.1rem; }
+
+    /* ===== Footer ===== */
+    footer {
+      position: relative;
+      background: url('images/footer-bg.jpg') center/cover no-repeat;
+      color: var(--white);
+      padding: 4rem 8%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .footer-logo {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      letter-spacing: .15em;
+      color: var(--pink);
+    }
+    .footer-nav { display: flex; gap: 2rem; }
+    .footer-nav a {
+      font-size: .55rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.7);
+      transition: color .2s;
+    }
+    .footer-nav a:hover { color: var(--white); }
+    .footer-copy { font-size: .6rem; letter-spacing: .08em; color: rgba(255,255,255,.5); }
+
+    /* ===== Fade animation ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity .9s cubic-bezier(.25,.8,.25,1), transform .9s cubic-bezier(.25,.8,.25,1);
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: .15s; }
+    .reveal-delay-2 { transition-delay: .3s; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      section { padding: 5rem 6%; }
+      .about { grid-template-columns: 1fr; }
+      .about-img-accent { width: 45%; right: -1rem; bottom: -1rem; }
+      .products-grid { grid-template-columns: 1fr 1fr; }
+      .special { grid-template-columns: 1fr; }
+      .special-imgs { grid-template-rows: auto; grid-template-columns: 1fr 1fr; min-height: 50vh; }
+      .special-img { aspect-ratio: 1; }
+      .events-inner { grid-template-columns: 1fr; gap: 2rem; }
+      nav .nav-line { display: none; }
+      nav { gap: 1.5rem; }
+    }
+    @media (max-width: 600px) {
+      header { padding: 0 6%; height: 60px; }
+      nav { display: none; }
+      .hamburger { display: flex; }
+      .mobile-nav { top: 60px; }
+
+      /* Hero */
+      .hero-content { padding: 0 6% 6rem; }
+      .hero-title { font-size: 2.2rem; letter-spacing: .03em; }
+      .hero-eyebrow { font-size: .55rem; }
+      .hero-sub { font-size: .7rem; }
+      .scroll-indicator { display: none; }
+
+      /* Sections */
+      section { padding: 4rem 6%; }
+      .sec-title { font-size: 1.7rem; }
+
+      /* About */
+      .about-img-accent { display: none; }
+      .about-year { width: 60px; height: 60px; top: -1rem; left: -1rem; }
+      .about-year .num { font-size: .9rem; }
+      .about-stats { gap: 2rem; }
+      .stat-num { font-size: 1.8rem; }
+      .about { padding-bottom: 6rem; }
+
+      /* Products */
+      .products-grid { grid-template-columns: 1fr; gap: 2px; }
+      .products-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+
+      /* Special */
+      .special { grid-template-columns: 1fr; }
+      .special-imgs { grid-template-columns: 1fr 1fr; grid-template-rows: auto; min-height: unset; }
+      .special-img { aspect-ratio: 1; }
+      .special-text { padding: 3rem 6%; }
+      .special-text .sec-title { font-size: 1.6rem; }
+
+      /* Events */
+      .events-inner { gap: 1.5rem; }
+
+      /* Contact */
+      .sns-row { flex-direction: column; align-items: center; }
+      .sns-btn { width: 240px; justify-content: center; min-height: 48px; }
+
+      /* Footer */
+      footer { flex-direction: column; text-align: center; padding: 2.5rem 6%; gap: 1rem; }
+      .footer-nav { justify-content: center; flex-wrap: wrap; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div class="logo-mark">Candy<span>Fabric</span></div>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#products">Collection</a>
+    <a href="#special">Special</a>
+    <a href="#events">Events</a>
+    <a href="#contact">Contact</a>
+    <div class="nav-line"></div>
+  </nav>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</header>
+
+<!-- ===== MOBILE NAV ===== -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#about" onclick="closeMenu()">About</a>
+  <a href="#products" onclick="closeMenu()">Collection</a>
+  <a href="#special" onclick="closeMenu()">Special</a>
+  <a href="#events" onclick="closeMenu()">Events</a>
+  <a href="#contact" onclick="closeMenu()">Contact</a>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="top">
+  <div class="hero-bg">
+    <!-- ↓ images/hero.jpg に保存した画像が表示されます -->
+    <img src="images/hero.jpg" alt="CandyFabric">
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow reveal">Since 2013 — Select Fabric & Accessories</div>
+    <h1 class="hero-title reveal reveal-delay-1">
+      The Art of<br><em>Beautiful</em> Fabric
+    </h1>
+    <p class="hero-sub reveal reveal-delay-2">
+      厳選した輸入ツイード・リボン・生地と<br>大人可愛いアクセサリーを届けるセレクトショップ
+    </p>
+    <a href="#about" class="hero-cta reveal reveal-delay-2">Discover the Collection</a>
+  </div>
+  <div class="scroll-indicator">
+    <div class="scroll-bar"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- ===== MARQUEE ===== -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <span>Imported Tweed</span><span class="dot">✦</span>
+    <span>Ribbon & Lace</span><span class="dot">✦</span>
+    <span>Hair Accessories</span><span class="dot">✦</span>
+    <span>Original Macaron Fabric</span><span class="dot">✦</span>
+    <span>Handmade Select</span><span class="dot">✦</span>
+    <span>Since 2013</span><span class="dot">✦</span>
+    <span>Imported Tweed</span><span class="dot">✦</span>
+    <span>Ribbon & Lace</span><span class="dot">✦</span>
+    <span>Hair Accessories</span><span class="dot">✦</span>
+    <span>Original Macaron Fabric</span><span class="dot">✦</span>
+    <span>Handmade Select</span><span class="dot">✦</span>
+    <span>Since 2013</span><span class="dot">✦</span>
+  </div>
+</div>
+
+<!-- ===== NEWS ===== -->
+<div class="news" id="news">
+  <div class="news-inner">
+    <div class="news-label">News</div>
+    <div class="news-divider"></div>
+    <div class="news-item">
+      <div class="news-date">2026.5.8 — 5.10</div>
+      <div class="news-text"><em>2026 JAPAN HOBBY SHOW</em>&ensp;出店決定</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SPECIAL ===== -->
+<section class="special" id="special">
+  <div class="special-imgs">
+    <div class="special-img">
+      <img src="images/special-macaron-pink.jpg" alt="ピンクのマカロン生地">
+    </div>
+    <div class="special-img">
+      <img src="images/special-macaron-gray.jpg" alt="グレーのマカロン生地">
+    </div>
+  </div>
+  <div class="special-text reveal">
+    <div class="sec-label">Exclusive Collaboration</div>
+    <h2 class="sec-title">世界で<em>唯一</em>の<br>オリジナルマカロン生地</h2>
+    <p>生地メーカー YUWA LIVE LIFE COLLECTION とのコラボレーションにより生まれた、CandyFabric限定のオリジナルマカロン生地。世界で当店でしか手に入らない、特別なファブリックです。</p>
+    <a href="#contact" class="special-badge">お問い合わせはこちら</a>
+  </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section class="about" id="about">
+  <div class="about-img reveal">
+    <div class="about-year"><span class="num">2013</span><span class="txt">Est.</span></div>
+    <div class="about-img-main">
+      <img src="images/about-main.jpg" alt="CandyFabric リボンと生地">
+    </div>
+    <div class="about-img-accent">
+      <img src="images/about-accent.jpg" alt="CandyFabric マカロン生地">
+    </div>
+  </div>
+  <div class="about-text reveal reveal-delay-1">
+    <div class="sec-label">Our Story</div>
+    <h2 class="sec-title">上質な生地と<br><em>大人可愛い</em>を、<br>あなたの手元へ。</h2>
+    <div class="about-divider"></div>
+    <p>2013年より、自ら厳選した輸入ツイードやリボンを中心に、上質な生地や大人可愛いヘアアクセサリー、アクセサリー、雑貨などを取り揃えております。</p>
+    <p>ハンドメイドが大好きな皆様に、世界中から選び抜いた素材をお届けしたい——そんな想いから始まったCandyFabric。</p>
+    <div class="about-stats">
+      <div>
+        <div class="stat-num">12+</div>
+        <div class="stat-label">Years</div>
+      </div>
+      <div>
+        <div class="stat-num">7</div>
+        <div class="stat-label">Cities</div>
+      </div>
+      <div>
+        <div class="stat-num">🇰🇷</div>
+        <div class="stat-label">Korea Event</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRODUCTS ===== -->
+<section class="products" id="products">
+  <div class="products-header reveal">
+    <div>
+      <div class="sec-label">Collection</div>
+      <h2 class="sec-title">取り扱い商品</h2>
+    </div>
+  </div>
+  <div class="products-grid reveal">
+    <div class="product-card">
+      <div class="product-card-img">
+        <img src="images/product-fabric.jpg" alt="輸入ツイード生地">
+      </div>
+      <div class="product-card-body">
+        <div class="product-cat">Fabric</div>
+        <div class="product-name">輸入ツイード生地</div>
+        <div class="product-desc">海外から厳選したツイード。豊富な柄・カラーを取り揃えています。</div>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-card-img">
+        <img src="images/product-ribbon.jpg" alt="輸入リボン">
+      </div>
+      <div class="product-card-body">
+        <div class="product-cat">Ribbon</div>
+        <div class="product-name">輸入リボン</div>
+        <div class="product-desc">サテン・グログランなど幅広い種類の輸入リボン。</div>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-card-img">
+        <img src="images/product-accessory.jpg" alt="ヘアアクセサリー">
+      </div>
+      <div class="product-card-body">
+        <div class="product-cat">Accessory</div>
+        <div class="product-name">ヘアアクセサリー</div>
+        <div class="product-desc">大人可愛いオリジナル・セレクトのヘアアクセサリー。</div>
+      </div>
+    </div>
+    <div class="product-card">
+      <div class="product-card-img">
+        <img src="images/product-goods.jpg" alt="雑貨・小物">
+      </div>
+      <div class="product-card-body">
+        <div class="product-cat">Goods</div>
+        <div class="product-name">雑貨・小物</div>
+        <div class="product-desc">暮らしを彩るセレクト雑貨・小物を揃えています。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EVENTS ===== -->
+<section class="events" id="events">
+  <div class="reveal">
+    <div class="sec-label">Events</div>
+    <h2 class="sec-title">全国・海外の<br>イベントに出店</h2>
+  </div>
+  <div class="events-inner">
+    <div class="event-card reveal">
+      <div class="event-country">Japan</div>
+      <h3>全国各地のハンドメイドイベント</h3>
+      <p>年数回、全国各地のイベントに出店しております。ぜひお近くのイベントで実際に生地の質感をお確かめください。</p>
+      <div class="city-list">
+        <span class="city-tag">東京</span>
+        <span class="city-tag">横浜</span>
+        <span class="city-tag">名古屋</span>
+        <span class="city-tag">大阪</span>
+        <span class="city-tag">京都</span>
+        <span class="city-tag">広島</span>
+        <span class="city-tag">福岡</span>
+      </div>
+    </div>
+    <div class="event-card reveal reveal-delay-1">
+      <div class="event-country">Korea</div>
+      <h3>韓国ハンドメイドイベント</h3>
+      <p>韓国のハンドメイドイベントにも毎年参加。国境を超えて、ものづくりの楽しさを共有しています。</p>
+      <div class="city-list">
+        <span class="city-tag">毎年参加</span>
+        <span class="city-tag">Korea</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section class="contact" id="contact">
+  <div class="sec-label reveal">Contact & SNS</div>
+  <h2 class="sec-title reveal">フォロー・お問い合わせ</h2>
+  <p class="contact-sub reveal">最新情報やイベント情報はInstagramでお届けしています。</p>
+  <div class="sns-row reveal">
+    <a href="https://www.instagram.com/candyfabric_shop/" class="sns-btn" target="_blank" rel="noopener noreferrer">
+      <svg class="sns-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#f09433"/>
+            <stop offset="25%" style="stop-color:#e6683c"/>
+            <stop offset="50%" style="stop-color:#dc2743"/>
+            <stop offset="75%" style="stop-color:#cc2366"/>
+            <stop offset="100%" style="stop-color:#bc1888"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="20" height="20" rx="5.5" ry="5.5" stroke="url(#ig-grad)" stroke-width="2" fill="none"/>
+        <circle cx="12" cy="12" r="4.5" stroke="url(#ig-grad)" stroke-width="2" fill="none"/>
+        <circle cx="17.5" cy="6.5" r="1.2" fill="url(#ig-grad)"/>
+      </svg>
+      Instagram
+    </a>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-logo">Candy Fabric</div>
+  <nav class="footer-nav">
+    <a href="#about">About</a>
+    <a href="#products">Collection</a>
+    <a href="#special">Special</a>
+    <a href="#events">Events</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <div class="footer-copy">&copy; 2013–2026 CandyFabric. All rights reserved.</div>
+</footer>
+
+<script>
+  // Reveal on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Hamburger menu
+  function toggleMenu() {
+    const btn = document.getElementById('hamburger');
+    const nav = document.getElementById('mobileNav');
+    btn.classList.toggle('open');
+    nav.classList.toggle('open');
+    document.body.style.overflow = nav.classList.contains('open') ? 'hidden' : '';
+  }
+  function closeMenu() {
+    document.getElementById('hamburger').classList.remove('open');
+    document.getElementById('mobileNav').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+</script>
+</body>
+</html>
