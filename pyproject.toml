@@ -27,6 +27,8 @@ dependencies = [
     "alembic>=1.13.0",
     "aiosqlite>=0.20.0",
     "asyncpg>=0.29.0",
+    "tweepy>=4.14.0",
+    "apscheduler>=3.10.0",
 ]
 
 [project.optional-dependencies]

@@ -32,7 +32,25 @@ async def lifespan(app: FastAPI):
     await _seed_initial_products()
     await _update_all_product_descriptions()
     await _sync_ai_native_seeds()
+
+    # X auto-poster
+    from apscheduler.schedulers.asyncio import AsyncIOScheduler
+    from src.social.twitter import post_scheduled_tweet
+    from src.config import settings as _s
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(
+        post_scheduled_tweet,
+        "interval",
+        minutes=_s.x_post_interval_minutes,
+        id="x_auto_post",
+        replace_existing=True,
+    )
+    scheduler.start()
+    print(f"[STARTUP] X auto-poster started (every {_s.x_post_interval_minutes} min)", flush=True)
+
     yield
+
+    scheduler.shutdown(wait=False)
 
 
 async def _dedup_products():

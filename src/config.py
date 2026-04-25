@@ -29,6 +29,13 @@ class Settings(BaseSettings):
     gmail_client_secret: str = ""
     gmail_refresh_token: str = ""
 
+    # X (Twitter) API — for auto-posting
+    x_api_key: str = ""
+    x_api_secret: str = ""
+    x_access_token: str = ""
+    x_access_token_secret: str = ""
+    x_post_interval_minutes: int = 30
+
     # Business
     platform_fee_percent: float = 10.0  # 10% platform fee
     default_price_usd: float = 10.0
