@@ -333,6 +333,7 @@
           {%- elsif t contains "ホース" -%}{%- assign abbr = "WH" -%}
           {%- endif -%}
         {%- elsif t contains "モリンガミルク" -%}{%- assign abbr = "MM" -%}
+        {%- elsif t contains "きびなご" -%}{%- assign abbr = "きびなご" -%}
         {%- endif -%}
         {%- assign disp_qty = item.quantity -%}
         {%- if t contains "定期プラン1.2kg" -%}{%- assign disp_qty = item.quantity | times: 3 -%}{%- endif -%}
