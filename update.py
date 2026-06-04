@@ -138,13 +138,24 @@ def update_sheet(
         print(f"  ⚠  {entry_date} の行が '{sheet_name}' にありません（スキップ）")
         return False
 
-    total_bags = sum(e["quantity"] for e in entries)
-    biko = "".join(f"{e['customer_name']}さま{e['quantity']}袋、" for e in entries)
+    # 既存の値を読んで足し算する（同日に複数回実行しても上書きしない）
+    existing_total = ws.cell(row_idx, 3).value or "0"
+    existing_biko  = ws.cell(row_idx, biko_col).value or ""
+    try:
+        prev_bags = int(existing_total)
+    except ValueError:
+        prev_bags = 0
 
-    ws.update_cell(row_idx, 3, total_bags)    # C列: 販売
-    ws.update_cell(row_idx, biko_col, biko)  # 備考列
+    new_bags = sum(e["quantity"] for e in entries)
+    new_biko = "".join(f"{e['customer_name']}さま{e['quantity']}袋、" for e in entries)
 
-    print(f"  OK  {sheet_name}: {total_bags}袋  |  {biko}")
+    total_bags     = prev_bags + new_bags
+    combined_biko  = existing_biko + new_biko
+
+    ws.update_cell(row_idx, 3, total_bags)           # C列: 販売
+    ws.update_cell(row_idx, biko_col, combined_biko) # 備考列
+
+    print(f"  OK  {sheet_name}: {total_bags}袋  |  {combined_biko}")
     return True
 
 
