@@ -9,9 +9,9 @@ SUBJECT: 【{product_name}】お取り扱いのご相談｜{sender_company}
 貴店でのお取り扱い・卸しのご相談ができればと考えております。
 
 【{product_name}の特長】
-・（特長1：原材料・国産・無添加など）
-・（特長2：対象犬種・年齢・サイズ展開）
-・（特長3：卸条件・サンプル提供の可否）
+・{feature_1}
+・{feature_2}
+・{feature_3}
 
 もしご関心をお持ちいただけましたら、サンプルや卸価格表をお送りいたします。
 ご不要・ご興味が合わない場合は、本メールは破棄いただいて構いません。
@@ -20,9 +20,8 @@ SUBJECT: 【{product_name}】お取り扱いのご相談｜{sender_company}
 {sender_company}
 {sender_person}
 Mail: {sender_email}
-Tel : {sender_tel}
 所在地: {sender_address}
-Web : {sender_url}
+特商法表記: {sender_url}
 
 {unsubscribe_note}
 ────────────────────
