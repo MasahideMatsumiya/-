@@ -1,0 +1,101 @@
+<!--
+  Brevo用HTMLメールテンプレ（Buddy-Buddy ドライフード B2B案内）
+  使い方:
+   1) Brevo > キャンペーン > 新規 > 「コードを貼り付け / インポート」でこのHTMLを貼る
+   2) {{IMAGE_URL}} を Brevo にアップロードした画像URLに差し替え
+   3) {{ contact.STORE }} は Brevo のコンタクト属性 STORE を差し込み（要事前作成）
+   4) フッターの {{ unsubscribe }} は配信停止リンク（Brevoが自動置換）
+  注意: cold配信は画像を増やしすぎない。テキスト多め+画像1枚を推奨。
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buddy-Buddy ドライフード お取り扱いのご相談</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:'Hiragino Sans','Yu Gothic',Meiryo,sans-serif;color:#333;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;">
+    <tr>
+      <td align="center" style="padding:24px 12px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:8px;overflow:hidden;">
+
+          <!-- ヘッダー画像（1枚推奨） -->
+          <tr>
+            <td style="padding:0;">
+              <img src="{{IMAGE_URL}}" alt="Buddy-Buddy ドライフード" width="600"
+                   style="display:block;width:100%;max-width:600px;height:auto;border:0;">
+            </td>
+          </tr>
+
+          <!-- 本文 -->
+          <tr>
+            <td style="padding:28px 28px 8px 28px;">
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.8;">
+                {{ contact.STORE }} ご担当者さま
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.8;">
+                突然のご連絡失礼いたします。Buddy-Buddyの松宮と申します。<br>
+                貴店の公式サイトを拝見し、ご連絡を差し上げました。
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.8;">
+                このたび、当社で取り扱う「<strong>Buddy-Buddy ドライフード</strong>」につきまして、
+                貴店でのお取り扱い・卸しのご相談ができればと考えております。
+              </p>
+            </td>
+          </tr>
+
+          <!-- 特長 -->
+          <tr>
+            <td style="padding:0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                     style="background:#f7faf5;border-radius:8px;">
+                <tr><td style="padding:18px 20px;">
+                  <p style="margin:0 0 10px;font-size:15px;font-weight:bold;color:#3a7d2c;">Buddy-Buddy ドライフードの特長</p>
+                  <p style="margin:0 0 6px;font-size:14px;line-height:1.7;">🌿 腸活サポート（おなかの健康に配慮した配合）</p>
+                  <p style="margin:0 0 6px;font-size:14px;line-height:1.7;">🚫 無添加（不要な添加物を使用していません）</p>
+                  <p style="margin:0;font-size:14px;line-height:1.7;">🇯🇵 国内製造（国内の工場で製造）</p>
+                </td></tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          <tr>
+            <td style="padding:24px 28px 8px 28px;">
+              <p style="margin:0 0 18px;font-size:15px;line-height:1.8;">
+                ご関心をお持ちいただけましたら、サンプルや卸価格表をお送りいたします。<br>
+                ご不要・ご興味が合わない場合は、本メールは破棄いただいて構いません。
+              </p>
+              <a href="mailto:matsumiya@warmth24.co.jp?subject=Buddy-Buddyドライフードについて"
+                 style="display:inline-block;background:#3a7d2c;color:#ffffff;text-decoration:none;
+                        padding:12px 28px;border-radius:6px;font-size:15px;font-weight:bold;">
+                資料・サンプルを希望する
+              </a>
+            </td>
+          </tr>
+
+          <!-- 署名・特商法 -->
+          <tr>
+            <td style="padding:28px;">
+              <hr style="border:none;border-top:1px solid #e0e0e0;margin:0 0 16px;">
+              <p style="margin:0;font-size:12px;line-height:1.8;color:#888;">
+                Buddy-Buddy／松宮<br>
+                Mail: matsumiya@warmth24.co.jp<br>
+                所在地: 〒104-0033 東京都中央区新川2-30-11 新川OMKビル7F<br>
+                特商法表記: <a href="https://buddy-buddy.dog/policies/legal-notice" style="color:#888;">https://buddy-buddy.dog/policies/legal-notice</a>
+              </p>
+              <p style="margin:14px 0 0;font-size:12px;line-height:1.7;color:#aaa;">
+                今後のご案内が不要な場合は、
+                <a href="{{ unsubscribe }}" style="color:#aaa;">こちら（配信停止）</a>
+                よりお手続きいただけます。
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
