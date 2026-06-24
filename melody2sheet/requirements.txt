@@ -12,6 +12,9 @@ verovio
 cairosvg
 pypdf
 
+# Webアプリ（webapp/app.py）に必要
+flask
+
 # 任意: --vocals（ボーカル抽出）/ song2score に必要
 # demucs
 

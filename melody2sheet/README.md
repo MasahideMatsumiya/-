@@ -121,6 +121,18 @@ python song2score.py nakama.mp3 --title "仲間" --key Bb --pdf
 - ピアノ伴奏は「拍ごとのブロック和音」に整理した自動生成です。実際の細かな伴奏形までは再現しません。
 - ラップ主体の曲は主旋律の音程が曖昧で、音符が細かくなりやすい点は単旋律版と同じです。
 
+## 🌐 Webアプリ（ブラウザでmp3→譜面PDF）
+
+コマンドライン操作なしで使える **Webアプリ** も同梱しています（`webapp/`）。
+mp3をドラッグ＆ドロップ → 進捗表示 → 譜面PDFをダウンロード、という流れです。
+
+```bash
+pip install flask
+python webapp/app.py   # → http://localhost:5000
+```
+
+詳しくは [`webapp/README.md`](webapp/README.md) を参照してください。
+
 ## ⚖️ 著作権について
 
 採譜の対象が他者の楽曲（JASRAC管理曲など）の場合、**個人で楽しむ・練習する範囲**にとどめてください。

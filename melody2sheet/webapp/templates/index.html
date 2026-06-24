@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>song2score — 音源から譜面を作る</title>
+<style>
+  :root { --accent:#2e7d6b; --bg:#f6f8f7; --line:#dce3e0; }
+  * { box-sizing:border-box; }
+  body { font-family:-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
+         margin:0; background:var(--bg); color:#1c2b27; }
+  .wrap { max-width:760px; margin:0 auto; padding:24px 18px 60px; }
+  h1 { font-size:1.5rem; margin:.2em 0; }
+  .sub { color:#5a6b66; margin:0 0 20px; font-size:.95rem; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:14px;
+          padding:20px; margin-bottom:18px; }
+  label { display:block; font-weight:600; margin:12px 0 6px; font-size:.9rem; }
+  input[type=text], select { width:100%; padding:10px; border:1px solid var(--line);
+          border-radius:8px; font-size:1rem; }
+  .drop { border:2px dashed var(--accent); border-radius:12px; padding:28px;
+          text-align:center; color:var(--accent); cursor:pointer; background:#fbfdfc; }
+  .drop.drag { background:#eef6f3; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; }
+  .row > div { flex:1; min-width:160px; }
+  button { background:var(--accent); color:#fff; border:0; border-radius:10px;
+           padding:13px 22px; font-size:1rem; font-weight:700; cursor:pointer;
+           width:100%; margin-top:18px; }
+  button:disabled { opacity:.5; cursor:default; }
+  .hidden { display:none; }
+  .bar { height:10px; background:#e6ece9; border-radius:6px; overflow:hidden; margin:14px 0; }
+  .bar > i { display:block; height:100%; width:0; background:var(--accent);
+             transition:width .4s; }
+  .step { font-size:.95rem; color:#33474; }
+  .muted { color:#7a8a85; font-size:.82rem; }
+  .dl { display:inline-block; margin:6px 10px 0 0; padding:10px 16px; border-radius:9px;
+        background:var(--accent); color:#fff; text-decoration:none; font-weight:700; }
+  .dl.alt { background:#fff; color:var(--accent); border:1px solid var(--accent); }
+  img.preview { width:100%; border:1px solid var(--line); border-radius:8px; margin-top:14px; }
+  .err { color:#b3261e; white-space:pre-wrap; font-size:.85rem; }
+  .fname { margin-top:10px; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🎼 song2score</h1>
+  <p class="sub">音源(mp3)から「ボーカル主旋律＋コードネーム＋ピアノ伴奏」の譜面を自動で作ります。</p>
+
+  <div class="card" id="form-card">
+    <div class="drop" id="drop">
+      <div id="drop-label">ここに mp3 をドラッグ＆ドロップ<br><span class="muted">またはクリックして選択</span></div>
+      <div class="fname hidden" id="fname"></div>
+    </div>
+    <input type="file" id="file" accept="audio/*" class="hidden">
+    <div class="row">
+      <div>
+        <label>曲名（PDFのタイトル）</label>
+        <input type="text" id="title" placeholder="例: 仲間">
+      </div>
+      <div>
+        <label>キー（調号 / コード表記）</label>
+        <select id="key">
+          <option>Bb</option><option>C</option><option>Db</option><option>D</option>
+          <option>Eb</option><option>E</option><option>F</option><option>Gb</option>
+          <option>G</option><option>Ab</option><option>A</option><option>B</option>
+        </select>
+      </div>
+    </div>
+    <button id="go" disabled>譜面を作る</button>
+    <p class="muted" style="margin-top:12px">※ 処理には数分かかります（曲の長さ・サーバー性能による）。タブは開いたままにしてください。</p>
+  </div>
+
+  <div class="card hidden" id="progress-card">
+    <div class="step" id="step">準備中…</div>
+    <div class="bar"><i id="bar"></i></div>
+    <p class="muted" id="hint">音源を分離し、主旋律・伴奏を採譜してコードを推定しています。</p>
+  </div>
+
+  <div class="card hidden" id="result-card">
+    <h2 style="margin-top:0">✅ 完成しました</h2>
+    <p class="muted" id="stats"></p>
+    <a class="dl" id="dl-pdf" href="#">PDFをダウンロード</a>
+    <a class="dl alt" id="dl-xml" href="#">MusicXML（編集用）</a>
+    <img class="preview hidden" id="preview" alt="譜面プレビュー">
+  </div>
+
+  <div class="card hidden" id="error-card">
+    <h2 style="margin-top:0;color:#b3261e">エラー</h2>
+    <div class="err" id="errmsg"></div>
+  </div>
+</div>
+
+<script>
+const STEPS = ["分離","主旋律採譜","伴奏採譜","コード推定","総譜組立","PDF生成"];
+const fileInput = document.getElementById('file');
+const drop = document.getElementById('drop');
+const go = document.getElementById('go');
+let chosen = null;
+
+drop.addEventListener('click', () => fileInput.click());
+['dragover','dragenter'].forEach(e => drop.addEventListener(e, ev => {
+  ev.preventDefault(); drop.classList.add('drag');
+}));
+['dragleave','drop'].forEach(e => drop.addEventListener(e, ev => {
+  ev.preventDefault(); drop.classList.remove('drag');
+}));
+drop.addEventListener('drop', ev => { setFile(ev.dataTransfer.files[0]); });
+fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+
+function setFile(f) {
+  if (!f) return;
+  chosen = f;
+  document.getElementById('drop-label').classList.add('hidden');
+  const fn = document.getElementById('fname');
+  fn.textContent = "🎵 " + f.name; fn.classList.remove('hidden');
+  if (!document.getElementById('title').value)
+    document.getElementById('title').value = f.name.replace(/\.[^.]+$/, '');
+  go.disabled = false;
+}
+
+go.addEventListener('click', async () => {
+  if (!chosen) return;
+  go.disabled = true;
+  const fd = new FormData();
+  fd.append('audio', chosen);
+  fd.append('title', document.getElementById('title').value);
+  fd.append('key', document.getElementById('key').value);
+  show('progress-card');
+  const r = await fetch('/upload', { method:'POST', body:fd });
+  const j = await r.json();
+  if (j.error) { return fail(j.error); }
+  poll(j.job_id);
+});
+
+function show(id){ document.getElementById(id).classList.remove('hidden'); }
+function fail(msg){
+  show('error-card');
+  document.getElementById('errmsg').textContent = msg;
+  go.disabled = false;
+}
+
+function setBar(step) {
+  let idx = STEPS.findIndex(s => step && step.indexOf(s) >= 0);
+  if (step && step.indexOf('完成') >= 0) idx = STEPS.length - 1;
+  const pct = idx < 0 ? 5 : Math.round(((idx+1)/STEPS.length)*100);
+  document.getElementById('bar').style.width = pct + '%';
+}
+
+async function poll(jobId) {
+  try {
+    const r = await fetch('/status/' + jobId);
+    const j = await r.json();
+    document.getElementById('step').textContent = j.step || '処理中…';
+    setBar(j.step || '');
+    if (j.state === 'done') return finish(jobId, j);
+    if (j.state === 'error') return fail(j.error || '処理に失敗しました。');
+    setTimeout(() => poll(jobId), 1500);
+  } catch (e) {
+    setTimeout(() => poll(jobId), 2500);
+  }
+}
+
+function finish(jobId, j) {
+  show('result-card');
+  document.getElementById('bar').style.width = '100%';
+  document.getElementById('stats').textContent =
+    `メロディ音数: ${j.n_mel} / 推定コード数: ${j.n_chords}`;
+  const base = '/file/' + jobId + '/';
+  document.getElementById('dl-pdf').href = base + j.files.pdf;
+  document.getElementById('dl-pdf').setAttribute('download', j.files.pdf);
+  document.getElementById('dl-xml').href = base + j.files.musicxml;
+  document.getElementById('dl-xml').setAttribute('download', j.files.musicxml);
+  if (j.files.preview) {
+    const img = document.getElementById('preview');
+    img.src = base + j.files.preview; img.classList.remove('hidden');
+  }
+}
+</script>
+</body>
+</html>
