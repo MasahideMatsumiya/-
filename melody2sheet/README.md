@@ -61,6 +61,7 @@ python melody2sheet.py nakama.mp3 --title "仲間" --key Bb --time 4/4 -o out
 | `--key` | キー/調号（例: `Bb`, `C`, `Am`） |
 | `--time` | 拍子（例: `4/4`, `3/4`） |
 | `--vocals` | 採譜前にボーカルだけ抽出（精度UP / demucsが必要） |
+| `--clean` | リズムを拍にスナップ(量子化)し短い音符を除去して読みやすくする |
 | `--png` | PNG画像も出力（MuseScore不要 / verovio・cairosvgが必要） |
 | `--pdf` | PDFも出力（MuseScoreが必要） |
 | `--polyphonic` | 単音化せず和音も残してそのまま譜面化 |
@@ -68,8 +69,16 @@ python melody2sheet.py nakama.mp3 --title "仲間" --key Bb --time 4/4 -o out
 ## 精度を上げるコツ
 
 - **`--vocals`** でボーカルを抽出してから採譜すると、歌メロの精度が大きく上がります。
+- **`--clean`** でリズムを量子化すると、音符の刻みが整理されて読みやすくなります。
 - AI採譜は完璧ではありません。最後は MuseScore で耳で確認しながら手直しするのが現実的です。
-- メロディが目立つ音源ほど良い結果になります。
+- メロディが目立つ音源（歌メロがはっきりした曲）ほど良い結果になります。
+  ラップ主体の曲は音程が曖昧なため、譜面が細かく刻まれやすい点に注意してください。
+
+### 推奨コマンド（歌メロをきれいに出したいとき）
+
+```bash
+python melody2sheet.py song.mp3 --vocals --clean --png
+```
 
 ## ⚖️ 著作権について
 

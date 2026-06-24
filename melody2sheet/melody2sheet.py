@@ -109,6 +109,7 @@ def midi_to_score(
     time_sig: str | None,
     make_pdf: bool,
     monophonic: bool,
+    clean: bool = False,
 ) -> list[Path]:
     """music21 で MIDI を楽譜(MusicXML / 任意でPDF)に変換する。"""
     try:
@@ -129,6 +130,16 @@ def midi_to_score(
             new_note = music21.note.Note(top.pitch)
             new_note.duration = chord.duration
             chord.activeSite.replace(chord, new_note)
+
+    # 整音（量子化）: リズムを拍にスナップし、短すぎる音符を除いて読みやすくする
+    if clean:
+        # 16分・3連のグリッドにスナップ
+        score.quantize([4, 3], processOffsets=True, processDurations=True, inPlace=True)
+        # 32分音符より短い、採譜ノイズらしき音を除去
+        for n in list(score.recurse().notes):
+            if n.duration.quarterLength < 0.25:
+                if n.activeSite is not None:
+                    n.activeSite.remove(n)
 
     # タイトル
     score.metadata = score.metadata or music21.metadata.Metadata()
@@ -218,6 +229,10 @@ def main() -> None:
         "--polyphonic", action="store_true",
         help="単音化せず採譜結果をそのまま譜面化する（和音も残す）",
     )
+    parser.add_argument(
+        "--clean", action="store_true",
+        help="リズムを拍にスナップ(量子化)し短い音符を除去して読みやすくする",
+    )
     args = parser.parse_args()
 
     audio_path = Path(args.audio).expanduser().resolve()
@@ -246,6 +261,7 @@ def main() -> None:
         time_sig=args.time_sig,
         make_pdf=args.pdf,
         monophonic=not args.polyphonic,
+        clean=args.clean,
     )
 
     if args.png:
