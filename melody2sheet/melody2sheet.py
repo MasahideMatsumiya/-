@@ -172,6 +172,30 @@ def midi_to_score(
     return outputs
 
 
+def render_png(xml_path: Path, out_dir: Path, title: str) -> Path | None:
+    """MusicXML を verovio で SVG/PNG にレンダリングする（MuseScore不要）。"""
+    try:
+        import verovio
+        import cairosvg
+    except ImportError:
+        print(
+            "  注意: PNG出力には verovio と cairosvg が必要です。"
+            " pip install verovio cairosvg を実行してください。"
+        )
+        return None
+
+    tk = verovio.toolkit()
+    tk.setOptions({"pageWidth": 2100, "scale": 45, "adjustPageHeight": True})
+    if not tk.loadFile(str(xml_path)):
+        print("  注意: PNGレンダリングで楽譜を読み込めませんでした。")
+        return None
+    svg = tk.renderToSVG(1)
+    (out_dir / f"{title}_melody.svg").write_text(svg)
+    png_path = out_dir / f"{title}_melody.png"
+    cairosvg.svg2png(bytestring=svg.encode(), write_to=str(png_path), output_width=2100)
+    return png_path
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="mp3などの音源からメロディを自動採譜して譜面を作ります。",
@@ -186,6 +210,10 @@ def main() -> None:
         help="採譜前にボーカルだけ抽出する（歌メロの精度UP。demucsが必要）",
     )
     parser.add_argument("--pdf", action="store_true", help="PDFも出力する（MuseScoreが必要）")
+    parser.add_argument(
+        "--png", action="store_true",
+        help="PNG画像も出力する（MuseScore不要 / verovio・cairosvgが必要）",
+    )
     parser.add_argument(
         "--polyphonic", action="store_true",
         help="単音化せず採譜結果をそのまま譜面化する（和音も残す）",
@@ -219,6 +247,13 @@ def main() -> None:
         make_pdf=args.pdf,
         monophonic=not args.polyphonic,
     )
+
+    if args.png:
+        xml_path = next((p for p in outputs if p.suffix == ".musicxml"), None)
+        if xml_path:
+            png_path = render_png(xml_path, out_dir, title)
+            if png_path:
+                outputs.append(png_path)
 
     print("\n✅ 完成しました！")
     print(f"  MIDI : {midi_path}")

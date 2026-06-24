@@ -12,7 +12,7 @@ mp3などの**音源からメロディを自動採譜して譜面（楽譜）を
 ## 処理の流れ
 
 ```
-音源(mp3) → [任意] ボーカル抽出(demucs) → AI採譜(basic-pitch) → MIDI → 楽譜(MusicXML / PDF)
+音源(mp3) → [任意] ボーカル抽出(demucs) → AI採譜(basic-pitch) → MIDI → 楽譜(MusicXML / PNG / PDF)
 ```
 
 ## セットアップ
@@ -20,11 +20,15 @@ mp3などの**音源からメロディを自動採譜して譜面（楽譜）を
 ```bash
 pip install -r requirements.txt
 
+# 環境によっては pkg_resources エラー回避のため:
+pip install "setuptools<81"
+
 # ボーカル抽出（--vocals）を使う場合のみ追加で:
 pip install demucs
 
 # PDF出力（--pdf）を使う場合は MuseScore 本体が必要:
 #   https://musescore.org/
+#   ※ PNG画像（--png）なら MuseScore 不要（verovioで描画）
 ```
 
 ## 使い方
@@ -36,7 +40,10 @@ python melody2sheet.py nakama.mp3
 # ボーカルだけ抽出してから採譜（歌メロの精度が上がる）
 python melody2sheet.py nakama.mp3 --vocals
 
-# PDFまで出力
+# 譜面をPNG画像で出力（MuseScore不要・すぐ見られる）
+python melody2sheet.py nakama.mp3 --png
+
+# PDFまで出力（MuseScoreが必要）
 python melody2sheet.py nakama.mp3 --pdf
 
 # 曲名・キー・拍子を指定
@@ -54,6 +61,7 @@ python melody2sheet.py nakama.mp3 --title "仲間" --key Bb --time 4/4 -o out
 | `--key` | キー/調号（例: `Bb`, `C`, `Am`） |
 | `--time` | 拍子（例: `4/4`, `3/4`） |
 | `--vocals` | 採譜前にボーカルだけ抽出（精度UP / demucsが必要） |
+| `--png` | PNG画像も出力（MuseScore不要 / verovio・cairosvgが必要） |
 | `--pdf` | PDFも出力（MuseScoreが必要） |
 | `--polyphonic` | 単音化せず和音も残してそのまま譜面化 |
 
