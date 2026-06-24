@@ -1,0 +1,6 @@
+# メロディ譜の自動生成に必須
+basic-pitch
+music21
+
+# 任意: --vocals（ボーカル抽出）を使う場合のみ
+# demucs
