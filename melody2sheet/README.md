@@ -26,9 +26,7 @@ pip install "setuptools<81"
 # ボーカル抽出（--vocals）を使う場合のみ追加で:
 pip install demucs
 
-# PDF出力（--pdf）を使う場合は MuseScore 本体が必要:
-#   https://musescore.org/
-#   ※ PNG画像（--png）なら MuseScore 不要（verovioで描画）
+# PDF / PNG 出力（--pdf / --png）は MuseScore 不要（verovioで描画）
 ```
 
 ## 使い方
@@ -63,7 +61,7 @@ python melody2sheet.py nakama.mp3 --title "仲間" --key Bb --time 4/4 -o out
 | `--vocals` | 採譜前にボーカルだけ抽出（精度UP / demucsが必要） |
 | `--clean` | リズムを拍にスナップ(量子化)し短い音符を除去して読みやすくする |
 | `--png` | PNG画像も出力（MuseScore不要 / verovio・cairosvgが必要） |
-| `--pdf` | PDFも出力（MuseScoreが必要） |
+| `--pdf` | PDFも出力（MuseScore不要 / verovio・cairosvg・pypdfが必要） |
 | `--polyphonic` | 単音化せず和音も残してそのまま譜面化 |
 
 ## 精度を上げるコツ

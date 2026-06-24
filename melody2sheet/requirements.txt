@@ -2,9 +2,10 @@
 basic-pitch
 music21
 
-# PNG画像出力（--png）に使用。MuseScore不要で楽譜を画像化できる
+# PNG/PDF出力（--png / --pdf）に使用。MuseScore不要で楽譜を画像化・PDF化できる
 verovio
 cairosvg
+pypdf
 
 # 任意: --vocals（ボーカル抽出）を使う場合のみ
 # demucs

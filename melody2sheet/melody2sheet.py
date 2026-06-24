@@ -107,7 +107,6 @@ def midi_to_score(
     title: str,
     key: str | None,
     time_sig: str | None,
-    make_pdf: bool,
     monophonic: bool,
     clean: bool = False,
 ) -> list[Path]:
@@ -169,18 +168,44 @@ def midi_to_score(
     score.write("musicxml", fp=str(xml_path))
     outputs.append(xml_path)
 
-    if make_pdf:
-        try:
-            pdf_path = out_dir / f"{title}_melody.pdf"
-            score.write("musicxml.pdf", fp=str(pdf_path))
-            outputs.append(pdf_path)
-        except Exception as e:
-            print(
-                "  注意: PDF出力に失敗しました（MuseScore未インストールの可能性）。"
-                f" MusicXMLは出力済みです。詳細: {e}"
-            )
-
     return outputs
+
+
+def render_pdf(xml_path: Path, out_dir: Path, title: str) -> Path | None:
+    """MusicXML を verovio で複数ページのPDFにレンダリングする（MuseScore不要）。"""
+    try:
+        import io
+        import verovio
+        import cairosvg
+        from pypdf import PdfWriter, PdfReader
+    except ImportError:
+        print(
+            "  注意: PDF出力には verovio・cairosvg・pypdf が必要です。"
+            " pip install verovio cairosvg pypdf を実行してください。"
+        )
+        return None
+
+    tk = verovio.toolkit()
+    # A4縦・余白付き
+    tk.setOptions({
+        "pageWidth": 2100, "pageHeight": 2970, "scale": 40, "adjustPageHeight": False,
+        "pageMarginTop": 100, "pageMarginBottom": 100,
+        "pageMarginLeft": 100, "pageMarginRight": 100,
+    })
+    if not tk.loadFile(str(xml_path)):
+        print("  注意: PDFレンダリングで楽譜を読み込めませんでした。")
+        return None
+
+    writer = PdfWriter()
+    for page in range(1, tk.getPageCount() + 1):
+        svg = tk.renderToSVG(page)
+        pdf_bytes = cairosvg.svg2pdf(bytestring=svg.encode())
+        writer.add_page(PdfReader(io.BytesIO(pdf_bytes)).pages[0])
+
+    pdf_path = out_dir / f"{title}_melody.pdf"
+    with open(pdf_path, "wb") as f:
+        writer.write(f)
+    return pdf_path
 
 
 def render_png(xml_path: Path, out_dir: Path, title: str) -> Path | None:
@@ -220,7 +245,10 @@ def main() -> None:
         "--vocals", action="store_true",
         help="採譜前にボーカルだけ抽出する（歌メロの精度UP。demucsが必要）",
     )
-    parser.add_argument("--pdf", action="store_true", help="PDFも出力する（MuseScoreが必要）")
+    parser.add_argument(
+        "--pdf", action="store_true",
+        help="PDFも出力する（MuseScore不要 / verovio・cairosvg・pypdfが必要）",
+    )
     parser.add_argument(
         "--png", action="store_true",
         help="PNG画像も出力する（MuseScore不要 / verovio・cairosvgが必要）",
@@ -259,17 +287,19 @@ def main() -> None:
         title=title,
         key=args.key,
         time_sig=args.time_sig,
-        make_pdf=args.pdf,
         monophonic=not args.polyphonic,
         clean=args.clean,
     )
 
-    if args.png:
-        xml_path = next((p for p in outputs if p.suffix == ".musicxml"), None)
-        if xml_path:
-            png_path = render_png(xml_path, out_dir, title)
-            if png_path:
-                outputs.append(png_path)
+    xml_path = next((p for p in outputs if p.suffix == ".musicxml"), None)
+    if args.pdf and xml_path:
+        pdf_path = render_pdf(xml_path, out_dir, title)
+        if pdf_path:
+            outputs.append(pdf_path)
+    if args.png and xml_path:
+        png_path = render_png(xml_path, out_dir, title)
+        if png_path:
+            outputs.append(png_path)
 
     print("\n✅ 完成しました！")
     print(f"  MIDI : {midi_path}")
