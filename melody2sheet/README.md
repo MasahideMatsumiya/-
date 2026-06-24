@@ -104,15 +104,29 @@ apt-get install -y ffmpeg librsvg2-bin fonts-noto-cjk
 ### 使い方
 
 ```bash
+# 総譜（主旋律＋コード＋ピアノ伴奏）
 python song2score.py nakama.mp3 --title "仲間" --key Bb --pdf
+
+# 出力パターンを選ぶ（--mode）
+python song2score.py nakama.mp3 --mode melody --pdf   # 主旋律のみ
+python song2score.py nakama.mp3 --mode lead   --pdf   # 主旋律＋コード
+python song2score.py nakama.mp3 --mode piano  --pdf   # ピアノ伴奏のみ
+python song2score.py nakama.mp3 --mode full   --pdf   # 総譜（既定）
+
+# パーツを自由に組み合わせる（--parts）
+python song2score.py nakama.mp3 --parts melody,piano --pdf
 ```
 
 | オプション | 説明 |
 |---|---|
+| `--mode` | 出力プリセット: `melody` / `lead` / `piano` / `full`（既定: full） |
+| `--parts` | パーツを自由指定（カンマ区切り）: `melody`,`chords`,`piano` |
 | `--title` | 曲名（PDFのタイトル） |
 | `--key` | 調号（既定: `Bb`）。コードもこのキー向けのフラット表記で表示 |
 | `--pdf` | PDFを出力（複数ページ対応） |
 | `--vocal-midi` / `--accomp-midi` / `--accomp-audio` | 採譜済み素材を使い回して高速化 |
+
+> `--mode melody` のように不要なパートを外すと、その分の採譜・コード推定をスキップして高速化されます。
 
 ### 注意
 

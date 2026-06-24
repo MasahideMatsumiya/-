@@ -38,6 +38,13 @@
   img.preview { width:100%; border:1px solid var(--line); border-radius:8px; margin-top:14px; }
   .err { color:#b3261e; white-space:pre-wrap; font-size:.85rem; }
   .fname { margin-top:10px; font-weight:600; }
+  .modes { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:6px; }
+  .mode { border:1px solid var(--line); border-radius:10px; padding:12px; cursor:pointer;
+          background:#fff; transition:.15s; }
+  .mode:hover { border-color:var(--accent); }
+  .mode.sel { border-color:var(--accent); background:#eef6f3; box-shadow:0 0 0 1px var(--accent) inset; }
+  .mode b { display:block; font-size:.95rem; }
+  .mode span { font-size:.78rem; color:#6b7b76; }
 </style>
 </head>
 <body>
@@ -51,6 +58,13 @@
       <div class="fname hidden" id="fname"></div>
     </div>
     <input type="file" id="file" accept="audio/*" class="hidden">
+    <label>出力パターン</label>
+    <div class="modes" id="modes">
+      <div class="mode sel" data-mode="full"><b>総譜（おすすめ）</b><span>主旋律＋コード＋ピアノ伴奏</span></div>
+      <div class="mode" data-mode="lead"><b>リードシート</b><span>主旋律＋コードネーム</span></div>
+      <div class="mode" data-mode="melody"><b>主旋律のみ</b><span>メロディだけの譜面</span></div>
+      <div class="mode" data-mode="piano"><b>ピアノ伴奏のみ</b><span>大譜表のピアノ譜</span></div>
+    </div>
     <div class="row">
       <div>
         <label>曲名（PDFのタイトル）</label>
@@ -95,6 +109,15 @@ const fileInput = document.getElementById('file');
 const drop = document.getElementById('drop');
 const go = document.getElementById('go');
 let chosen = null;
+let mode = 'full';
+
+document.querySelectorAll('#modes .mode').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('#modes .mode').forEach(m => m.classList.remove('sel'));
+    el.classList.add('sel');
+    mode = el.dataset.mode;
+  });
+});
 
 drop.addEventListener('click', () => fileInput.click());
 ['dragover','dragenter'].forEach(e => drop.addEventListener(e, ev => {
@@ -124,6 +147,7 @@ go.addEventListener('click', async () => {
   fd.append('audio', chosen);
   fd.append('title', document.getElementById('title').value);
   fd.append('key', document.getElementById('key').value);
+  fd.append('mode', mode);
   show('progress-card');
   const r = await fetch('/upload', { method:'POST', body:fd });
   const j = await r.json();

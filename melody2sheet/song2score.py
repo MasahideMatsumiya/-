@@ -180,17 +180,37 @@ def build_piano(accomp_midi: Path, total_q: int):
     return rh, lh
 
 
-def assemble(melody_part, rh, lh, title: str, out_xml: Path):
+def piano_length_q(accomp_midi: Path) -> int:
+    """伴奏MIDIの長さ（四分音符数）を返す。ピアノ単独出力で小節数を決めるのに使う。"""
+    import pretty_midi
+    pm = pretty_midi.PrettyMIDI(str(accomp_midi))
+    end = max((n.end for inst in pm.instruments for n in inst.notes), default=0.0)
+    return int(np.ceil(end * SEC2Q)) or 60
+
+
+def assemble(melody_part, piano, title: str, out_xml: Path):
+    """選択されたパートだけで総譜を組む。
+
+    melody_part: 主旋律パート（無ければ None）
+    piano:       (rh, lh) のタプル（無ければ None）
+    """
     from music21 import stream, layout, metadata
-    for part in (melody_part, rh, lh):
+    parts = []
+    if melody_part is not None:
+        parts.append(melody_part)
+    if piano is not None:
+        parts.extend(piano)  # rh, lh
+    for part in parts:
         part.makeNotation(inPlace=True)
     score = stream.Score()
     score.insert(0, metadata.Metadata())
     score.metadata.title = title
-    score.insert(0, melody_part)
-    score.insert(0, rh)
-    score.insert(0, lh)
-    score.insert(0, layout.StaffGroup([rh, lh], name='Piano', abbreviation='Pf.', symbol='brace'))
+    for part in parts:
+        score.insert(0, part)
+    if piano is not None:
+        rh, lh = piano
+        score.insert(0, layout.StaffGroup(
+            [rh, lh], name='Piano', abbreviation='Pf.', symbol='brace'))
     score.write('musicxml', fp=str(out_xml))
     return out_xml
 
@@ -225,14 +245,100 @@ def shutil_which(cmd: str):
     return shutil.which(cmd)
 
 
+VALID_PARTS = ("melody", "chords", "piano")
+
+# よく使う組み合わせのプリセット
+PRESETS = {
+    "melody": ["melody"],                    # 主旋律のみ
+    "lead":   ["melody", "chords"],          # 主旋律＋コード（リードシート）
+    "piano":  ["piano"],                     # ピアノ伴奏のみ
+    "full":   ["melody", "chords", "piano"],  # 総譜（既定）
+}
+
+
+def generate(audio: Path, out_dir: Path, title: str, key: str,
+             parts: list[str], want_pdf: bool = True,
+             progress=None,
+             vocal_midi: Path | None = None,
+             accomp_midi: Path | None = None,
+             accomp_audio: Path | None = None) -> dict:
+    """選択したパート(melody/chords/piano)だけの楽譜を作る共通処理。
+
+    progress: 進捗文字列を受け取るコールバック（Webアプリ用）。
+    戻り値: {'musicxml':Path, 'pdf':Path|None, 'n_mel':int, 'n_chords':int}
+    """
+    def say(msg):
+        if progress:
+            progress(msg)
+        else:
+            print(msg)
+
+    parts = [p for p in parts if p in VALID_PARTS] or ["melody"]
+    need_melody = "melody" in parts
+    need_chords = "chords" in parts
+    need_piano = "piano" in parts
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    work = out_dir / "_work"
+    work.mkdir(parents=True, exist_ok=True)
+
+    have_materials = bool(vocal_midi and accomp_midi and accomp_audio)
+    need_sep = (need_melody or need_piano or need_chords) and not have_materials
+    if need_sep:
+        say("ボーカルと伴奏を分離中…(demucs)")
+        vocals, accomp_audio = separate_stems(audio, work)
+        if need_melody:
+            say("主旋律を採譜中…(basic-pitch)")
+            vocal_midi = transcribe(vocals, work / "vocal", "主旋律")
+        if need_piano:
+            say("伴奏を採譜中…(basic-pitch)")
+            accomp_midi = transcribe(accomp_audio, work / "accomp", "伴奏")
+
+    chords = []
+    if need_chords:
+        say("コードを推定中…(librosa)")
+        chords = estimate_chords(accomp_audio)
+
+    say("譜面を組み立て中…(music21)")
+    melody_part, piano = None, None
+    n_mel, maxoff = 0, 0
+    if need_melody:
+        melody_part, maxoff, n_mel = build_melody(vocal_midi, key, title)
+    if need_piano:
+        total_q = int(np.ceil(maxoff)) if maxoff else piano_length_q(accomp_midi)
+        rh, lh = build_piano(accomp_midi, total_q)
+        piano = (rh, lh)
+    # コードは一番上の段（無ければピアノ右手）の上に載せる
+    if need_chords:
+        top = melody_part if melody_part is not None else (piano[0] if piano else None)
+        if top is not None:
+            length = maxoff or piano_length_q(accomp_midi)
+            add_chords(top, chords, length)
+
+    xml_path = out_dir / f"{title}_score.musicxml"
+    assemble(melody_part, piano, title, xml_path)
+
+    pdf_path = None
+    if want_pdf:
+        say("PDFを生成中…(verovio+rsvg)")
+        pdf_path = render_pdf(xml_path, out_dir / f"{title}_score.pdf")
+
+    return {"musicxml": xml_path, "pdf": pdf_path,
+            "n_mel": n_mel, "n_chords": len(chords)}
+
+
 def main():
     ap = argparse.ArgumentParser(
-        description="音源からボーカル主旋律＋ピアノ伴奏＋コードの楽譜を作ります。")
+        description="音源から楽譜を作ります（出力パーツを選択可能）。")
     ap.add_argument("audio", help="入力音源(mp3/wav)")
     ap.add_argument("-o", "--out", default="out", help="出力先フォルダ")
     ap.add_argument("--title", default=None, help="曲名(既定: ファイル名)")
     ap.add_argument("--key", default="Bb", help="調号(既定: Bb)")
     ap.add_argument("--pdf", action="store_true", help="PDFを出力する")
+    ap.add_argument("--mode", choices=list(PRESETS), default=None,
+                    help="出力プリセット: melody/lead/piano/full(既定)")
+    ap.add_argument("--parts", default=None,
+                    help="出力パーツをカンマ区切りで指定: melody,chords,piano")
     # 既に分離/採譜済みの素材を使い回す（再計算を省いて高速化）
     ap.add_argument("--vocal-midi", default=None, help="採譜済みの主旋律MIDIを使う")
     ap.add_argument("--accomp-midi", default=None, help="採譜済みの伴奏MIDIを使う")
@@ -243,43 +349,26 @@ def main():
     if not audio.exists():
         _fail(f"音源が見つかりません: {audio}")
     out_dir = Path(args.out).expanduser().resolve()
-    work = out_dir / "_work"
-    work.mkdir(parents=True, exist_ok=True)
     title = args.title or audio.stem
 
-    if args.vocal_midi and args.accomp_midi and args.accomp_audio:
-        vocal_midi = Path(args.vocal_midi)
-        accomp_midi = Path(args.accomp_midi)
-        accomp_audio = Path(args.accomp_audio)
-        print("[1/5] 分離・採譜は既存素材を再利用")
+    if args.parts:
+        parts = [p.strip() for p in args.parts.split(",") if p.strip()]
     else:
-        vocals, accomp_audio = separate_stems(audio, work)
-        print("[2/5] 主旋律を採譜中（basic-pitch）…")
-        vocal_midi = transcribe(vocals, work / "vocal", "主旋律")
-        print("[3/5] 伴奏を採譜中（basic-pitch）…")
-        accomp_midi = transcribe(accomp_audio, work / "accomp", "伴奏")
+        parts = PRESETS[args.mode or "full"]
 
-    print("[4/5] コードを推定中（librosa）…")
-    chords = estimate_chords(accomp_audio)
-
-    print("[5/5] 総譜を組み立て中（music21）…")
-    melody_part, maxoff, n_mel = build_melody(vocal_midi, args.key, title)
-    add_chords(melody_part, chords, maxoff)
-    total_q = int(np.ceil(maxoff)) if maxoff else 60
-    rh, lh = build_piano(accomp_midi, total_q)
-    xml_path = out_dir / f"{title}_score.musicxml"
-    assemble(melody_part, rh, lh, title, xml_path)
-
-    outputs = [xml_path]
-    if args.pdf:
-        pdf_path = render_pdf(xml_path, out_dir / f"{title}_score.pdf")
-        if pdf_path:
-            outputs.append(pdf_path)
+    res = generate(
+        audio, out_dir, title, args.key, parts, want_pdf=args.pdf,
+        vocal_midi=Path(args.vocal_midi) if args.vocal_midi else None,
+        accomp_midi=Path(args.accomp_midi) if args.accomp_midi else None,
+        accomp_audio=Path(args.accomp_audio) if args.accomp_audio else None,
+    )
 
     print("\n✅ 完成しました！")
-    print(f"  メロディ音数: {n_mel}  コード数: {len(chords)}")
-    for p in outputs:
-        print(f"  出力 : {p}")
+    print(f"  出力パーツ: {', '.join(parts)}")
+    print(f"  メロディ音数: {res['n_mel']}  コード数: {res['n_chords']}")
+    print(f"  出力 : {res['musicxml']}")
+    if res["pdf"]:
+        print(f"  出力 : {res['pdf']}")
 
 
 if __name__ == "__main__":
