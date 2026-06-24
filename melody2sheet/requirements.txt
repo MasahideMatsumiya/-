@@ -2,12 +2,17 @@
 basic-pitch
 music21
 
+# song2score.py（主旋律＋ピアノ伴奏＋コード）に必要
+librosa
+pretty_midi
+numpy
+
 # PNG/PDF出力（--png / --pdf）に使用。MuseScore不要で楽譜を画像化・PDF化できる
 verovio
 cairosvg
 pypdf
 
-# 任意: --vocals（ボーカル抽出）を使う場合のみ
+# 任意: --vocals（ボーカル抽出）/ song2score に必要
 # demucs
 
 # 補足: 環境によっては pkg_resources エラーを避けるため setuptools<81 が必要な場合があります

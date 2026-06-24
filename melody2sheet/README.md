@@ -78,6 +78,49 @@ python melody2sheet.py nakama.mp3 --title "仲間" --key Bb --time 4/4 -o out
 python melody2sheet.py song.mp3 --vocals --clean --png
 ```
 
+## 🎼 ボーカル主旋律＋ピアノ伴奏＋コードの総譜（song2score.py）
+
+`melody2sheet.py` は単旋律のメロディ譜ですが、`song2score.py` は
+**上段＝ボーカル主旋律＋コードネーム / 下段＝ピアノ伴奏（大譜表）** の総譜を作ります。
+
+```
+音源 → ボーカル/伴奏に分離(demucs)
+     → 主旋律を採譜 ─┐
+     → 伴奏を採譜 ───┤→ music21で総譜化 → PDF(verovio+rsvg-convert)
+     → コードを推定 ─┘
+```
+
+### 追加で必要なもの
+
+```bash
+pip install librosa pretty_midi   # コード推定・伴奏処理
+# システムパッケージ:
+apt-get install -y ffmpeg librsvg2-bin fonts-noto-cjk
+#   ffmpeg        … demucsの音声入出力
+#   librsvg2-bin  … 楽譜SVG→PDF変換(rsvg-convert)。記号・日本語を正しく描画
+#   fonts-noto-cjk… PDFの日本語タイトル表示
+```
+
+### 使い方
+
+```bash
+python song2score.py nakama.mp3 --title "仲間" --key Bb --pdf
+```
+
+| オプション | 説明 |
+|---|---|
+| `--title` | 曲名（PDFのタイトル） |
+| `--key` | 調号（既定: `Bb`）。コードもこのキー向けのフラット表記で表示 |
+| `--pdf` | PDFを出力（複数ページ対応） |
+| `--vocal-midi` / `--accomp-midi` / `--accomp-audio` | 採譜済み素材を使い回して高速化 |
+
+### 注意
+
+- コードは音源からの**自動推定**（クロマ特徴 × 和音テンプレート）なので、概ね合っていても
+  正確なオンコード（分数コード）や複雑なテンションまでは出ません。市販のコード譜と併用するのがおすすめです。
+- ピアノ伴奏は「拍ごとのブロック和音」に整理した自動生成です。実際の細かな伴奏形までは再現しません。
+- ラップ主体の曲は主旋律の音程が曖昧で、音符が細かくなりやすい点は単旋律版と同じです。
+
 ## ⚖️ 著作権について
 
 採譜の対象が他者の楽曲（JASRAC管理曲など）の場合、**個人で楽しむ・練習する範囲**にとどめてください。
