@@ -1,0 +1,105 @@
+<!--
+  Brevo用HTMLメール（Buddy-Buddy 紹介パートナー募集版）
+  - 画像: src の IMAGE_URL_HERE を Brevo の画像URLに置換
+  - ボタン: href の FORM_URL_HERE を GoogleフォームURLに置換
+  - {{ contact.STORE }} = 施設名差し込み / {{ unsubscribe }} = 配信停止
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buddy-Buddy 紹介パートナーのご案内</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:'Hiragino Sans','Yu Gothic',Meiryo,sans-serif;color:#333;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;">
+    <tr>
+      <td align="center" style="padding:24px 12px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:8px;overflow:hidden;">
+
+          <!-- ヘッダー画像 -->
+          <tr>
+            <td style="padding:0;">
+              <img src="IMAGE_URL_HERE" alt="Buddy-Buddy 紹介モデル" width="600"
+                   style="display:block;width:100%;max-width:600px;height:auto;border:0;">
+            </td>
+          </tr>
+
+          <!-- 本文 -->
+          <tr>
+            <td style="padding:28px 28px 8px 28px;">
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.8;">{{ contact.STORE }} ご担当者さま</p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.8;">
+                突然のご連絡失礼いたします。Buddy-Buddyの松宮と申します。<br>
+                貴店の公式サイトを拝見し、ご連絡を差し上げました。
+              </p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.8;">
+                このたび、当社のドッグフード「<strong>Buddy-Buddy</strong>」の
+                <strong>紹介パートナー</strong>を募集しており、貴店にご案内させていただきました。
+                <strong>在庫・仕入れは一切不要</strong>。無料サンプルを置いていただくだけで始められます。
+              </p>
+            </td>
+          </tr>
+
+          <!-- 仕組み -->
+          <tr>
+            <td style="padding:0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f7faf5;border-radius:8px;">
+                <tr><td style="padding:18px 20px;">
+                  <p style="margin:0 0 12px;font-size:15px;font-weight:bold;color:#3a7d2c;">かんたん4ステップ（在庫ゼロ・仕入れゼロ）</p>
+                  <p style="margin:0 0 8px;font-size:14px;line-height:1.7;"><strong>① 無料サンプルをお届け</strong>（仕入れ不要・費用負担なし）</p>
+                  <p style="margin:0 0 8px;font-size:14px;line-height:1.7;"><strong>② 飼い主さまにサンプルをお渡し</strong></p>
+                  <p style="margin:0 0 8px;font-size:14px;line-height:1.7;"><strong>③ 気に入った方が公式サイトで定期購入</strong>（専用クーポンで貴店からのご紹介と判別）</p>
+                  <p style="margin:0;font-size:14px;line-height:1.7;"><strong>④ 売上の20%を毎月、継続して還元</strong></p>
+                </td></tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- メリット -->
+          <tr>
+            <td style="padding:20px 28px 8px 28px;">
+              <p style="margin:0 0 6px;font-size:14px;line-height:1.8;">📦 <strong>在庫リスクゼロ</strong>：仕入れも在庫管理も不要</p>
+              <p style="margin:0 0 6px;font-size:14px;line-height:1.8;">🤝 <strong>手間ほぼなし</strong>：サンプルをお渡しいただくだけ</p>
+              <p style="margin:0;font-size:14px;line-height:1.8;">💰 <strong>継続収入</strong>：定期購入が続く限り、毎月20%を還元</p>
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          <tr>
+            <td style="padding:24px 28px 8px 28px;">
+              <p style="margin:0 0 18px;font-size:15px;line-height:1.8;">
+                ご興味をお持ちいただけましたら、下のフォームよりお気軽にお問い合わせください。無料サンプルと詳しい資料をお送りいたします。<br>
+                ご不要・ご興味が合わない場合は、本メールは破棄いただいて構いません。
+              </p>
+              <a href="FORM_URL_HERE" target="_blank"
+                 style="display:inline-block;background:#3a7d2c;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:6px;font-size:15px;font-weight:bold;">
+                資料・サンプルを希望する
+              </a>
+            </td>
+          </tr>
+
+          <!-- 署名・特商法 -->
+          <tr>
+            <td style="padding:28px;">
+              <hr style="border:none;border-top:1px solid #e0e0e0;margin:0 0 16px;">
+              <p style="margin:0;font-size:12px;line-height:1.8;color:#888;">
+                Buddy-Buddy／松宮<br>
+                Mail: matsumiya@warmth24.co.jp<br>
+                所在地: 〒104-0033 東京都中央区新川2-30-11 新川OMKビル7F<br>
+                特商法表記: <a href="https://buddy-buddy.dog/policies/legal-notice" style="color:#888;">https://buddy-buddy.dog/policies/legal-notice</a>
+              </p>
+              <p style="margin:14px 0 0;font-size:12px;line-height:1.7;color:#aaa;">
+                今後のご案内が不要な場合は、
+                <a href="{{ unsubscribe }}" style="color:#aaa;">こちら（配信停止）</a>
+                よりお手続きいただけます。
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
