@@ -4,39 +4,66 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Candy Fabric | 輸入生地・ハンドメイド素材のセレクトショップ</title>
-  <meta name="description" content="2013年より、厳選した輸入ツイードやリボンを中心に、上質な生地や大人可愛いアクセサリー・雑貨を取り揃えるCandyFabric。">
+  <meta name="description" content="2013年より、厳選した輸入ツイードやリボンを中心に、上質な生地や大人可愛いアクセサリー・雑貨を取り揃えるCandyFabric。パリのエスプリを添えて。">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500&family=Parisienne&display=swap" rel="stylesheet">
   <style>
     /* ===== Reset ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --gray-100: #f3f3f5;
-      --gray-200: #e6e6ea;
-      --gray-300: #d0d0d6;
-      --gray-400: #a0a0aa;
-      --gray-600: #68686f;
-      --gray-800: #38383f;
-      --gray-900: #1a1a1f;
-      --pink:     #d4788a;
-      --pink-lt:  #f7e2e6;
-      --pink-mid: #e8a0ae;
-      --pink-pale:#fdf0f2;
-      --white:    #ffffff;
+      /* Parisian powder-blue palette */
+      --blue-pale:  #e9eef5;
+      --blue-lt:    #d5dfeb;
+      --blue:       #b9c9dc;
+      --blue-mid:   #9db3cc;
+      --blue-deep:  #7e97b5;
+      --navy:       #46556b;
+      --ink:        #3a4453;
+      --gold:       #c3a35f;
+      --gold-lt:    #e0cd9e;
+      --gold-pale:  #f2e9d4;
+      --cream:      #fbf9f5;
+      --white:      #ffffff;
+      --marble:     #f6f3ee;
+      /* macaron pastels */
+      --mac-pink:   #f3d3d8;
+      --mac-mint:   #d9e9dd;
+      --mac-lemon:  #f6ecc8;
+      --mac-lav:    #e4dcee;
+      --pink:       #dfa3ae;
       --font-serif: 'Cormorant Garamond', 'Times New Roman', serif;
       --font-sans:  'Montserrat', sans-serif;
+      --font-script:'Parisienne', cursive;
     }
     html { scroll-behavior: smooth; }
     body {
       font-family: var(--font-sans);
-      background: var(--gray-100);
-      color: var(--gray-800);
+      background: var(--cream);
+      color: var(--ink);
       font-weight: 300;
       letter-spacing: .04em;
       overflow-x: hidden;
     }
-    img { max-width: 100%; height: auto; display: block; }
+    img, svg { max-width: 100%; display: block; }
     a { color: inherit; text-decoration: none; }
+
+    /* ===== Gold ornament helpers ===== */
+    .flourish {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: var(--gold);
+    }
+    .flourish::before, .flourish::after {
+      content: '';
+      width: 64px;
+      height: 1px;
+      background: linear-gradient(to var(--dir, right), transparent, var(--gold));
+    }
+    .flourish::before { --dir: right; }
+    .flourish::after  { --dir: left; }
 
     /* ===== Header ===== */
     header {
@@ -48,36 +75,69 @@
       justify-content: space-between;
       padding: 0 5%;
       height: 72px;
-      background: rgba(243,243,245,.94);
+      background: rgba(251,249,245,.92);
       backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(212,120,138,.18);
-      transition: background .4s;
+      border-bottom: 1px solid rgba(195,163,95,.35);
     }
     .logo-mark {
       font-family: var(--font-serif);
-      font-size: 1.3rem;
-      font-weight: 400;
+      font-size: 1.35rem;
+      font-weight: 500;
       letter-spacing: .18em;
-      color: var(--gray-900);
+      color: var(--navy);
     }
-    .logo-mark span { color: var(--pink); font-style: italic; }
-    nav {
-      display: flex;
-      gap: 2.5rem;
+    .logo-mark span { color: var(--gold); font-style: italic; }
+    .logo-sub {
+      display: block;
+      font-family: var(--font-sans);
+      font-size: .45rem;
+      letter-spacing: .42em;
+      text-transform: uppercase;
+      color: var(--blue-deep);
+      margin-top: .1rem;
     }
+    nav { display: flex; gap: 2.3rem; align-items: center; }
     nav a {
       font-size: .62rem;
       letter-spacing: .2em;
       text-transform: uppercase;
-      color: var(--gray-600);
+      color: var(--navy);
       transition: color .25s;
+      position: relative;
     }
-    nav a:hover { color: var(--pink); }
-    .nav-line {
-      width: 32px;
+    nav a::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 100%;
+      bottom: -6px;
       height: 1px;
-      background: var(--pink);
-      margin-left: 2.5rem;
+      background: var(--gold);
+      transition: right .3s;
+    }
+    nav a:hover { color: var(--gold); }
+    nav a:hover::after { right: 0; }
+
+    /* ===== Awning (striped) ===== */
+    .awning {
+      position: fixed;
+      top: 72px; left: 0; right: 0;
+      z-index: 99;
+      height: 14px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--blue) 0 42px,
+        var(--white) 42px 84px
+      );
+      filter: drop-shadow(0 3px 4px rgba(70,85,107,.15));
+    }
+    .awning::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; top: 100%;
+      height: 10px;
+      background:
+        radial-gradient(circle at 21px -2px, var(--blue) 0 19px, transparent 20px) 0 0 / 84px 10px repeat-x,
+        radial-gradient(circle at 63px -2px, var(--white) 0 19px, transparent 20px) 0 0 / 84px 10px repeat-x;
     }
 
     /* ===== Hamburger ===== */
@@ -93,21 +153,20 @@
       display: block;
       width: 22px;
       height: 1px;
-      background: var(--gray-800);
+      background: var(--navy);
       transition: all .3s;
     }
     .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
     .hamburger.open span:nth-child(2) { opacity: 0; }
     .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
-    /* ===== Mobile nav drawer ===== */
     .mobile-nav {
       display: none;
       position: fixed;
       top: 72px; left: 0; right: 0; bottom: 0;
-      background: rgba(243,243,245,.98);
+      background: rgba(251,249,245,.98);
       backdrop-filter: blur(16px);
-      z-index: 99;
+      z-index: 98;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -119,497 +178,438 @@
       font-family: var(--font-serif);
       font-weight: 300;
       letter-spacing: .12em;
-      color: var(--gray-800);
-      transition: color .2s;
+      color: var(--navy);
     }
-    .mobile-nav a:hover { color: var(--pink); }
+    .mobile-nav a:hover { color: var(--gold); }
 
     /* ===== Hero ===== */
     .hero {
       position: relative;
-      height: 100vh;
-      min-height: 600px;
-      overflow: hidden;
-    }
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      background: var(--gray-200);
-    }
-    .hero-bg img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-    }
-    /* Elegant gray overlay */
-    .hero-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        to bottom,
-        rgba(30,28,26,.08) 0%,
-        rgba(30,28,26,.15) 40%,
-        rgba(30,28,26,.55) 100%
-      );
-    }
-    .hero-content {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 0 8% 7%;
-      color: var(--white);
-    }
-    .hero-eyebrow {
-      font-family: var(--font-sans);
-      font-size: .58rem;
-      letter-spacing: .35em;
-      text-transform: uppercase;
-      color: var(--pink-mid);
-      margin-bottom: 1.2rem;
+      min-height: 100vh;
       display: flex;
       align-items: center;
-      gap: 1rem;
+      justify-content: center;
+      padding: 120px 6% 80px;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,255,255,.9), transparent),
+        linear-gradient(175deg, var(--blue-pale) 0%, var(--blue-lt) 45%, var(--blue) 100%);
+      overflow: hidden;
     }
-    .hero-eyebrow::before {
-      content: '';
-      display: block;
-      width: 32px;
-      height: 1px;
-      background: var(--pink-mid);
+    /* soft Paris skyline silhouette */
+    .hero-skyline {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 190px;
+      opacity: .16;
+      color: var(--navy);
+    }
+    /* floating macarons + bows */
+    .float-deco {
+      position: absolute;
+      opacity: .85;
+      animation: floaty 7s ease-in-out infinite;
+      filter: drop-shadow(0 6px 14px rgba(70,85,107,.18));
+    }
+    .float-deco.d1 { top: 18%; left: 8%;  width: 74px; animation-delay: 0s; }
+    .float-deco.d2 { top: 30%; right: 9%; width: 60px; animation-delay: 1.4s; }
+    .float-deco.d3 { bottom: 24%; left: 14%; width: 54px; animation-delay: 2.6s; }
+    .float-deco.d4 { bottom: 30%; right: 15%; width: 80px; animation-delay: 3.4s; }
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0) rotate(-4deg); }
+      50%      { transform: translateY(-16px) rotate(5deg); }
+    }
+    .hero-frame {
+      position: relative;
+      max-width: 780px;
+      width: 100%;
+      text-align: center;
+      padding: 4.5rem 3rem;
+      background: rgba(251,249,245,.55);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--gold-lt);
+      box-shadow:
+        inset 0 0 0 6px rgba(251,249,245,.5),
+        inset 0 0 0 7px var(--gold-lt),
+        0 24px 60px rgba(70,85,107,.18);
+    }
+    /* gold corner ornaments */
+    .corner {
+      position: absolute;
+      width: 34px; height: 34px;
+      border: 1.5px solid var(--gold);
+    }
+    .corner.tl { top: 14px; left: 14px;  border-right: none; border-bottom: none; }
+    .corner.tr { top: 14px; right: 14px; border-left: none;  border-bottom: none; }
+    .corner.bl { bottom: 14px; left: 14px;  border-right: none; border-top: none; }
+    .corner.br { bottom: 14px; right: 14px; border-left: none;  border-top: none; }
+    .hero-script {
+      font-family: var(--font-script);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      color: var(--blue-deep);
+      margin-bottom: .6rem;
     }
     .hero-title {
       font-family: var(--font-serif);
-      font-size: clamp(3rem, 6vw, 5.5rem);
-      font-weight: 300;
-      line-height: 1.1;
-      letter-spacing: .06em;
+      font-size: clamp(2.6rem, 6vw, 4.6rem);
+      font-weight: 400;
+      line-height: 1.15;
+      letter-spacing: .08em;
+      color: var(--navy);
       margin-bottom: 1.2rem;
     }
-    .hero-title em {
-      font-style: italic;
-      color: var(--pink-lt);
-    }
+    .hero-title em { font-style: italic; color: var(--gold); }
     .hero-sub {
-      font-size: .72rem;
-      letter-spacing: .14em;
-      color: rgba(255,255,255,.7);
-      margin-bottom: 2.5rem;
-      line-height: 2;
+      font-size: .74rem;
+      letter-spacing: .16em;
+      color: var(--ink);
+      line-height: 2.2;
+      margin-bottom: 2.2rem;
     }
     .hero-cta {
       display: inline-flex;
       align-items: center;
-      gap: 1rem;
+      gap: .9rem;
       font-size: .62rem;
-      letter-spacing: .2em;
+      letter-spacing: .24em;
       text-transform: uppercase;
+      color: var(--navy);
+      border: 1px solid var(--gold);
+      background: linear-gradient(120deg, rgba(224,205,158,.25), rgba(255,255,255,.6));
+      padding: 1rem 2.4rem;
+      transition: all .3s;
+    }
+    .hero-cta:hover {
+      background: var(--gold);
       color: var(--white);
-      border-bottom: 1px solid rgba(255,255,255,.4);
-      padding-bottom: .4rem;
-      transition: border-color .3s, gap .3s;
+      letter-spacing: .3em;
     }
-    .hero-cta:hover { border-color: var(--pink-mid); gap: 1.5rem; }
-    .hero-cta::after {
-      content: '→';
-      font-size: .8rem;
-    }
-    /* Scroll indicator */
     .scroll-indicator {
       position: absolute;
-      right: 5%;
-      bottom: 4rem;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 1.6rem;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: .8rem;
-      color: rgba(255,255,255,.5);
-      font-size: .55rem;
-      letter-spacing: .2em;
+      gap: .7rem;
+      color: var(--navy);
+      font-size: .52rem;
+      letter-spacing: .3em;
       text-transform: uppercase;
+      opacity: .6;
     }
     .scroll-bar {
-      width: 1px;
-      height: 48px;
-      background: linear-gradient(to bottom, rgba(255,255,255,.5), transparent);
+      width: 1px; height: 44px;
+      background: linear-gradient(to bottom, var(--navy), transparent);
       animation: scrollDown 1.8s infinite;
     }
     @keyframes scrollDown {
-      0% { transform: scaleY(0); transform-origin: top; }
-      50% { transform: scaleY(1); transform-origin: top; }
-      51% { transform: scaleY(1); transform-origin: bottom; }
+      0%   { transform: scaleY(0); transform-origin: top; }
+      50%  { transform: scaleY(1); transform-origin: top; }
+      51%  { transform: scaleY(1); transform-origin: bottom; }
       100% { transform: scaleY(0); transform-origin: bottom; }
     }
 
-    /* ===== Marquee strip ===== */
+    /* ===== Marquee ===== */
     .marquee-strip {
-      background: var(--pink);
+      background: linear-gradient(90deg, var(--blue-deep), var(--blue-mid), var(--blue-deep));
       color: var(--white);
       font-size: .55rem;
       letter-spacing: .3em;
       text-transform: uppercase;
-      padding: .9rem 0;
+      padding: .95rem 0;
       overflow: hidden;
       white-space: nowrap;
+      border-top: 1px solid var(--gold-lt);
+      border-bottom: 1px solid var(--gold-lt);
     }
-    .marquee-inner {
-      display: inline-block;
-      animation: marquee 20s linear infinite;
-    }
+    .marquee-inner { display: inline-block; animation: marquee 22s linear infinite; }
     .marquee-inner span { margin: 0 2.5rem; }
-    .marquee-inner .dot { color: rgba(255,255,255,.5); }
+    .marquee-inner .dot { color: var(--gold-lt); }
     @keyframes marquee { to { transform: translateX(-50%); } }
 
     /* ===== Section base ===== */
-    section { padding: 7rem 8%; }
+    section { padding: 7rem 8%; position: relative; }
+    .sec-head { text-align: center; margin-bottom: 4rem; }
+    .sec-script {
+      font-family: var(--font-script);
+      font-size: 1.7rem;
+      color: var(--blue-deep);
+      margin-bottom: .4rem;
+    }
     .sec-label {
       font-size: .58rem;
-      letter-spacing: .3em;
+      letter-spacing: .34em;
       text-transform: uppercase;
-      color: var(--pink);
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .sec-label::before {
-      content: '';
-      display: block;
-      width: 28px;
-      height: 1px;
-      background: var(--pink);
+      color: var(--gold);
+      margin-bottom: 1rem;
     }
     .sec-title {
       font-family: var(--font-serif);
-      font-size: clamp(2rem, 3.5vw, 3rem);
-      font-weight: 300;
-      line-height: 1.3;
-      letter-spacing: .04em;
-      color: var(--gray-900);
-    }
-    .sec-title em { font-style: italic; color: var(--pink); }
-
-    /* ===== About ===== */
-    .about {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8%;
-      align-items: center;
-      background: var(--white);
-    }
-    .about-img {
-      position: relative;
-    }
-    .about-img-main {
-      aspect-ratio: 3/4;
-      overflow: hidden;
-      background: var(--gray-200);
-    }
-    .about-img-main img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      transition: transform .8s;
-    }
-    .about-img-main:hover img { transform: scale(1.04); }
-    .about-img-accent {
-      position: absolute;
-      bottom: -2rem;
-      right: -2rem;
-      width: 55%;
-      aspect-ratio: 1;
-      overflow: hidden;
-      background: var(--gray-200);
-      border: 6px solid var(--white);
-    }
-    .about-img-accent img { width: 100%; height: 100%; object-fit: cover; }
-    .about-year {
-      position: absolute;
-      top: -1.5rem;
-      left: -1.5rem;
-      width: 80px;
-      height: 80px;
-      background: var(--gray-900);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--pink-mid);
-      font-family: var(--font-serif);
-    }
-    .about-year .num { font-size: 1.2rem; letter-spacing: .05em; }
-    .about-year .txt { font-size: .45rem; letter-spacing: .2em; text-transform: uppercase; }
-    .about-text { padding-top: 2rem; }
-    .about-text p {
-      font-size: .82rem;
-      line-height: 2.2;
-      color: var(--gray-600);
-      margin-bottom: 1.5rem;
-    }
-    .about-divider {
-      width: 40px;
-      height: 1px;
-      background: var(--pink);
-      margin: 2rem 0;
-    }
-    .about-stats {
-      display: flex;
-      gap: 3rem;
-    }
-    .stat-num {
-      font-family: var(--font-serif);
-      font-size: 2.2rem;
-      font-weight: 300;
-      color: var(--gray-900);
-      line-height: 1;
-    }
-    .stat-label {
-      font-size: .58rem;
-      letter-spacing: .15em;
-      text-transform: uppercase;
-      color: var(--gray-400);
-      margin-top: .4rem;
-    }
-
-    /* ===== Products ===== */
-    .products { background: #6b6b6b; }
-    .products-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 4rem;
-    }
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.5px;
-      background: var(--gray-300);
-    }
-    .product-card {
-      background: var(--white);
-      overflow: hidden;
-      cursor: pointer;
-    }
-    .product-card-img {
-      aspect-ratio: 1;
-      overflow: hidden;
-      background: var(--gray-200);
-      position: relative;
-    }
-    .product-card-img img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      transition: transform .7s;
-    }
-    .product-card:hover .product-card-img img { transform: scale(1.06); }
-    .product-placeholder {
-      width: 100%; height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: .8rem;
-      font-size: .6rem;
-      letter-spacing: .15em;
-      text-transform: uppercase;
-      color: var(--gray-400);
-      transition: all .4s;
-    }
-    .product-placeholder .icon { font-size: 2rem; }
-    .product-card:hover .product-placeholder { color: var(--pink); }
-    .product-card-body { padding: 1.5rem; }
-    .product-cat {
-      font-size: .55rem;
-      letter-spacing: .2em;
-      text-transform: uppercase;
-      color: var(--pink);
-      margin-bottom: .5rem;
-    }
-    .product-name {
-      font-family: var(--font-serif);
-      font-size: 1.05rem;
+      font-size: clamp(1.9rem, 3.5vw, 2.9rem);
       font-weight: 400;
-      color: var(--gray-900);
-      margin-bottom: .5rem;
+      line-height: 1.35;
+      letter-spacing: .05em;
+      color: var(--navy);
     }
-    .product-desc {
-      font-size: .72rem;
-      line-height: 1.9;
-      color: var(--gray-600);
-    }
-
-    /* ===== Special — full-bleed ===== */
-    .special {
-      background: var(--gray-600);
-      color: var(--white);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      padding: 0;
-    }
-    .special-imgs {
-      display: grid;
-      grid-template-rows: 1fr 1fr;
-      min-height: 80vh;
-    }
-    .special-img {
-      overflow: hidden;
-      background: var(--gray-800);
-    }
-    .special-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .special-text { padding: 8rem 8%; }
-    .special-img-placeholder {
-      width: 100%; height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      background: linear-gradient(135deg, #2a1f22, #1a1a1f);
-      color: var(--pink-mid);
-      font-size: .7rem;
-      letter-spacing: .2em;
-      text-transform: uppercase;
-    }
-    .special-img-placeholder .big { font-size: 4rem; }
-    .special-text {
-      padding: 6rem 8%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .special-text .sec-label { color: var(--pink-mid); }
-    .special-text .sec-label::before { background: var(--pink-mid); }
-    .special-text .sec-title { color: var(--white); }
-    .special-text p {
-      font-size: .78rem;
-      line-height: 2.2;
-      color: rgba(255,255,255,.55);
-      margin: 1.5rem 0;
-    }
-    .special-badge {
-      display: inline-block;
-      border: 1px solid rgba(212,120,138,.4);
-      color: var(--pink-mid);
-      font-size: .58rem;
-      letter-spacing: .2em;
-      text-transform: uppercase;
-      padding: .6rem 1.4rem;
-      margin-top: 1rem;
-      align-self: flex-start;
-      transition: all .3s;
-    }
-    .special-badge:hover {
-      background: var(--pink);
-      border-color: var(--pink);
-      color: var(--white);
-    }
+    .sec-title em { font-style: italic; color: var(--gold); }
+    .sec-flourish { margin-top: 1.4rem; }
 
     /* ===== News ===== */
     .news {
       background: var(--white);
-      padding: 2.8rem 8%;
-      border-bottom: 1px solid var(--gray-200);
+      padding: 2.6rem 8%;
+      border-bottom: 1px solid var(--blue-lt);
     }
     .news-inner {
       display: flex;
       align-items: baseline;
-      gap: 3rem;
-      max-width: 860px;
+      justify-content: center;
+      gap: 2.4rem;
+      flex-wrap: wrap;
     }
     .news-label {
       font-family: var(--font-serif);
-      font-size: .72rem;
-      letter-spacing: .35em;
+      font-size: .74rem;
+      letter-spacing: .4em;
       text-transform: uppercase;
-      color: var(--pink);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .news-divider {
-      width: 1px;
-      height: 1.1rem;
-      background: var(--gray-300);
-      flex-shrink: 0;
-      align-self: center;
-    }
-    .news-item {
-      display: flex;
-      align-items: baseline;
-      gap: 1.8rem;
-      flex-wrap: wrap;
+      color: var(--gold);
     }
     .news-date {
-      font-family: var(--font-sans);
       font-size: .62rem;
       letter-spacing: .14em;
-      color: var(--gray-400);
-      white-space: nowrap;
-      flex-shrink: 0;
+      color: var(--blue-deep);
     }
     .news-text {
       font-family: var(--font-serif);
-      font-size: 1rem;
-      font-weight: 400;
+      font-size: 1.02rem;
       letter-spacing: .06em;
-      color: var(--gray-800);
-      line-height: 1.6;
+      color: var(--ink);
     }
-    .news-text em {
-      font-style: italic;
-      color: var(--pink);
+    .news-text em { font-style: italic; color: var(--gold); }
+
+    /* ===== Special ===== */
+    .special {
+      background:
+        linear-gradient(rgba(70,85,107,.86), rgba(70,85,107,.92)),
+        repeating-linear-gradient(90deg, var(--blue-mid) 0 60px, var(--blue-lt) 60px 120px);
+      color: var(--white);
+      text-align: center;
     }
-    @media (max-width: 600px) {
-      .news { padding: 2rem 6%; }
-      .news-inner { flex-direction: column; gap: 1rem; }
-      .news-divider { display: none; }
-      .news-item { gap: .8rem; }
+    .special .sec-script { color: var(--gold-lt); }
+    .special .sec-label { color: var(--gold-lt); }
+    .special .sec-title { color: var(--white); }
+    .special p {
+      max-width: 620px;
+      margin: 1.6rem auto 2.4rem;
+      font-size: .78rem;
+      line-height: 2.3;
+      color: rgba(255,255,255,.75);
+    }
+    .macaron-tower { margin: 0 auto 2.2rem; width: 150px; filter: drop-shadow(0 10px 24px rgba(0,0,0,.3)); }
+    .special-badge {
+      display: inline-block;
+      border: 1px solid var(--gold-lt);
+      color: var(--gold-lt);
+      font-size: .6rem;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      padding: .9rem 2.2rem;
+      transition: all .3s;
+    }
+    .special-badge:hover { background: var(--gold); border-color: var(--gold); color: var(--white); }
+
+    /* ===== About ===== */
+    .about {
+      background: var(--marble);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7%;
+      align-items: center;
+    }
+    .about-visual { position: relative; }
+    .about-card {
+      position: relative;
+      aspect-ratio: 3/3.6;
+      background:
+        radial-gradient(ellipse 70% 45% at 50% 0%, rgba(255,255,255,.95), transparent),
+        linear-gradient(165deg, var(--blue-pale), var(--blue-lt) 60%, var(--blue));
+      border: 1px solid var(--gold-lt);
+      box-shadow:
+        inset 0 0 0 8px var(--marble),
+        inset 0 0 0 9px var(--gold-lt),
+        0 20px 50px rgba(70,85,107,.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .about-card svg.boutique { width: 82%; }
+    .about-year {
+      position: absolute;
+      top: -1.4rem; left: -1.4rem;
+      width: 92px; height: 92px;
+      border-radius: 50%;
+      background: var(--navy);
+      border: 1px solid var(--gold);
+      box-shadow: inset 0 0 0 4px var(--navy), inset 0 0 0 5px var(--gold-lt);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-lt);
+      font-family: var(--font-serif);
+      z-index: 2;
+    }
+    .about-year .num { font-size: 1.3rem; letter-spacing: .06em; }
+    .about-year .txt { font-size: .44rem; letter-spacing: .28em; text-transform: uppercase; font-family: var(--font-sans); }
+    .about-text .sec-head { text-align: left; margin-bottom: 2rem; }
+    .about-text .flourish { justify-content: flex-start; }
+    .about-text .flourish::before { display: none; }
+    .about-text p {
+      font-size: .8rem;
+      line-height: 2.3;
+      color: var(--ink);
+      margin-bottom: 1.4rem;
+    }
+    .about-stats {
+      display: flex;
+      gap: 0;
+      margin-top: 2.4rem;
+      border-top: 1px solid var(--gold-lt);
+      border-bottom: 1px solid var(--gold-lt);
+    }
+    .about-stats > div {
+      flex: 1;
+      text-align: center;
+      padding: 1.4rem .6rem;
+    }
+    .about-stats > div + div { border-left: 1px solid var(--gold-lt); }
+    .stat-num {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      color: var(--navy);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: .54rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--blue-deep);
+      margin-top: .5rem;
+    }
+
+    /* ===== Products ===== */
+    .products { background: var(--white); }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.8rem;
+    }
+    .product-card {
+      background: var(--cream);
+      border: 1px solid var(--blue-lt);
+      transition: transform .35s, box-shadow .35s, border-color .35s;
+    }
+    .product-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--gold-lt);
+      box-shadow: 0 18px 40px rgba(70,85,107,.16);
+    }
+    .product-card-img {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid var(--gold-pale);
+      position: relative;
+      overflow: hidden;
+    }
+    .product-card-img svg { width: 58%; transition: transform .5s; }
+    .product-card:hover .product-card-img svg { transform: scale(1.08) rotate(-2deg); }
+    .pc-1 .product-card-img { background: linear-gradient(150deg, var(--mac-pink), #fdf3f4); }
+    .pc-2 .product-card-img { background: linear-gradient(150deg, var(--blue-lt), var(--blue-pale)); }
+    .pc-3 .product-card-img { background: linear-gradient(150deg, var(--mac-lav), #f5f1fa); }
+    .pc-4 .product-card-img { background: linear-gradient(150deg, var(--mac-lemon), #fdf9ec); }
+    .product-card-body { padding: 1.5rem; text-align: center; }
+    .product-cat {
+      font-size: .53rem;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: .5rem;
+    }
+    .product-name {
+      font-family: var(--font-serif);
+      font-size: 1.08rem;
+      font-weight: 500;
+      color: var(--navy);
+      margin-bottom: .55rem;
+    }
+    .product-desc {
+      font-size: .7rem;
+      line-height: 1.95;
+      color: var(--ink);
     }
 
     /* ===== Events ===== */
-    .events { background: var(--pink-pale); }
-    .event-card { border-top-color: var(--pink-lt); }
+    .events {
+      background:
+        radial-gradient(ellipse 90% 70% at 50% 0%, rgba(255,255,255,.8), transparent),
+        linear-gradient(180deg, var(--blue-pale), var(--blue-lt));
+    }
     .events-inner {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-      margin-top: 4rem;
+      gap: 2.4rem;
+      max-width: 1000px;
+      margin: 0 auto;
     }
     .event-card {
-      border-top: 1px solid var(--gray-300);
-      padding-top: 2rem;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--gold-lt);
+      box-shadow: inset 0 0 0 5px rgba(255,255,255,.9), inset 0 0 0 6px var(--gold-pale);
+      padding: 2.6rem 2.2rem;
+      text-align: center;
+    }
+    .event-flag {
+      font-size: 1.6rem;
+      margin-bottom: .8rem;
     }
     .event-country {
-      font-size: .58rem;
-      letter-spacing: .25em;
+      font-size: .56rem;
+      letter-spacing: .3em;
       text-transform: uppercase;
-      color: var(--pink);
-      margin-bottom: 1rem;
+      color: var(--gold);
+      margin-bottom: .9rem;
     }
     .event-card h3 {
       font-family: var(--font-serif);
-      font-size: 1.4rem;
-      font-weight: 300;
-      color: var(--gray-900);
+      font-size: 1.35rem;
+      font-weight: 400;
+      color: var(--navy);
       margin-bottom: 1rem;
     }
     .event-card p {
-      font-size: .76rem;
-      line-height: 2;
-      color: var(--gray-600);
+      font-size: .74rem;
+      line-height: 2.1;
+      color: var(--ink);
       margin-bottom: 1.5rem;
     }
     .city-list {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: .5rem;
     }
     .city-tag {
       font-size: .58rem;
       letter-spacing: .12em;
-      padding: .3rem .9rem;
-      border: 1px solid var(--pink-lt);
-      color: var(--pink);
+      padding: .35rem 1rem;
+      border: 1px solid var(--blue);
+      border-radius: 999px;
+      color: var(--navy);
+      background: var(--white);
     }
 
     /* ===== Contact ===== */
@@ -617,14 +617,11 @@
       background: var(--white);
       text-align: center;
     }
-    .contact .sec-label { justify-content: center; }
-    .contact .sec-label::before { display: none; }
-    .contact .sec-title { margin-bottom: 1rem; }
     .contact-sub {
       font-size: .76rem;
-      color: var(--gray-600);
-      line-height: 2;
-      margin-bottom: 3.5rem;
+      color: var(--ink);
+      line-height: 2.2;
+      margin: -2rem 0 3rem;
     }
     .sns-row {
       display: flex;
@@ -635,52 +632,70 @@
     .sns-btn {
       display: flex;
       align-items: center;
-      gap: .8rem;
-      border: 1px solid var(--gray-300);
-      padding: .9rem 2rem;
-      font-size: .6rem;
-      letter-spacing: .18em;
+      gap: .9rem;
+      border: 1px solid var(--gold-lt);
+      background: linear-gradient(120deg, rgba(242,233,212,.4), var(--white));
+      padding: 1rem 2.4rem;
+      font-size: .62rem;
+      letter-spacing: .2em;
       text-transform: uppercase;
-      color: var(--gray-600);
-      transition: all .25s;
+      color: var(--navy);
+      transition: all .3s;
     }
     .sns-btn:hover {
-      border-color: var(--pink);
-      color: var(--pink);
-      background: var(--pink-pale);
+      border-color: var(--gold);
+      box-shadow: 0 10px 26px rgba(195,163,95,.25);
+      transform: translateY(-3px);
     }
-    .sns-icon { font-size: 1.1rem; }
 
     /* ===== Footer ===== */
     footer {
       position: relative;
-      background: url('images/footer-bg.jpg') center/cover no-repeat;
+      background: var(--navy);
       color: var(--white);
-      padding: 4rem 8%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1.5rem;
+      padding: 4.5rem 8% 2.5rem;
+      text-align: center;
+      overflow: hidden;
     }
+    footer::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 8px;
+      background: repeating-linear-gradient(90deg, var(--blue) 0 42px, var(--white) 42px 84px);
+    }
+    .footer-eiffel { width: 54px; margin: 0 auto 1.2rem; opacity: .8; color: var(--gold-lt); }
     .footer-logo {
       font-family: var(--font-serif);
-      font-size: 1rem;
-      letter-spacing: .15em;
-      color: var(--pink);
-    }
-    .footer-nav { display: flex; gap: 2rem; }
-    .footer-nav a {
-      font-size: .55rem;
+      font-size: 1.25rem;
       letter-spacing: .2em;
+      color: var(--gold-lt);
+      margin-bottom: .4rem;
+    }
+    .footer-script {
+      font-family: var(--font-script);
+      font-size: 1.1rem;
+      color: var(--blue-lt);
+      margin-bottom: 1.8rem;
+    }
+    .footer-nav {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .footer-nav a {
+      font-size: .56rem;
+      letter-spacing: .22em;
       text-transform: uppercase;
       color: rgba(255,255,255,.7);
       transition: color .2s;
     }
-    .footer-nav a:hover { color: var(--white); }
-    .footer-copy { font-size: .6rem; letter-spacing: .08em; color: rgba(255,255,255,.5); }
+    .footer-nav a:hover { color: var(--gold-lt); }
+    .footer-copy { font-size: .58rem; letter-spacing: .08em; color: rgba(255,255,255,.45); }
 
-    /* ===== Fade animation ===== */
+    /* ===== Reveal ===== */
     .reveal {
       opacity: 0;
       transform: translateY(24px);
@@ -693,62 +708,36 @@
     /* ===== Responsive ===== */
     @media (max-width: 900px) {
       section { padding: 5rem 6%; }
-      .about { grid-template-columns: 1fr; }
-      .about-img-accent { width: 45%; right: -1rem; bottom: -1rem; }
+      .about { grid-template-columns: 1fr; gap: 3.5rem; }
       .products-grid { grid-template-columns: 1fr 1fr; }
-      .special { grid-template-columns: 1fr; }
-      .special-imgs { grid-template-rows: auto; grid-template-columns: 1fr 1fr; min-height: 50vh; }
-      .special-img { aspect-ratio: 1; }
-      .events-inner { grid-template-columns: 1fr; gap: 2rem; }
-      nav .nav-line { display: none; }
-      nav { gap: 1.5rem; }
+      .events-inner { grid-template-columns: 1fr; }
+      nav { gap: 1.4rem; }
     }
     @media (max-width: 600px) {
       header { padding: 0 6%; height: 60px; }
       nav { display: none; }
       .hamburger { display: flex; }
+      .awning { top: 60px; }
       .mobile-nav { top: 60px; }
 
-      /* Hero */
-      .hero-content { padding: 0 6% 6rem; }
-      .hero-title { font-size: 2.2rem; letter-spacing: .03em; }
-      .hero-eyebrow { font-size: .55rem; }
-      .hero-sub { font-size: .7rem; }
-      .scroll-indicator { display: none; }
+      .hero { padding: 110px 5% 90px; }
+      .hero-frame { padding: 3rem 1.4rem; }
+      .float-deco.d1 { width: 50px; left: 4%; }
+      .float-deco.d2 { width: 42px; right: 4%; }
+      .float-deco.d3 { display: none; }
+      .float-deco.d4 { width: 54px; right: 6%; }
 
-      /* Sections */
-      section { padding: 4rem 6%; }
-      .sec-title { font-size: 1.7rem; }
+      section { padding: 4.5rem 6%; }
+      .sec-head { margin-bottom: 2.6rem; }
 
-      /* About */
-      .about-img-accent { display: none; }
-      .about-year { width: 60px; height: 60px; top: -1rem; left: -1rem; }
-      .about-year .num { font-size: .9rem; }
-      .about-stats { gap: 2rem; }
-      .stat-num { font-size: 1.8rem; }
       .about { padding-bottom: 6rem; }
+      .about-year { width: 72px; height: 72px; top: -1rem; left: -.6rem; }
+      .about-year .num { font-size: 1rem; }
 
-      /* Products */
-      .products-grid { grid-template-columns: 1fr; gap: 2px; }
-      .products-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .products-grid { grid-template-columns: 1fr; gap: 1.2rem; }
 
-      /* Special */
-      .special { grid-template-columns: 1fr; }
-      .special-imgs { grid-template-columns: 1fr 1fr; grid-template-rows: auto; min-height: unset; }
-      .special-img { aspect-ratio: 1; }
-      .special-text { padding: 3rem 6%; }
-      .special-text .sec-title { font-size: 1.6rem; }
-
-      /* Events */
-      .events-inner { gap: 1.5rem; }
-
-      /* Contact */
       .sns-row { flex-direction: column; align-items: center; }
-      .sns-btn { width: 240px; justify-content: center; min-height: 48px; }
-
-      /* Footer */
-      footer { flex-direction: column; text-align: center; padding: 2.5rem 6%; gap: 1rem; }
-      .footer-nav { justify-content: center; flex-wrap: wrap; gap: 1rem; }
+      .sns-btn { width: 250px; justify-content: center; min-height: 48px; }
     }
   </style>
 </head>
@@ -756,45 +745,81 @@
 
 <!-- ===== HEADER ===== -->
 <header>
-  <div class="logo-mark">Candy<span>Fabric</span></div>
+  <div class="logo-mark">Candy<span>Fabric</span>
+    <span class="logo-sub">Paris — Tissus &amp; Rubans</span>
+  </div>
   <nav>
+    <a href="#special">Special</a>
     <a href="#about">About</a>
     <a href="#products">Collection</a>
-    <a href="#special">Special</a>
     <a href="#events">Events</a>
     <a href="#contact">Contact</a>
-    <div class="nav-line"></div>
   </nav>
   <div class="hamburger" id="hamburger" onclick="toggleMenu()">
     <span></span><span></span><span></span>
   </div>
 </header>
+<div class="awning"></div>
 
 <!-- ===== MOBILE NAV ===== -->
 <div class="mobile-nav" id="mobileNav">
+  <a href="#special" onclick="closeMenu()">Special</a>
   <a href="#about" onclick="closeMenu()">About</a>
   <a href="#products" onclick="closeMenu()">Collection</a>
-  <a href="#special" onclick="closeMenu()">Special</a>
   <a href="#events" onclick="closeMenu()">Events</a>
   <a href="#contact" onclick="closeMenu()">Contact</a>
 </div>
 
 <!-- ===== HERO ===== -->
 <section class="hero" id="top">
-  <div class="hero-bg">
-    <!-- ↓ images/hero.jpg に保存した画像が表示されます -->
-    <img src="images/hero.jpg" alt="CandyFabric">
-  </div>
-  <div class="hero-overlay"></div>
-  <div class="hero-content">
-    <div class="hero-eyebrow reveal">Since 2013 — Select Fabric & Accessories</div>
-    <h1 class="hero-title reveal reveal-delay-1">
-      The Art of<br><em>Beautiful</em> Fabric
-    </h1>
+  <!-- Paris skyline -->
+  <svg class="hero-skyline" viewBox="0 0 1200 190" preserveAspectRatio="xMidYMax slice" fill="currentColor" aria-hidden="true">
+    <path d="M0 190 L0 150 60 150 60 120 90 120 90 150 150 150 150 130 200 130 200 150 260 150 260 190 Z"/>
+    <path d="M300 190 L300 140 360 140 360 110 380 110 380 140 430 140 430 190 Z"/>
+    <!-- Eiffel tower -->
+    <path d="M560 190 L590 190 596 160 604 160 610 190 640 190 620 130 615 130 608 60 604 30 600 10 596 30 592 60 585 130 580 130 Z M585 145 L615 145 613 135 587 135 Z"/>
+    <path d="M700 190 L700 145 750 145 750 120 775 120 775 145 830 145 830 190 Z"/>
+    <path d="M880 190 L880 135 930 135 930 155 990 155 990 125 1010 125 1010 155 1060 155 1060 190 Z"/>
+    <path d="M1100 190 L1100 150 1160 150 1160 130 1180 130 1180 150 1200 150 1200 190 Z"/>
+  </svg>
+
+  <!-- floating macarons / bow -->
+  <svg class="float-deco d1" viewBox="0 0 80 64" aria-hidden="true">
+    <ellipse cx="40" cy="20" rx="34" ry="16" fill="#f3d3d8"/>
+    <ellipse cx="40" cy="32" rx="30" ry="9"  fill="#fdf1f2"/>
+    <ellipse cx="40" cy="44" rx="34" ry="16" fill="#eec3ca"/>
+  </svg>
+  <svg class="float-deco d2" viewBox="0 0 80 64" aria-hidden="true">
+    <ellipse cx="40" cy="20" rx="34" ry="16" fill="#d9e9dd"/>
+    <ellipse cx="40" cy="32" rx="30" ry="9"  fill="#f2faf4"/>
+    <ellipse cx="40" cy="44" rx="34" ry="16" fill="#c7ddcd"/>
+  </svg>
+  <svg class="float-deco d3" viewBox="0 0 80 64" aria-hidden="true">
+    <ellipse cx="40" cy="20" rx="34" ry="16" fill="#f6ecc8"/>
+    <ellipse cx="40" cy="32" rx="30" ry="9"  fill="#fdf8ea"/>
+    <ellipse cx="40" cy="44" rx="34" ry="16" fill="#eddfae"/>
+  </svg>
+  <svg class="float-deco d4" viewBox="0 0 100 70" aria-hidden="true">
+    <path d="M50 35 C30 10 8 14 10 30 C12 46 34 44 50 35 Z" fill="#8fa6c0"/>
+    <path d="M50 35 C70 10 92 14 90 30 C88 46 66 44 50 35 Z" fill="#8fa6c0"/>
+    <path d="M50 35 C36 18 18 20 20 31 C22 42 38 41 50 35 Z" fill="#b9c9dc"/>
+    <path d="M50 35 C64 18 82 20 80 31 C78 42 62 41 50 35 Z" fill="#b9c9dc"/>
+    <circle cx="50" cy="35" r="7" fill="#7e97b5"/>
+    <path d="M46 41 L36 64 44 64 52 43 Z" fill="#8fa6c0"/>
+    <path d="M54 41 L64 64 56 64 48 43 Z" fill="#9db3cc"/>
+  </svg>
+
+  <div class="hero-frame">
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
+    <div class="hero-script reveal">Bonjour, bienvenue à</div>
+    <h1 class="hero-title reveal reveal-delay-1">Candy <em>Fabric</em></h1>
+    <div class="flourish reveal reveal-delay-1">❦</div>
     <p class="hero-sub reveal reveal-delay-2">
-      厳選した輸入ツイード・リボン・生地と<br>大人可愛いアクセサリーを届けるセレクトショップ
+      厳選した輸入ツイード・リボン・生地と<br>
+      大人可愛いアクセサリーを届ける、パリのエスプリ香るセレクトショップ
     </p>
-    <a href="#about" class="hero-cta reveal reveal-delay-2">Discover the Collection</a>
+    <a href="#special" class="hero-cta reveal reveal-delay-2">Discover the Collection</a>
   </div>
   <div class="scroll-indicator">
     <div class="scroll-bar"></div>
@@ -806,13 +831,13 @@
 <div class="marquee-strip">
   <div class="marquee-inner">
     <span>Imported Tweed</span><span class="dot">✦</span>
-    <span>Ribbon & Lace</span><span class="dot">✦</span>
+    <span>Ribbon &amp; Lace</span><span class="dot">✦</span>
     <span>Hair Accessories</span><span class="dot">✦</span>
     <span>Original Macaron Fabric</span><span class="dot">✦</span>
     <span>Handmade Select</span><span class="dot">✦</span>
     <span>Since 2013</span><span class="dot">✦</span>
     <span>Imported Tweed</span><span class="dot">✦</span>
-    <span>Ribbon & Lace</span><span class="dot">✦</span>
+    <span>Ribbon &amp; Lace</span><span class="dot">✦</span>
     <span>Hair Accessories</span><span class="dot">✦</span>
     <span>Original Macaron Fabric</span><span class="dot">✦</span>
     <span>Handmade Select</span><span class="dot">✦</span>
@@ -824,47 +849,127 @@
 <div class="news" id="news">
   <div class="news-inner">
     <div class="news-label">News</div>
-    <div class="news-divider"></div>
-    <div class="news-item">
-      <div class="news-date">2026.5.8 — 5.10</div>
-      <div class="news-text"><em>2026 JAPAN HOBBY SHOW</em>&ensp;出店決定</div>
-    </div>
+    <div class="news-date">2026.5.8 — 5.10</div>
+    <div class="news-text"><em>2026 JAPAN HOBBY SHOW</em>&ensp;出店決定</div>
   </div>
 </div>
 
 <!-- ===== SPECIAL ===== -->
 <section class="special" id="special">
-  <div class="special-imgs">
-    <div class="special-img">
-      <img src="images/special-macaron-pink.jpg" alt="ピンクのマカロン生地">
-    </div>
-    <div class="special-img">
-      <img src="images/special-macaron-gray.jpg" alt="グレーのマカロン生地">
-    </div>
-  </div>
-  <div class="special-text reveal">
+  <div class="sec-head reveal">
+    <div class="sec-script">Collaboration exclusive</div>
     <div class="sec-label">Exclusive Collaboration</div>
     <h2 class="sec-title">世界で<em>唯一</em>の<br>オリジナルマカロン生地</h2>
-    <p>生地メーカー YUWA LIVE LIFE COLLECTION とのコラボレーションにより生まれた、CandyFabric限定のオリジナルマカロン生地。世界で当店でしか手に入らない、特別なファブリックです。</p>
-    <a href="#contact" class="special-badge">お問い合わせはこちら</a>
+    <div class="flourish sec-flourish">❦</div>
   </div>
+  <svg class="macaron-tower reveal" viewBox="0 0 150 170" aria-hidden="true">
+    <!-- tower of macarons -->
+    <g>
+      <ellipse cx="75" cy="150" rx="58" ry="14" fill="#e0cd9e"/>
+      <ellipse cx="75" cy="146" rx="58" ry="12" fill="#f2e9d4"/>
+    </g>
+    <g><ellipse cx="45" cy="132" rx="26" ry="12" fill="#eec3ca"/><ellipse cx="45" cy="124" rx="26" ry="12" fill="#f3d3d8"/></g>
+    <g><ellipse cx="105" cy="132" rx="26" ry="12" fill="#c7ddcd"/><ellipse cx="105" cy="124" rx="26" ry="12" fill="#d9e9dd"/></g>
+    <g><ellipse cx="52" cy="104" rx="24" ry="11" fill="#eddfae"/><ellipse cx="52" cy="97"  rx="24" ry="11" fill="#f6ecc8"/></g>
+    <g><ellipse cx="98" cy="104" rx="24" ry="11" fill="#d3c7e6"/><ellipse cx="98" cy="97"  rx="24" ry="11" fill="#e4dcee"/></g>
+    <g><ellipse cx="75" cy="76"  rx="24" ry="11" fill="#a9bdd4"/><ellipse cx="75" cy="69"  rx="24" ry="11" fill="#b9c9dc"/></g>
+    <g><ellipse cx="75" cy="48"  rx="20" ry="10" fill="#eec3ca"/><ellipse cx="75" cy="42"  rx="20" ry="10" fill="#f3d3d8"/></g>
+    <!-- bow on top -->
+    <g transform="translate(75 22)">
+      <path d="M0 0 C-14 -12 -26 -6 -22 2 C-18 10 -6 6 0 0 Z" fill="#7e97b5"/>
+      <path d="M0 0 C14 -12 26 -6 22 2 C18 10 6 6 0 0 Z" fill="#7e97b5"/>
+      <circle cx="0" cy="0" r="4.5" fill="#46556b"/>
+      <path d="M-2 3 L-7 16 -2 16 1 5 Z" fill="#8fa6c0"/>
+      <path d="M2 3 L7 16 2 16 -1 5 Z" fill="#9db3cc"/>
+    </g>
+  </svg>
+  <p class="reveal">生地メーカー YUWA LIVE LIFE COLLECTION とのコラボレーションにより生まれた、CandyFabric限定のオリジナルマカロン生地。世界で当店でしか手に入らない、特別なファブリックです。</p>
+  <a href="#contact" class="special-badge reveal">お問い合わせはこちら</a>
 </section>
 
 <!-- ===== ABOUT ===== -->
 <section class="about" id="about">
-  <div class="about-img reveal">
-    <div class="about-year"><span class="num">2013</span><span class="txt">Est.</span></div>
-    <div class="about-img-main">
-      <img src="images/about-main.jpg" alt="CandyFabric リボンと生地">
-    </div>
-    <div class="about-img-accent">
-      <img src="images/about-accent.jpg" alt="CandyFabric マカロン生地">
+  <div class="about-visual reveal">
+    <div class="about-year"><span class="num">2013</span><span class="txt">Established</span></div>
+    <div class="about-card">
+      <!-- Parisian boutique illustration -->
+      <svg class="boutique" viewBox="0 0 300 300" aria-hidden="true">
+        <!-- facade -->
+        <rect x="30" y="70" width="240" height="200" fill="#e9eef5" stroke="#c3a35f" stroke-width="1.5"/>
+        <!-- sign -->
+        <rect x="52" y="82" width="196" height="34" fill="#d5dfeb" stroke="#c3a35f" stroke-width="1"/>
+        <text x="150" y="105" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="19" letter-spacing="2" fill="#46556b">CandyFabric</text>
+        <!-- awning -->
+        <g>
+          <rect x="40" y="124" width="220" height="18" fill="#b9c9dc"/>
+          <g fill="#ffffff">
+            <rect x="60"  y="124" width="20" height="18"/>
+            <rect x="100" y="124" width="20" height="18"/>
+            <rect x="140" y="124" width="20" height="18"/>
+            <rect x="180" y="124" width="20" height="18"/>
+            <rect x="220" y="124" width="20" height="18"/>
+          </g>
+          <g>
+            <circle cx="50"  cy="142" r="10" fill="#b9c9dc"/>
+            <circle cx="70"  cy="142" r="10" fill="#ffffff"/>
+            <circle cx="90"  cy="142" r="10" fill="#b9c9dc"/>
+            <circle cx="110" cy="142" r="10" fill="#ffffff"/>
+            <circle cx="130" cy="142" r="10" fill="#b9c9dc"/>
+            <circle cx="150" cy="142" r="10" fill="#ffffff"/>
+            <circle cx="170" cy="142" r="10" fill="#b9c9dc"/>
+            <circle cx="190" cy="142" r="10" fill="#ffffff"/>
+            <circle cx="210" cy="142" r="10" fill="#b9c9dc"/>
+            <circle cx="230" cy="142" r="10" fill="#ffffff"/>
+            <circle cx="250" cy="142" r="10" fill="#b9c9dc"/>
+          </g>
+          <rect x="40" y="140" width="220" height="4" fill="#e9eef5"/>
+        </g>
+        <!-- door -->
+        <rect x="128" y="168" width="44" height="102" rx="20" fill="#9db3cc" stroke="#c3a35f" stroke-width="1.5"/>
+        <rect x="136" y="180" width="28" height="50" rx="12" fill="#e9eef5"/>
+        <circle cx="162" cy="225" r="2.5" fill="#c3a35f"/>
+        <!-- windows -->
+        <g>
+          <rect x="52" y="168" width="58" height="74" rx="26" fill="#ffffff" stroke="#c3a35f" stroke-width="1.5"/>
+          <ellipse cx="81" cy="215" rx="16" ry="8" fill="#f3d3d8"/>
+          <ellipse cx="81" cy="208" rx="12" ry="6" fill="#d9e9dd"/>
+          <ellipse cx="81" cy="202" rx="8"  ry="5" fill="#f6ecc8"/>
+        </g>
+        <g>
+          <rect x="190" y="168" width="58" height="74" rx="26" fill="#ffffff" stroke="#c3a35f" stroke-width="1.5"/>
+          <rect x="204" y="205" width="30" height="18" fill="#b9c9dc"/>
+          <path d="M219 205 C213 196 205 198 207 203 C209 208 216 207 219 205 Z" fill="#7e97b5"/>
+          <path d="M219 205 C225 196 233 198 231 203 C229 208 222 207 219 205 Z" fill="#7e97b5"/>
+        </g>
+        <!-- topiary trees -->
+        <g>
+          <circle cx="40" cy="222" r="16" fill="#c7ddcd"/>
+          <rect x="37" y="236" width="6" height="20" fill="#c3a35f"/>
+          <rect x="30" y="256" width="20" height="14" fill="#f6f3ee" stroke="#c3a35f" stroke-width="1"/>
+        </g>
+        <g>
+          <circle cx="260" cy="222" r="16" fill="#c7ddcd"/>
+          <rect x="257" y="236" width="6" height="20" fill="#c3a35f"/>
+          <rect x="250" y="256" width="20" height="14" fill="#f6f3ee" stroke="#c3a35f" stroke-width="1"/>
+        </g>
+        <!-- cobblestones -->
+        <g fill="none" stroke="#c3a35f" stroke-width=".6" opacity=".5">
+          <ellipse cx="70"  cy="284" rx="14" ry="4"/>
+          <ellipse cx="110" cy="290" rx="14" ry="4"/>
+          <ellipse cx="150" cy="283" rx="14" ry="4"/>
+          <ellipse cx="190" cy="290" rx="14" ry="4"/>
+          <ellipse cx="230" cy="284" rx="14" ry="4"/>
+        </g>
+      </svg>
     </div>
   </div>
   <div class="about-text reveal reveal-delay-1">
-    <div class="sec-label">Our Story</div>
-    <h2 class="sec-title">上質な生地と<br><em>大人可愛い</em>を、<br>あなたの手元へ。</h2>
-    <div class="about-divider"></div>
+    <div class="sec-head">
+      <div class="sec-script">Notre histoire</div>
+      <div class="sec-label">Our Story</div>
+      <h2 class="sec-title">上質な生地と<br><em>大人可愛い</em>を、<br>あなたの手元へ。</h2>
+      <div class="flourish sec-flourish">❦</div>
+    </div>
     <p>2013年より、自ら厳選した輸入ツイードやリボンを中心に、上質な生地や大人可愛いヘアアクセサリー、アクセサリー、雑貨などを取り揃えております。</p>
     <p>ハンドメイドが大好きな皆様に、世界中から選び抜いた素材をお届けしたい——そんな想いから始まったCandyFabric。</p>
     <div class="about-stats">
@@ -886,16 +991,29 @@
 
 <!-- ===== PRODUCTS ===== -->
 <section class="products" id="products">
-  <div class="products-header reveal">
-    <div>
-      <div class="sec-label">Collection</div>
-      <h2 class="sec-title">取り扱い商品</h2>
-    </div>
+  <div class="sec-head reveal">
+    <div class="sec-script">La collection</div>
+    <div class="sec-label">Collection</div>
+    <h2 class="sec-title">取り扱い商品</h2>
+    <div class="flourish sec-flourish">❦</div>
   </div>
   <div class="products-grid reveal">
-    <div class="product-card">
+    <div class="product-card pc-1">
       <div class="product-card-img">
-        <img src="images/product-fabric.jpg" alt="輸入ツイード生地">
+        <!-- fabric rolls -->
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <g transform="rotate(-8 60 60)">
+            <rect x="18" y="30" width="84" height="22" rx="11" fill="#dfa3ae"/>
+            <circle cx="102" cy="41" r="11" fill="#f3d3d8"/>
+            <circle cx="102" cy="41" r="5" fill="#fdf1f2"/>
+            <rect x="18" y="56" width="84" height="22" rx="11" fill="#b9c9dc"/>
+            <circle cx="102" cy="67" r="11" fill="#d5dfeb"/>
+            <circle cx="102" cy="67" r="5" fill="#e9eef5"/>
+            <rect x="18" y="82" width="84" height="22" rx="11" fill="#e0cd9e"/>
+            <circle cx="102" cy="93" r="11" fill="#f2e9d4"/>
+            <circle cx="102" cy="93" r="5" fill="#fbf9f5"/>
+          </g>
+        </svg>
       </div>
       <div class="product-card-body">
         <div class="product-cat">Fabric</div>
@@ -903,9 +1021,18 @@
         <div class="product-desc">海外から厳選したツイード。豊富な柄・カラーを取り揃えています。</div>
       </div>
     </div>
-    <div class="product-card">
+    <div class="product-card pc-2">
       <div class="product-card-img">
-        <img src="images/product-ribbon.jpg" alt="輸入リボン">
+        <!-- ribbon spool -->
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <rect x="34" y="30" width="52" height="56" rx="6" fill="#7e97b5"/>
+          <rect x="28" y="24" width="64" height="12" rx="6" fill="#c3a35f"/>
+          <rect x="28" y="84" width="64" height="12" rx="6" fill="#c3a35f"/>
+          <rect x="34" y="40" width="52" height="8" fill="#9db3cc"/>
+          <rect x="34" y="56" width="52" height="8" fill="#b9c9dc"/>
+          <rect x="34" y="72" width="52" height="8" fill="#d5dfeb"/>
+          <path d="M86 60 C104 62 108 78 98 92 L92 88 C100 78 96 68 84 66 Z" fill="#b9c9dc"/>
+        </svg>
       </div>
       <div class="product-card-body">
         <div class="product-cat">Ribbon</div>
@@ -913,9 +1040,20 @@
         <div class="product-desc">サテン・グログランなど幅広い種類の輸入リボン。</div>
       </div>
     </div>
-    <div class="product-card">
+    <div class="product-card pc-3">
       <div class="product-card-img">
-        <img src="images/product-accessory.jpg" alt="ヘアアクセサリー">
+        <!-- bow accessory -->
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <g transform="translate(60 54)">
+            <path d="M0 0 C-26 -18 -46 -8 -40 6 C-34 20 -12 12 0 0 Z" fill="#a48ec5"/>
+            <path d="M0 0 C26 -18 46 -8 40 6 C34 20 12 12 0 0 Z" fill="#a48ec5"/>
+            <path d="M0 0 C-18 -10 -32 -4 -28 5 C-24 14 -10 8 0 0 Z" fill="#c9b8e0"/>
+            <path d="M0 0 C18 -10 32 -4 28 5 C24 14 10 8 0 0 Z" fill="#c9b8e0"/>
+            <circle cx="0" cy="0" r="8" fill="#8a71b3"/>
+            <path d="M-3 6 L-14 40 -4 40 2 9 Z" fill="#a48ec5"/>
+            <path d="M3 6 L14 40 4 40 -2 9 Z" fill="#b7a3d4"/>
+          </g>
+        </svg>
       </div>
       <div class="product-card-body">
         <div class="product-cat">Accessory</div>
@@ -923,9 +1061,19 @@
         <div class="product-desc">大人可愛いオリジナル・セレクトのヘアアクセサリー。</div>
       </div>
     </div>
-    <div class="product-card">
+    <div class="product-card pc-4">
       <div class="product-card-img">
-        <img src="images/product-goods.jpg" alt="雑貨・小物">
+        <!-- gift box -->
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <rect x="26" y="52" width="68" height="48" rx="3" fill="#b9c9dc"/>
+          <rect x="20" y="38" width="80" height="18" rx="3" fill="#9db3cc"/>
+          <rect x="54" y="38" width="12" height="62" fill="#c3a35f"/>
+          <g transform="translate(60 32)">
+            <path d="M0 0 C-14 -12 -26 -6 -22 3 C-18 12 -6 6 0 0 Z" fill="#c3a35f"/>
+            <path d="M0 0 C14 -12 26 -6 22 3 C18 12 6 6 0 0 Z" fill="#c3a35f"/>
+            <circle cx="0" cy="0" r="4.5" fill="#a58847"/>
+          </g>
+        </svg>
       </div>
       <div class="product-card-body">
         <div class="product-cat">Goods</div>
@@ -938,12 +1086,15 @@
 
 <!-- ===== EVENTS ===== -->
 <section class="events" id="events">
-  <div class="reveal">
+  <div class="sec-head reveal">
+    <div class="sec-script">Les événements</div>
     <div class="sec-label">Events</div>
     <h2 class="sec-title">全国・海外の<br>イベントに出店</h2>
+    <div class="flourish sec-flourish">❦</div>
   </div>
   <div class="events-inner">
     <div class="event-card reveal">
+      <div class="event-flag">🇯🇵</div>
       <div class="event-country">Japan</div>
       <h3>全国各地のハンドメイドイベント</h3>
       <p>年数回、全国各地のイベントに出店しております。ぜひお近くのイベントで実際に生地の質感をお確かめください。</p>
@@ -958,6 +1109,7 @@
       </div>
     </div>
     <div class="event-card reveal reveal-delay-1">
+      <div class="event-flag">🇰🇷</div>
       <div class="event-country">Korea</div>
       <h3>韓国ハンドメイドイベント</h3>
       <p>韓国のハンドメイドイベントにも毎年参加。国境を超えて、ものづくりの楽しさを共有しています。</p>
@@ -971,12 +1123,16 @@
 
 <!-- ===== CONTACT ===== -->
 <section class="contact" id="contact">
-  <div class="sec-label reveal">Contact & SNS</div>
-  <h2 class="sec-title reveal">フォロー・お問い合わせ</h2>
+  <div class="sec-head reveal">
+    <div class="sec-script">Suivez-nous</div>
+    <div class="sec-label">Contact &amp; SNS</div>
+    <h2 class="sec-title">フォロー・お問い合わせ</h2>
+    <div class="flourish sec-flourish">❦</div>
+  </div>
   <p class="contact-sub reveal">最新情報やイベント情報はInstagramでお届けしています。</p>
   <div class="sns-row reveal">
     <a href="https://www.instagram.com/candyfabric_shop/" class="sns-btn" target="_blank" rel="noopener noreferrer">
-      <svg class="sns-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
             <stop offset="0%" style="stop-color:#f09433"/>
@@ -997,11 +1153,17 @@
 
 <!-- ===== FOOTER ===== -->
 <footer>
+  <svg class="footer-eiffel" viewBox="0 0 60 90" fill="currentColor" aria-hidden="true">
+    <path d="M27 4 L33 4 34 16 36 34 40 58 39 58 36 62 24 62 21 58 20 58 24 34 26 16 Z M24 44 L36 44 35.5 40 24.5 40 Z"/>
+    <path d="M18 88 L26 88 28.5 68 31.5 68 34 88 42 88 37 62 23 62 Z"/>
+    <path d="M22 66 C26 74 34 74 38 66 L38 70 C34 77 26 77 22 70 Z"/>
+  </svg>
   <div class="footer-logo">Candy Fabric</div>
+  <div class="footer-script">Tissus &amp; Rubans avec amour</div>
   <nav class="footer-nav">
+    <a href="#special">Special</a>
     <a href="#about">About</a>
     <a href="#products">Collection</a>
-    <a href="#special">Special</a>
     <a href="#events">Events</a>
     <a href="#contact">Contact</a>
   </nav>
