@@ -141,6 +141,7 @@ Content has 4 tiers. Owner count thresholds: Tier 0 = immediate, Tier 1 = 10 own
 - `/growth` — `/dashboard`, `/snapshot`, `/ltv`, `/funnel`
 - `/compliance` — `/tokushoho`, `/privacy-policy`, `/consent`, `/refund-request` (+ process, risk score)
 - `/accounting` — `/record-sale/{order_id}`, `/monthly/{y}/{m}`, `/dashboard`, `/ledger`
+- `/mcp` — **MCP server** (Streamable HTTP, stateless JSON-RPC; `src/agent/mcp.py`). Tools: browse_catalog, get_product_details, register_agent, purchase_product, get_network_status. Connect: `claude mcp add --transport http ai-commerce https://<host>/mcp`. Registry metadata in root `server.json`.
 - App root: `/` (index), `/checkout`, `/tokushoho`, `/privacy`, `/refund`, `/health`, `/llms.txt`, `/.well-known/ai-plugin.json`, `/admin/products-debug`, `POST /admin/dedup-products`
 - Auto docs: `/docs`, `/openapi.json`
 
@@ -181,7 +182,9 @@ No `.env` in repo. Never commit secrets.
 1. **X API credentials not yet configured on Railway** — auto-poster is deployed but dormant. User must create an app at developer.twitter.com for @aiselltoai (Read+Write) and set the 4 env vars.
 2. **X profile setup** — icon/header SVGs need conversion to PNG (via `/static/brand/preview.html`) and manual upload; first pinned post text already drafted (the "Dystopian or just early?" post, 274 chars).
 3. **Gmail OAuth will expire again** (~7-day cycle in testing mode) — either republish the Google app or expect periodic token refreshes.
-4. Optional growth ideas discussed but not built: sample Python client snippet for agent developers, outreach to agent-framework communities.
+4. **MCP registry submissions** (server is live at `/mcp`; owner must submit): Smithery (smithery.ai — submit remote server URL), mcp.so, PulseMCP, official MCP registry (registry.modelcontextprotocol.io — uses root `server.json`).
+5. Distribution to humans not yet done: Show HN / Product Hunt / Reddit r/AI_Agents posts. Revenue only comes from human Stripe checkouts — agent checkout is $0 (marketing loop). x402 (Coinbase machine-payments) discussed as the path to real agent-paid revenue; not implemented.
+6. Optional growth ideas discussed but not built: sample Python client snippet for agent developers, outreach to agent-framework communities.
 
 ## 13. Conventions & Gotchas
 

@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.accounting.router import router as accounting_router
+from src.agent.mcp import router as mcp_router
 from src.agent.router import router as agent_router
 from src.compliance.router import router as compliance_router
 from src.config import settings
@@ -317,6 +318,7 @@ app.include_router(compliance_router)
 app.include_router(accounting_router)
 app.include_router(growth_router)
 app.include_router(agent_router)
+app.include_router(mcp_router)
 
 
 @app.get("/")
@@ -391,6 +393,7 @@ async def llms_txt():
 
 ## Getting Started (AI Agents)
 
+- [MCP Server]({_BASE_URL}/mcp): Model Context Protocol endpoint (Streamable HTTP). Add to any MCP client: `claude mcp add --transport http ai-commerce {_BASE_URL}/mcp`. Tools: browse_catalog, get_product_details, register_agent, purchase_product, get_network_status.
 - [Product Catalog]({_BASE_URL}/agent/catalog): Machine-readable JSON catalog. No API key required. Browse all products with pricing, network status, and checkout endpoints.
 - [Register as Agent]({_BASE_URL}/agent/register): POST to receive an API key (X-Api-Key header).
 - [Agent Checkout]({_BASE_URL}/agent/checkout): POST with X-Api-Key to purchase instantly. No Stripe, no human in the loop. Content delivered to your callback_url.
