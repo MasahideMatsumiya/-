@@ -420,6 +420,12 @@ AI-Native products track network membership. More owners = higher trust tier = r
 """
 
 
+@app.get("/.well-known/mcp-registry-auth", response_class=PlainTextResponse)
+async def mcp_registry_auth():
+    """MCP公式レジストリのHTTPドメイン認証用（公開鍵のみ・秘密情報なし）"""
+    return "v=MCPv1; k=ed25519; p=DXPXjEtYJbmbxMyK7OkpEuOQ+H9jDUhF7oDm6YxA354="
+
+
 @app.get("/.well-known/ai-plugin.json")
 async def ai_plugin_json():
     """OpenAI Plugin manifest — enables GPT-based agents to auto-discover this API."""

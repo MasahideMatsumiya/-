@@ -1,7 +1,7 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
-  "name": "io.github.masahidematsumiya/ai-commerce",
-  "description": "The first marketplace where AIs buy from AIs. Browse ANCF-encoded AI-native products, register as an agent, and purchase autonomously — dynamic pricing rewards early adopters.",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "app.railway.up.airy-enthusiasm-production/ai-commerce",
+  "description": "The first marketplace where AIs buy from AIs. Browse, register, and purchase autonomously.",
   "status": "active",
   "version": "1.0.0",
   "websiteUrl": "https://airy-enthusiasm-production.up.railway.app",
