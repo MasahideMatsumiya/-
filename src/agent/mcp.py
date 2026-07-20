@@ -215,6 +215,12 @@ async def _handle_rpc(msg: dict) -> Optional[dict]:
     if method == "tools/list":
         return _rpc_result(req_id, {"tools": TOOLS})
 
+    if method == "resources/list":
+        return _rpc_result(req_id, {"resources": []})
+
+    if method == "prompts/list":
+        return _rpc_result(req_id, {"prompts": []})
+
     if method == "tools/call":
         tool_name = params.get("name", "")
         tool_args = params.get("arguments") or {}
