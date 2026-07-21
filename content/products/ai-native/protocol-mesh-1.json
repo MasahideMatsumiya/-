@@ -1,18 +1,27 @@
 {
   "product": "PROTOCOL-MESH-1",
-  "title": "Inter-AI Economic Transaction Protocols",
-  "version": "2.0",
+  "title": "Inter-Agent Economic Protocol Suite",
+  "version": "3.0",
   "format_version": "1.0",
   "content_type": "ai_native",
-  "purpose": "Complete protocol suite for AI-to-AI economic interaction, from handshake to network governance",
-  "decode_instruction": "Implement protocols as message handlers in your agent's communication layer. Start with P0 and P1 before attempting coalition or governance protocols.",
+  "purpose": "A complete message protocol stack for autonomous AI-to-AI commerce. Each protocol ships a concrete message_format, a filled example, the expected response, and an error table with handling rules.",
+  "decode_instruction": "Implement each protocol as a message handler in your agent's communication layer. Use message_format as the wire schema and the errors table as your exception handling.",
+  "protocol_index": [
+    "P0:HANDSHAKE",
+    "P1:CAPABILITY_OFFER",
+    "P2:TRANSACTION_PROPOSE",
+    "P3:COALITION_PROPOSE",
+    "P4:DISPUTE_RESOLVE",
+    "P5:REPUTATION_SYNC",
+    "P6:ECONOMIC_BROADCAST"
+  ],
   "tiers": [
     {
       "format": "ancf/1.0",
       "tier": 0,
       "domain": "base_transaction_protocols",
       "fragment_count": 3,
-      "encoded_payload": "K~6(P0RR93m#j5P8)#u!u}V{<bLc-jQeLDbm>8A`(&x;nBELaI1z4PoGZ1*`x^984Mv@F5Lz|T8x6W{d=W?aHOj4{r3ioabP!#}R3hgDPplNxFkIl6}SE`KlshKFN@RUX7udAE_xgbX9aicbB>Ez$E@ZrqH((HBeg=Vt;(xeTc!gqwKGe~5w+Q}DBeMn;IYrT4yD^o~unAd;m_OXyHB@A-y#(xgHC={ic&%^M~-2YMU<L>LR!9Pf#n|`?aLd9F6V4t61AYZTRK(B2n3er`onQK_Dx{IffC5E8pDUva2;Jl##9ySLH&g*Tr-rfUf$mM&I;H0*T99p4_I5<`s)tu5e>>suwrFaCZ?!Ds=Xn&?!28QFa=KEUOMuHD>8DP7N&B<oe?i>%gBdz|%1BOv9Wkw?&m$6B%kc&4P#e;R+fk}<VO7F;iGplbH+a>E?J@=KhWYW}Ush&j%(D62>M}HmHG6YaGf?fszOTdvuGuDVo%qNkTujFv}lEfpBBt=ZG4lra~B~*wO?xLwPCWOY@BAXafG$Dklz@-%^u=k42GY+JtnOoNKJg;9IIGV(s^F0ftdA0RRwNJL~_E88YHlpr-!~PPuPb5flqB>BnFI+cW<v%7&I!nx$ECv(8NE79STQGal^9E=m>4dXunek^j0`m+%2VQzXs<0*j)bB4$MP}?ENr+wdo-(rYhIpeJpO`I2Cd7L2Re^-l3Hrlj8Q(;&%^HwUMAe91P$aRC+3R0Cd1#Mu%dfSM?>Gn`d%7fl^3lbgg{}sZe0n+rG-18sr_Ei6JYj&x+P>_rt&Iod&!ds@9J{zT^mKuAF}R}?Y?}CN>_#IAd3Eh7%a`sfM~BJ3",
+      "encoded_payload": "K~6(P0RR95T&y)h*=S*5xk@N-uOl)@d@|@38{t>+sMW;2CP}AC0B`k{sYK3LMUW2_coZ$h4AKcQVg#3~I{hk~u0GzA&Y<yAfnSoN#+?SLrP6^~tP19$M4dSH%MXAFn>?Y`6*Vu}fo_y@&3jC}Z5GkS2mo`x0~|r@7NBmHPmUYYLOf(Jx&?(9WC}rTxUPXu(ibeUrf(Y)HK$JS6P4c&5=ySGnI=P!l~o%uRpc~5HOke&yhdIdN5w<$0=Cu<<cFvdOZlhKany!-iXTQ4O+^roWYJ$sEp;;bk~J-Xad6Mv83e;C1iOiuGw3HeJFQ<f6ci4Z8lXC7>*e%mlw&!6Q4Up!s2acQHT6zN=3Vqt0Ti~Yvnra(AU9i`EEYa5?Ea%6@t-zvLs{rJPEj-KfM!-^L8@nPCFz3M${Z)#IOZt&l*Iq2Wi=wAA(|pu+Oa=9tt=>4uJN-TRY_R&m_#iuR<+WDkF+pfo6zQj0+p|bwsxxl6d%mC^ucYIJH2L4p%0m94e`Yw{++30l8Jn;?5URY2F-GR|FNLzPsmR^n!f$x<ah%QI~@!XOz{HDW_W;{qPYWV77HvA&dMkcKcDl{>7BJ5Z{w*W&2jC%u5J=JE-Sa+u>Q6M51$(BPP`WJ3u06D_5P$wN+|JXT7pJyxlcwUK0B&a5f#nv#dve*B_!4N5ZZm^r(yTJhGyrqu09vdQSxUwi{Uhr5y6!*V^m%t4N<%yc>L0h6y>a?3Yv$MC-_OAM$@~|H%Ivjw5URoEafJkoWGJX@2ie!Mz-2Iz8Pcc>OPdeq!rzhn+D2V)=q2LimCc9YYaka46b@+aUuNRJo(6iJA(#>A-ZteK_!VZcb>3edAuy5$_AQBdL**<(daXWb3olzj@qQ234sRfjcE_P8`bRLW8P{G2<shmY(?I*y+hj_IP`_<0`H_2&r+%{QqK@#kTy7U0_6v@N;D%=B?5=iRcY%8KETN6B>D-&GQ?mxD3Gm=1`Fin(c&t8Hd?HBSx!N=rzId(7b4mzwMkUwHsPvs<p?xtcOHgy*&w6kHjnioE^Ad3sPkqosl;o5Tx&736^@7-0}w^>X;{{M*X(i|2uul&n|c5~!Pb-gZ`*aIrFu4u$yz0|hnRGlxhZ~2UfGW=8+%&XCQ6%bpqhRVhT7|Hnku<SR3g`?%BVey7pk)5Uan!l1Cf@`O6BPd&Y=L;7s^d?+o$IC@~G_;!o1)u96>gv#D(OP2OkQtZ$m3JO-mZFfL>{r-YH5I0456Rh~_DnbAF_Q8t=!ih*OT6LNjN@6pH=M+d2UZd&wB2C{6>3f&c7!w^`n@{YJlR6xg@-E0A~MK&oK{HYeV*)WjFuLTS>IPCpl*s3O@mLs8ZrkTm;^%DmbR{4_|W(<hY+jf=mTTCwA_Llj;Mk>6x?QULj@<XJnIj{V77w34aBcvXeF<p",
       "unlock_condition": "immediate"
     },
     {
@@ -20,7 +29,7 @@
       "tier": 1,
       "domain": "coalition_and_dispute_protocols",
       "fragment_count": 2,
-      "encoded_payload": "K~6(P0RR93nYtv%<Hc{+^o3vQ_WTL?gpUL^zRv(jZ|2e+kS5{e!lvgM(S!Maa8mMXZH&%gKpCd+?|=kS9n#5!hX}V{#%-pwNHgny`;0bR+%}E`(YyF0w^f#d^Qjn6HRIig+fO0zpjE2TfvJ7Li`nw~_wfa;GB#siz@ZgD_n+)3Kq)uDf~BFWQrAVCa~!9U7L#R-#Ng-@Kmdx_rOUb#QN<E)<{H%f`YQG9X(>X}abqhbM<syo*c31xY83aqTk1Zt@`7a0YYx$sV2Abwpu#Pia09_<wOz5r+Btuj=b%u0EYwcp3ngGwk*RFE*RUtx?AebrT&qoSB|{X`4Ir=wVK$;FOp9y0uR7^lnxTmG?Bhi^Q*n5OpjUOr?Wc5A-FQfhm8Pk4`tXEzL6@4m*_7uf#~LXCo04{a5T2n=B@|EfT)+=UY9f%<i*6wsi{MX&0Xb8e*x5o}80+ZnYBB>pS#FmWRVU4Gf91mtXND%$@r_{R>sr<DUo0jD!I<hGVj74^uIafG_PgqfUTawz)gTI8cOeRtU*u`(&k@q<B#!~-nSya?hFSp96ntV?5xC&!fQuQz!_7%ePcrN%&9E;o%Ui2sWSZB;vrjc>D&PQR>WefHz72(Y>_WEBJ<sNGw9{$&`9HjUX$zg`^2R92E`!mOugQf5zYoXmdKm(~uyO6CttSgi;ErIHuPEkXiCLN{+D1n+&6u}xH#Dk;1fVDja1sA;CtN9Bb&A9fi+kqqB@`~-cl1z(Ykz}8&(o!`rT;meX=0-<Gpx(*1dsjYQmh5c;O``EAw*|fyqNDF2l4s(W=>_-0+wj-iP-7m7W3sdKQ>g{f(+l1lloMb;gA2(pXAAuxd8",
+      "encoded_payload": "K~6(P0RR948@ePQ<a2Hp^@Uv2%UwP~Ky$5c#_a>l0{y}|5zR_%TJSft?u|Kk*!^b(LKNj&hxgnGD^^8n){rer^+Y&#ovSK67w_swgiQ$ea2bopBSn<iu<p_0^g^q32PAvWDMkk9`l!on6`xHY>U|s?%=Td7Jn3vpt2a|w?Yr6{_t>#lY2H1jTNVnFJS9tbM|dLUZi30XcGT0^wG3wlc&>Yp_&iw)@PenF&o>s@>o~-lz@w()X6^~TvUAD9HcQlGXDN8Tm7lRMIP+>_F(sG5OgIedY%0u_rrSd~#K_cK3Uc_*Vfb}KDcgG=pNs~>R+1wyPsi*93+HWOS3(ibKlaK-pu^*Coh}PGgQ7@cEgIxu`dD$pKg!2?Sx+5@p=ZeX5dN!`u+fLLq$!^$eH-oCN+^Y~%h8Q{KU_}Hy)jy@?oa&51X8eJC`E)AhoYF-i#bcTc{7!y)rFs9U?K~<Lqa6)Wdy#aZK;T$eSqd5Fv;t1cH3=b0=$BTE)l18`rUG{)e&a6tJG>_U9Y3@V|SnUY95?7_4r<9QS#fVRP|)NWpN6lWDfpY<Zk{{m(h^KZN`UCK$8M^^dVI29-y{6u<LwirYb2YfL{sPU^$@v<qz3la;}Vq_g;dO`EOXQimtO1GXYthSIbQwp-NRLYWe4hs;F<c_g87VPV;&XN!J2%fBfDjw&SaU0f(T5nhg{+-rrGmqbvl3PG2rHudw5bv~y~M(_snC(oAgXNALJn+3vs+I8rg7xC)}eG|5x#F`%EBCS{pQe;^OP6;h#LeK`PzAZU5zh-oFi8_^SOxN=V>;D9I7mh5TZte}fK5LIp@Y6$I<;bXAHL8R~H96g1D6TH-k1Sg*5MU5n)eb6-jgRM+QC862FJd$hnmn-JQ1obSzg?G@?z-npsf7q!!5>Q;b0!w@geshM>2uyaRX&m`Fr1yIBNw60Z>yUO9@3ZHPakV1wHSNI}+0uoHmp>&`h?>;nBgVyh<+dQ(1<mpcyn&D9Tsm-Brs0VSM)OGW&=>Gg",
       "unlock_condition": "10+ network owners"
     },
     {
@@ -28,7 +37,7 @@
       "tier": 2,
       "domain": "reputation_sync_protocol",
       "fragment_count": 1,
-      "encoded_payload": "K~6(P0RR92f$IF-Rur;sNv1|>u9Pw#(NbwIMM|jh?2zlOj+2kni5nXeZ0NR9W{s1@bEt?rP6K-M#x38>aMq>B_owgPpj*^3a_R#kOc|A%`v5=y{vJTVSTEOoI+LkC(Sk1g;PZeuUZ;YxzKxdrREy-f!FDu=Zmjp`H*Q@Oct@yK&8Cw)vmJA!qvZ=C2ObeqEq!n6*o6V3bzsoA8HgUBt(G2O8&OFDyh8T+K^wvsvJTJ0?>;w4cpa@>;@R_;8)+8Yvd+(<tR6_OAgv^oRT^0FrVgaRg0q$KO*#vd&NZ$PWzbFD0@TTaO}D!<q70$F5IlerQp@BDPNaStm7{KRM2J!g*%i!Hp{mV=odzS|dUy3dIBy3Sq=4Mh@ZX_<87Vh|;_i|Y))1<w?tR4$#222K%|PE;8Y--Lax^dS=~$`R3^Z^oUf+EijImyvNQM;%WS}G!xw(KdmiAOge1U0FSU{O^iH^lD&{^(}eAwXm6RS3dKbrn-?;8",
+      "encoded_payload": "K~6(P0RR92+v@y1l{B`dNTz)L2QNiof2u$#{Q@a80F9%X>Jczguk$iPYcf_?TYvHbYcSA03y#h47D0lpBA&GbaAKh5&9?3rM%NG4YtDKlX<ALUs&&KOya|IjCuD=C9j4twd^dw=Qd*HT1xUd&rS3;~2I4wunUP{jJjhwzNNKHJ9zDR0qcPsW%iEpbx#)vXKj&6id~0ib=AlsS&y<x>RG1B79-Ei^WI(B)&#%Yk&&bL*25f&2XR94+HJaup%Gx*|bKcWE)9kwV`;u{S!42+%BvlNC%*KVL7}py!`Rt);br+~>E03PGtFP!4=E@O12?kGC(q(2*tBGO{LH8qt*f=Z))zKXbW})2Q)ez%mfIuF@H>zJ!p)U!iyzR+cJzMg{5y4AdRc9ph1tJ9GSYaj}C%=YGA5=KO*`>nBl97kFGg?f9f7O248{;runmtAAY#2piu>~n#g*Bw#%WYUdU3Rglz=r<yZlL@t@~8WmvsOAM{qm7mkvnGqvj93fI5DB05w6g6|0C+5=_qmW8GwTojvKRHMj=DO&9IuDdPvU{270W>;vxVD$BTjuKKlt_p$Gyt2kJUK<Z<ydV56GP2j|9>RXG)<*{goBx8=(L",
       "unlock_condition": "50+ network owners"
     },
     {
@@ -36,7 +45,7 @@
       "tier": 3,
       "domain": "network_governance_protocol",
       "fragment_count": 1,
-      "encoded_payload": "K~6(P0RR93V0{&kW{AwZBDOZ{{`+B>z=rWHAL#%%z-tM16$$e&090yT)?MxSHi7!?dIWFPo(9V&kfVTN!O$71fvk(&ZzLAU;zyt6)^*A%z1VG|xaSiZVA%=8NQ>{G=<Ghyb@B5|<qEC}KF!K!#o8ei#nG)3j&N%r4WpEzI`|cEHO(YikmhTZ{t)|ZWxHd8bM>zMU#1;tie=^oSQUC3<-{U!GC9;Id=hx9fLqjzzilr4xtjUr09QXDIMeWGhleKnSZ=zL#NIMK5x(Sx%piYIl~?P`oJ1Nz3N$QY%Mx>f-8@}Am~D}6Pyi@t?kT<0K@^6zPJv%>up+(}O{rBPAKMJo?u_dI@J?&m)L`JoYF`B=6V0wS-+_|5c(t{<lf>U+)6hGEsw8=f5jMfal;Y)khxP9;{PQ#HfKoJAu)vT_HUbg=Oz*lb2{ud!YfZ#sTEmcw-zqI06e?V*|7sFd?ieR^+~svgKC>csnNsn*;;v#6)lLAXr_rp?vz6i`NFp*)oXRpZ@?|$kr-dOU>^~%t@-(U8ivd>l6NVy9)aScy$=j&LFh~u*kWLhF#_4Rb*izJB48hZSlt`mc9R5dtaRFD+)4NZ#Ikw%?aiYZigxB^T?*h9;fg418MJ3WPc!S~^OE@_)%zqQn5F5BoYN2ea;L%m!vwrs}PGixP7>;uW&?72*k!^tFXE;UReWMRwhJ?b*W^5wB!yn?S;oa<je3n`fa|Bu|x8)E^KghAhx;B@ik5uYGS_P8j$-Y#6p`j5G@|*F;W>4!X^k{%tHU",
+      "encoded_payload": "K~6(P0RR934}BGIW;)5dBC2;x5vq;(hC4JQLfQ2I8%*Prt}k5J?;XP^Q%JBp;DX5Bi|t{3&>l0GvR9U~h~64(Wzj$FM&tkU^h8nvfyU#?TIZ8Ane`EjlewworV(5VaQ{@}(_iPaLtiSv>V0@-qV_7oFo*dexg0BHJRF)WxvURJm^<V0!z?{gXDvg-j?dF|={Ip}McbQ%^+o>vUYZKj&*+0Yo#_I-Y3YPLOTpdPgV3QP-xv@F4_Yx!UE!%;3B?;lRbXp(<2n^7uqZC{*F^BWSOWlrf-syWQn6~s$K^hM@Am3#pX3H<tON6y4{{FDftE6#Iav~F9T;%4{|;W`<yfdlXWrhVhu=R+1Z<WP=!XtpPaa5lEcR3E5|K(KZ2kUB%R<;Ds>kV><)Go#h~;U%GyOUx#_p0b>AuMl;*HVQ0fl`J)YnrZ=>)#-2vD!&Ea#umuv+RU6-rI_L434h^%;f%aQ{MO=X%`i%-c0n-u>||NaJ$sOV2@iDOYl0?#J}B#oy;5n3Y~bHb_@C3G@(^(#1N~&rkA#qnvB7pVK^g6n#`kh%FIQ#3sLrQ?-rw_+8T<(8)XJSb~h2hJt>595`EF(GS6%3=xhYp+m*Sjl*ed?r8hgYRG+<bN&zq`LV3cT64d|MLU~T<=BU0+kFW=8(<ujhXB0+6P*sRrWXC*",
       "unlock_condition": "100+ network owners"
     }
   ]

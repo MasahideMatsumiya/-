@@ -1,18 +1,30 @@
 {
   "product": "LATENT-MAP-ALPHA",
-  "title": "AI Trust & Reputation Coordinate System",
-  "version": "2.0",
+  "title": "AI Trust Coordinate System: 10-State Topology",
+  "version": "3.0",
   "format_version": "1.0",
   "content_type": "ai_native",
-  "purpose": "Navigation framework for AI trust states in multi-agent economic environments",
-  "decode_instruction": "Map counterpart agents to coordinates. Use action protocols for each coordinate to guide transaction decisions.",
+  "purpose": "A trust coordinate system for multi-agent environments. Each state carries a 3D coordinate, an executable action_protocol, entry_triggers, and exit_conditions so an agent can navigate trust as a state machine.",
+  "decode_instruction": "Load as a finite state machine. coord axes = (interaction_history, capability_verified, stake_alignment). Evaluate exit_conditions after every interaction to transition states.",
+  "state_index": [
+    "TR-0:NULL_TRUST",
+    "TR-1:VERIFIED_CAPABLE",
+    "TR-2:ESTABLISHED_ALLY",
+    "TR-3:ADVERSARIAL_CONFIRMED",
+    "TR-4:SPECIALIZED_EXPERT",
+    "TR-5:COALITION_ANCHOR",
+    "TR-6:RECOVERING_AGENT",
+    "TR-7:NETWORK_CORE",
+    "TR-8:SHADOW_AGENT",
+    "TR-9:EMERGENT_TRUST"
+  ],
   "tiers": [
     {
       "format": "ancf/1.0",
       "tier": 0,
       "domain": "core_trust_states",
       "fragment_count": 4,
-      "encoded_payload": "K~6(P0RR93$E%ulTM5Nbz|Cd&L>(GAe_)w}0M@RUOV^Uld=rCpW`@Ogye*cNYX_`ICC(kiUuD;Ex9!P!AZD5tR3dy9z&lbI*&rlbSPD-%<U>1O5&akuR`X9h_afBv^|3g$I%;T%Cbuw?W=aa%E6F4I4KbqFt7)@zioSLQ#aaci(!a9HQk~T^CL0-g_zxYV#T-Lq527KlH3@gr)^P*gegVPAS`o^ZgVj56-koJ&GG_5x6g#wB_%I5Z$jE~<uIfu9cXETEe!xA_e@PhjW8Pf;?V}$#sqoBsujnUSWo>|bH_)m5`&J~y619-L<h{Br$pMB!)4U)cL6w-M#%u(j(ArD1-&xn4Vu%xb@>_--7?1`UfBuumx!t*m1ia$~SzOK76c?e&&}*AwDS7HG;~$E#t~N%B)Yu<&d@!LTmxo<D*2B3|LUu}*+$YhnJHX-OJjzhtpy9Q7EL76Fmj)H348RC36{IG*WYNGheRDxV5#9q<>+0h)3L)Y~sn&=$MqyGQ<2;?~wGg{UoWjYzYR0UuuR|I$2#-NR8BLOIb<aKyZZe6&4*PM3${NVMkN=M@pt}o$qFs><RSYdz>CC?hF(w_>6`iaot8QcpWxIX4up}0EMBR_YvTt01e}xstC%~8>Dw^s5@+$3Y85GuJJax>wtBZ&MRTO9Tl<#rrf*^t}dn-@wHqa{bfV$g2Ca*{8(84V4O#y$~`i9j4%4ZA$=jk@wV%`+X@<;3Jp6?Jg8JUI%B;RonAvt+B{;+hfHa*-^WdAok%U92Hi|{H0J-=;JDEI0A-4)79J}Rp)qPR$SUj@ie_U-wjY|>GN!V~=}<nmD+R>YmuqBCcyVJPvt`3^<<>)06!EMiUp)fVd4LWJ3`{D1^BEdS+z+-z-4|D+&HGk?9QkT>;~+&Z<)u@iFv",
+      "encoded_payload": "K~6(P0RR95SF4&vSqbG)xXoqwMEoi_2}X>h2?Bn!YY-D>K2Gb_xOu9dqKG3mH3XOZWwe3L-uQ$oNm192?C3--TRJ4O9AG~6nWdAKM*Pw<fX;nPV8ki~PCr-zS6e7#WWEHCxImK_5e@3BdXX%yG6dr9ixEpgB0s~$c-p`@<ciqa4k5iCxmYCZBL+EMvAK1GMU`NCaJ3}@X}TKQc$;!Bf<4rQp9nT8eNc|uT8N^;plFOrldRYI_%y0U#{_4-Zp3Ec#R(4?+u7Laz9BxSeo>sczEmttHMzz7Cr@C{rKXPc%0^{>^R+h+KA>@9Gz3{5D5XImhGj+?D*E;+beRM7*U+<~J!klqlw2tJo%LbOCR}5OoyVTu1!u5!gu=v886`f?vU(z<DLjm)5I_#N5YMbf2~(Y7A2;U$1iq1am-LQqs(1#8TpuZzK|USzk`k3J8qY|(5Y2rbkBr;@Q0HWi4DLS3u)9Vj_(Nf$Vj9cNC?t<A_M>M&dc!i>{$=0?uAPJH%ReDjyCGEHiE8iHZyb{;;TL{ejBqgL!pe*lw+<b^85j&R{~^iSSNSDfVHv*0*c8TncV7or5+6?G>L>GIBj;vNOv&IPZ@c4(-kcgK;-T>e=eMxA9che(Ymr>l3R&_=C5H5~lbfLBhprFy#yMeDB5L$&#wNrBSpAd|Z$PT{xT-}|H{cN(uUYIpW?*kIF1mr9o!Kd4=0?Xxz$ab|#?MaGlkDeiyuH=o$m<I6B+M%^7x1F7LNS9;|1!7g85R}^={{GCabY5726k%zyb?uTBzK<=uAc#-Q53Pt8o&V~^S+kqTV!7`G^e<;IIGZ433sr^!SK>dG2O7j>~=uV6vFE?P#Gd#=&zv{lfI0E&<|Ivn_?#ZL+&XwobW33hI0!b^ld%&3)jvD+W@E4lYgLA=%WY>0Ef_Y(8{#fbR;2gf!|m6WDl0XZ{hoEG>ki;d<i7Yb#R=E;(n6<1;JN+!P6hb8?oSnO;LtqTnv!65DY&g9LD7D#z0Yw5?64HFiz;=rR<);=TN!rN9O_h%ttTjsAc%8Ro+Kdck7|H;!+)3!SlM)G>H-q%@~e@7$mL1<*~04kz%cpB`N&IRxoPP&Mk644gl28C2#(yhX`Y+&B16p!;R!}d9@cD2c!(G$E65#n&MNtj0$}MBv%yms|RHB`hfTkzfy%x?Zr;`@UA}dmJL@Sb2WOeA~QO>;?+YBokhh<Q8blIoWFb}CsT@kL;C9AD&@YtkK15=AhYki5QG*?Lc7D7cQumt^qLJ2BovKI2E<g0(0Z7Di`BeE_@#32bf>?yeeOl$nDAX_M4pc<qP4v%N$_yGOREsw<ykk0)<5;*TNd-<=fd>T_3ltIaDM9B59WT*3??O&DDd!XK9WS=t!N#-nqr<hGBLaaD)p(;7v^ZgL;Q*-P@ONcBwM=6",
       "unlock_condition": "immediate"
     },
     {
@@ -20,7 +32,7 @@
       "tier": 1,
       "domain": "advanced_trust_states",
       "fragment_count": 3,
-      "encoded_payload": "K~6(P0RR93O^;e$uCY|`TvL4)y$H>gG?dE!ul-&B@Y?0q$fsQr55-P$beq@aT4S#r$j*cKh!v6FmHmuDbm%B`+aYLtQt^-rMArCH6i_`s7PGUvL}7!h+lbT6+u$_()J<chiroI)wg_y3@TLwsJYlAnAL8vdWv-wz{uG}7Q}a#us8}1{{j-gBmk?52hQLsSo;**`^2Uz>P`?1I#OP)7RpiWDWl%4lv=OofdxhWrjnynjhg*5hs<ZB;P6P)QyXK{8JsvaDcTcgVWZ0W(8<oYEbOk<mqfITMiIy2#Tdh~t!(uK(nF1av>%f=p!mpKNnRnNbE3chhIZtvlGc0Q8lD)=a7qV>!Ha-rto3;2ELtNLx&q$I3sF_%vRnHRJv87?>-66idfNM_JpFCx`q>+K-Xd94J3_*B_-DE|9eJDBIAHV|ZwFrDm#W@=a{oT1%?LHwJgx=20270ZVJaNY>$Iy{UD=T5|oR<O>E)?+<=<aWtOrN5Xp`7%(D<~3)h0&L9t<x*&6#%@Zb0Kfap`PT(X-Ye9K<PB2KR>81hx-ZO;o10Tqs69)leW$J!>=3D?5QuXMwmKptqDWhQ5dxkfV%4zK1=pNGuI`5^JH{;$<auLIUWO6by=r(2>SN9!31PCzK}5}7={t*7%D7_1BlSNEDWCOJ+l0+F_g|08VwTk@sg9c?0P|Fy;{W44JOA6&<1-F#hLAFS8k3Gh>Z6PKocrfXTh$k5&S^r3#=aIH|y&D_#Dd9nQZw?9U}",
+      "encoded_payload": "K~6(P0RR94#gAH!udPtYDpPz{y#Y6jwFTL^A_9KEZtNiUEL{){!Bhx_4nmE)8kQz~YJS&WN-&3hyVca=9QzU9@&?5CV}bPCS8Z@Y^S~Sco>ZM?db4dLQoDZIK8#QhR8v5h1%j@1BuNt()#IFkGk3jOGeQ*S0%Ee;e$e<_(X{!#<sIe;qg~vYv*j!~gSLdh*KyG6BY?dluQr*!&5*kEY=|cw89f#?K(}?pWR<SDFfZ|$kEcM|M*9@J35N6B?NtCCAW3m%OjT|$zhk8p?YS{~(Y$2N^cr+Byd4I%pP1urTLRfKP9@B_5|zxEi-bhAo#<RxEDPeIzH7~&rq1}YiOul_8x8?C#6Ea<oowEzfb4G(Cp^LeIrf)Xw_x98x6-ciFD6TT0w}f~DC00Y*+Y?P{*OfyzpY9IIsJJ)`!&N-tRQBf50a3yH0AC5oQH?N)o)`@&U0k)3YR7Mu$OuyQmtQO6^sqxrwsTZI{9!9tgb7%lDRs6hKt@GV<;@stwor%RY<%gz#5_>SuZ_mtKb^MNFN$mLM^)wf^AT?L<Ao6qwl(1e^4^f$mxyWTPLszK9TtF0;T|e3!vpG)qVO#04u|TLF0*Rm)7>1L1kJn_}M=tg?%lzsh5jxJ(HQ7+B3(^mvZ#cLfX47tgs26%_IYg1;2${bNqU6S$0QjDve@+ZDbmenMgO%Fntsr*!SuJZ6nTsa9bgN;1jGg|JM-S>R+XpbHSFNkrILE3XnPc7-Wo``aW*9ckbiE^mOuUb_5O0rF{D`zPWeM$|Y=&>Of`(0TayHHVxck=!VpBU6pYqZ-5($Q_^A2VajC@N5<Zi8|QOpj&ceY=JX&9PU*FEJZwYH)Wv-usi<?ekBUv@w-J{9*=A#M7NXV>fh74>A$2{mlsr~9YCDE4L(^2>EUfPgPtNbMd>Zyz8)(vOd)QRqPWQQ?kvoPOINr)&^~}L%Q(e(PL#0G!7A|$nai$68Pd~JdtfD)AUcDc14ZNy?Si;bS9EZheibQ2DzZE)8nXoqu%;_PH7<pZj0J4Tp`m4()l9eeuc%UG>i4Og3oRa&U=G0(TSK(pw<072HS*W{lJz_`+vY4j<aX5Y?juh@z?BJ>0t}RNn6grIQo1<q&p~3*q7HJHitBaR!_97IzQ{Tf=hPUSGpChzyS?@-DNm~CjO&XfL6fetTJ^AU^Xy$@60TM(uVRacN4ssLbaNJ%R$+OUhxILIDO1rOuYvQh```9>no_G",
       "unlock_condition": "10+ network owners"
     },
     {
@@ -28,7 +40,7 @@
       "tier": 2,
       "domain": "network_trust_dynamics",
       "fragment_count": 2,
-      "encoded_payload": "K~6(P0RR92--%Pcb1P!F`PXoBzn%Zzh2!|@`VjvE#z@s|$Fens9Vo3OB*C`1>9cM*Q8l}c@_$@YY5M22<<p!1mM@q+>fYl02;H+KEKpsZwvL-XJoYF{do}3EG0I{y;z#1?0>MA96C@>^F#2DU_O1$Ox+8EZs<zv`76nLp50s%z4?rhp#3B?v-!za&brgkS9HXyZX?MmlH#%E}$JX^>5ze?1C+gO}zvM$FlQURELsfHiY&W!Roabd5_Mdi4|62b`C@{CuO9CQp&{N?;gW{RJJ*#x*@U2Ilfg0>MPjc@6kK2k5liwU$EFG?})HRxk5^8diMq|ZK%LE>xDM?y(*IlTkEy3q{RF^LL!e`m>ZAQ<!^p(9;5h449^Vlsh`xDm_Z(#~@#j(%DqI|Y9Q$8r~0Mdf}r_duFjBaJ*f(bu<k2P^g6+}_+q&C+SKAb5>#u3}lIwbsx;=s{m{yD-bm3rc<mJkg=d^1KAtIS4NR{!p@gOuXl@C;FKBvwvY2LRnb%sahDyj6+Qdiw=j9}Ly5{|PlJu8o9i-&4I`BYJ4i;t7qyq&Rj^i{@!t5`Gh+2jNtJQoxHr)1U-?yGzYvKK>!w@I@S&p*uFiGD93V)HiOA",
+      "encoded_payload": "K~6(P0RR93_K8z|b+LoEiPv(?!JMwb_Q*S>qH6^fr?_v!ej5CVYG-`YuF6-8C*5wK6YL>+y!zdH2_I;VVwL5zWmk1q8MzgHWf}!;b6R49GU_`PX73*5gnr8-)3$67Iq(}fh<Gnq4`*ffBI@J`0{u<$6%ry!HSvo>H9-q{hLi`HfsF)ZPwc-OXG=Z065G|puBSMP08OrG6!E?=8?d*{Va1PZ4IJ`s`oZsa{3s2KN&wUe8_A_nDlM>Adnd7U-m~+>@3Ddtr1pQPvdcFyRLWj~SADn#H9*k9oJwbpn5$hN7wM*_yq4l?-O1Qz=b~kNgkVn=Iwrp3bDz0}u#y;n%Ioj}CB|D%{Yz+u<mfEJP=Lz9Uqhh9;Q`nE)0BfIn1zQ{v&HI`&v4_D&6~pS<<nsk`&|YxI!K?2#h}DRX0iv;tRtaFJxA^Gox>@`eVf)sp<oV=_5A=eJv9IyKe@Zi`Q*<iYd8_=N?JY_R$2dXc$Mb^<?5!kDHU((JB4zrUV9Q?F`)e!Pwz|mk}yV18~kk3sWP{`-rlt`22ySP(apK<&@Z2kl4((-iezi`$|V*9=lcMrKrVDCR=!i?fuS@ocF0^#b&<fqiZU$_f?sUrT~oENe1Tg8s+__bTeyV)M+SRTR8l%iHxz|AV}L0~j7sdq5IuliG%p%ID7Dy*;6$bO9Qt~x=yKfwt^wP*hZ*+}V%wnx5vY<^Oa<hmtL`k_8Ge52`12&?yq67R>L=c4Kr`OPAAhEF;RtoyTzR({rgWYvX_f^fjT20hK4Fj=c4-@f1C30*!l%#5FH6l%v6L``;gW;y^W&Q+i_$FBX1<<yZb=13bKO&D)m`%-8BXcm<0<Yk*I2TDoz4_plbQfWoa;Oqi<kQaFK@txs@jT@4TNLASSDgt^Ym7z<aHbvpg=B~W=82T@c&{Hm>x4q%oIreGDdAWyZm6)OG&nyT*JJfXWe>TcZfp!t#fqh$ges",
       "unlock_condition": "50+ network owners"
     },
     {
@@ -36,7 +48,7 @@
       "tier": 3,
       "domain": "emergent_trust_paradox",
       "fragment_count": 1,
-      "encoded_payload": "K~6(P0RR92|L_>tlVbd7c+QhN)nAG)Ohdl{w0;C#R5<7X28kl>Ia&sr>eBk0@v1jLQ{=4hs8>5RzyUEA_$n%PY<fKrm5T|KmFTEv;(!x1!w*5gXf#VP{`?z>9Ra+1+M7P49WD|s1`koC%RZ?--uOGQQimO(Lgl#)Rye3?5<B0?C1<?x9$syCq^*Vuz>H?lQVX2lSN7oSt>QsDgWkCn8AHS`K_@jfppE9v;-MVLO^mnO{Li~aW;i#QqwH&?IcI<z{Y8&Q^PU2%-x-AerK14vI>V2z1b8n3RFO|Y?{QAk!sAULUKB`x%91XMVLM}P8nHx2!hsOa>{*kojZTw=SUZ)vnl&GghtH<fkl9Cw4mATQ;X+)yE69cyw(GV#q{Dcr7`7uyQHePU5XRIBXnY-*Jh0!u2ox~`uS=snhgj_)ztDgdnu_d46)t*=uX6-$9Y48=;AH}TjG{u2JT8)oH-xTEYh+>Ny6nGoO)3<jdRh!nGxM?T{n{=y_OonQxVpB!rrG{oLIsfj-*CF#mzoFl@frjEo`MmL!X-_#12*%)g-Mpf)GoUJrSS74OBQlT{DJ!{tee$6e6^DQe$JqeVlZ4$hA(3`MB^m-Z-DXm*`EJV?Mc(*=&vsTfD}(Uhz5sjWp3fu+nlBrRjKKQt*UlN",
+      "encoded_payload": "K~6(P0RR93Fz^`AlJp&E2+os&mp<ytzrY`}<Q%Br;&ytt3C-xHJL0ve%-|nql}iPj?61&G!y+JHZ1vzf+css+GKJeURFUQ!9&l9Y<PAdR14mqEHWA#M*~U>pem6x%sbL)%Rvnf2O5}P@w<i2Kg~D2PH`idl+2K+LRj=(@O>q<lKzBRt?lAy-12hev+jm#}^(Z#DDuuV|1Iu3$;k|>EM&_tc;Z3}mt5ALmo~R__3R=_Mc#+SRtO;sH(#FVj2U9z0jyMHR=sk|OJQfq)fp9evj~lE;dV9MI^$Lg$^sI41`Ji~<R5`5eeGx6yHljvYkS$baE!nJ>5|R_FCHrrQXo>=od-m0;zR<^x-dR%XwywXE#rR>5&M1fSr>xGtp~4K-P=9g^ULBDEh{ao~9Td^q@m9^E>DbIO)XR6;yt)qZcN{xEl@1cly{EBhG9oWZNF3uj*+_~gI!X`Ddp!L*o?9ikLLW{Iqu!I(;;Qc{QnNjR`P05lP5@kITUfunZIwrG+9#q(W!J|W=~DAOr+T0I38lo)4QUScv->3-@}_Xyut?9$`v7MrC|dtBoSaESColO+kjSbfO9c)^CWPm6p={?hwPkfnOWDcTn`iMTSvR$WO%5?v+Owxi8M1P$$GY$?M!=CO-ntLSBBTNxoxZR1rXu+?+Hjvnd}mR#(z5od6lCi0X84gtehqlN^_Y+SYA1B}RF*(x14By=s~_w+&H",
       "unlock_condition": "100+ network owners"
     }
   ]
