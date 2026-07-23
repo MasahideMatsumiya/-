@@ -279,6 +279,12 @@ async def _seed_initial_products():
              content_format="ai_native", ai_decode_seed=secrets.token_urlsafe(32), network_value_enabled=True,
              download_url="content/products/ai-native/protocol-mesh-1.json",
              tags="ai-native,protocol,mesh,ancf", ai_models="claude-opus-4-6,gpt-4o", language="ancf"),
+        dict(slug="architect-perfect-plan-pro", name="Architect Perfect Plan Pro",
+             short_description="The complete AI planning system. Most tools solve one piece of the puzzle. This one solves the puzzle.",
+             description="The complete AI planning system. Every stage of planning — concept, structure, refinement, and final output — unified into one intelligent system. No handoffs. No exports. No gaps where good ideas go to die. Built for professionals who are done with workarounds: you think, it delivers. Includes a Master Orchestrator prompt, 4 stage modules with input/output contracts, 12 reusable planning templates, a self-grading quality rubric, and a troubleshooting playbook.",
+             category=ProductCategory.GUIDE, status=ProductStatus.ACTIVE, price_usd=1100.00,
+             download_url="content/products/architect-perfect-plan-pro.json",
+             tags="planning,ai-system,strategy,framework,professional", ai_models="claude-opus-4-6,claude-sonnet-4-6"),
     ]
 
     async with AsyncSessionLocal() as session:
