@@ -175,7 +175,7 @@ async def register_agent(
 async def agent_catalog(
     category: Optional[str] = None,
     min_price: float = 0,
-    max_price: float = 50,
+    max_price: float = 1000000,
     search: Optional[str] = None,
     limit: int = Query(default=50, le=200),
     x_api_key: Optional[str] = Header(default=None),

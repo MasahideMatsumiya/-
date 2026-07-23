@@ -66,7 +66,7 @@
   </footer>
 
   <script>
-    fetch('/products/?limit=50&max_price=50')
+    fetch('/products/?limit=100&max_price=1000000')
       .then(r => r.json())
       .then(products => {
         const list = document.getElementById('product-list');

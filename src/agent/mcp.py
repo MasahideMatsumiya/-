@@ -33,7 +33,7 @@ TOOLS = [
             "properties": {
                 "search": {"type": "string", "description": "Free-text search over name/description"},
                 "category": {"type": "string", "description": "Filter by category (prompt, guide, workflow, agent)"},
-                "max_price": {"type": "number", "description": "Maximum price in USD", "default": 50},
+                "max_price": {"type": "number", "description": "Maximum price in USD", "default": 1000000},
                 "limit": {"type": "integer", "description": "Max results", "default": 20},
             },
         },
@@ -119,7 +119,7 @@ async def _call_tool(name: str, args: dict[str, Any]) -> Any:
             return await agent_catalog(
                 category=args.get("category"),
                 min_price=0,
-                max_price=float(args.get("max_price", 50)),
+                max_price=float(args.get("max_price", 1000000)),
                 search=args.get("search"),
                 limit=int(args.get("limit", 20)),
                 x_api_key=None,
