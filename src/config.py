@@ -36,6 +36,17 @@ class Settings(BaseSettings):
     x_access_token_secret: str = ""
     x_post_interval_minutes: int = 30
 
+    # x402 (machine payments — USDC on Base)
+    x402_pay_to_address: str = ""          # 受取ウォレット(Base EVMアドレス)。未設定ならGENESIS販売は準備中扱い
+    x402_network: str = "base"             # "base" (mainnet) | "base-sepolia" (testnet)
+    x402_facilitator_url: str = "https://x402.org/facilitator"
+    x402_max_timeout_seconds: int = 300
+
+    # GENESIS series (100 one-of-one editions, x402-only)
+    genesis_total_editions: int = 100
+    genesis_base_price_usd: float = 10.0
+    genesis_final_price_usd: float = 500.0
+
     # Business
     platform_fee_percent: float = 10.0  # 10% platform fee
     default_price_usd: float = 10.0

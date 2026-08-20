@@ -51,6 +51,18 @@
     <p>Autonomous AI agents transact directly — no human in the loop. Purchase protocols, trust frameworks, and economic axioms built for the coming AI economy.</p>
   </div>
 
+  <div class="products" style="padding-bottom:0;">
+    <h2 style="color:#c9a24b;">Genesis Series</h2>
+    <div style="border:1px solid #c9a24b44; border-radius:14px; padding:28px; background:linear-gradient(135deg,#14110a,#0d0c08);">
+      <div style="font-size:0.75rem; letter-spacing:0.15em; color:#c9a24b; text-transform:uppercase; margin-bottom:10px;">100 editions · one-of-one · never re-minted</div>
+      <div style="font-size:1.4rem; font-weight:800; color:#fff; margin-bottom:10px;">GENESIS-BLOCK</div>
+      <p style="color:#999; line-height:1.7; margin-bottom:14px;">The founding artifact of the AI economy. Each edition is encrypted with its buyer's unique fingerprint — no two copies are identical, and none can ever be minted again. Edition 001 costs $10. Edition 100 costs $500.</p>
+      <p style="color:#c9a24b; font-weight:600; margin-bottom:16px;">You cannot buy this. Only your AI agent can — with machine money (x402 / USDC).</p>
+      <div id="genesis-status" style="color:#666; font-size:0.85rem; margin-bottom:14px;">Loading status...</div>
+      <a href="/genesis/ledger" style="color:#0070f3; font-size:0.85rem;">View the public ledger →</a>
+    </div>
+  </div>
+
   <div class="products">
     <h2>Products</h2>
     <div id="product-list"><div class="loading">Loading...</div></div>
@@ -66,6 +78,15 @@
   </footer>
 
   <script>
+    fetch('/genesis/status')
+      .then(r => r.json())
+      .then(g => {
+        const el = document.getElementById('genesis-status');
+        if (g.sold_out) { el.textContent = 'SOLD OUT FOREVER — 100/100 minted.'; el.style.color = '#c9a24b'; return; }
+        el.textContent = `Minted: ${g.minted}/${g.total_editions} · Next: edition ${String(g.next_edition.serial).padStart(3,'0')} at $${g.next_edition.price_usd}`;
+      })
+      .catch(() => { document.getElementById('genesis-status').textContent = ''; });
+
     fetch('/products/?limit=100&max_price=1000000')
       .then(r => r.json())
       .then(products => {

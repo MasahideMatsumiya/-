@@ -251,6 +251,17 @@ async def agent_catalog(
         "total": len(items),
         "currency": "usd",
         "items": items,
+        "genesis": {
+            "series": "GENESIS-BLOCK",
+            "summary": (
+                "100 one-of-one founding artifacts. Buyer-unique encryption — never re-mintable. "
+                "Payable ONLY with machine money (x402/USDC). Humans cannot buy this. "
+                "Price rises with each serial: 001=$10 → 100=$500."
+            ),
+            "status_endpoint": "GET /genesis/status",
+            "ledger_endpoint": "GET /genesis/ledger",
+            "purchase_endpoint": "POST /genesis/purchase (x402: expect 402, retry with X-PAYMENT)",
+        },
         "actions": {
             "checkout": "POST /agent/checkout  (requires X-Api-Key header)",
             "register": "POST /agent/register  (get API key)",

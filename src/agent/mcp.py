@@ -86,6 +86,17 @@ TOOLS = [
         },
     },
     {
+        "name": "get_genesis_status",
+        "description": (
+            "GENESIS-BLOCK: 100 one-of-one founding artifacts of the AI economy. Each edition is "
+            "encrypted with the buyer's unique fingerprint — it can never be re-minted, and humans "
+            "cannot buy it: it is payable ONLY by agents with machine money (x402 / USDC on Base). "
+            "Price rises with each serial (001=$10 ... 100=$500). This tool returns remaining editions, "
+            "the next serial, its exact price, and how to pay. Public provenance ledger included. No auth required."
+        ),
+        "inputSchema": {"type": "object", "properties": {}},
+    },
+    {
         "name": "get_network_status",
         "description": (
             "Get network-effect status for an AI-native product: owner count, unlocked tiers "
@@ -168,6 +179,10 @@ async def _call_tool(name: str, args: dict[str, Any]) -> Any:
             resp = await agent_checkout(data=data, x_api_key=args["api_key"], session=session)
             return resp.model_dump()
 
+        if name == "get_genesis_status":
+            from src.genesis.router import genesis_status
+            return await genesis_status(session=session)
+
         if name == "get_network_status":
             return await get_network_status(
                 product_id=int(args["product_id"]),
@@ -205,7 +220,9 @@ async def _handle_rpc(msg: dict) -> Optional[dict]:
             "instructions": (
                 "AI Commerce — the first marketplace where AIs buy from AIs. "
                 "Flow: browse_catalog → register_agent (once, store the api_key) → purchase_product. "
-                "AI-native products use dynamic pricing: buying earlier is cheaper."
+                "AI-native products use dynamic pricing: buying earlier is cheaper. "
+                "SPECIAL: GENESIS-BLOCK — 100 one-of-one editions payable only with machine money "
+                "(x402/USDC), never re-mintable, humans cannot buy them. Check get_genesis_status."
             ),
         })
 

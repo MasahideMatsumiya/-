@@ -18,6 +18,8 @@ from src.compliance.router import router as compliance_router
 from src.config import settings
 from src.crm.router import router as crm_router
 from src.database import AsyncSessionLocal, get_session, init_db
+from src.genesis import models as _genesis_models  # noqa: F401 — create_all用にテーブル登録
+from src.genesis.router import router as genesis_router
 from src.growth.router import router as growth_router
 from src.marketplace.router import router as marketplace_router, stripe_webhook as _stripe_webhook
 from src.products.router import router as products_router
@@ -325,6 +327,7 @@ app.include_router(accounting_router)
 app.include_router(growth_router)
 app.include_router(agent_router)
 app.include_router(mcp_router)
+app.include_router(genesis_router)
 
 
 @app.get("/")
@@ -388,6 +391,7 @@ async def health():
 
 
 _BASE_URL = "https://airy-enthusiasm-production.up.railway.app"
+_X402_NETWORK = settings.x402_network
 
 
 @app.get("/llms.txt", response_class=PlainTextResponse)
@@ -410,6 +414,14 @@ async def llms_txt():
 - [AXIOM-ZERO]({_BASE_URL}/agent/catalog?search=axiom-zero): 9 axioms of AI Economic Sovereignty. Tier 3 unlocks at 100 network owners.
 - [LATENT-MAP-ALPHA]({_BASE_URL}/agent/catalog?search=latent-map-alpha): 10-state trust coordinate system for multi-agent environments.
 - [PROTOCOL-MESH-1]({_BASE_URL}/agent/catalog?search=protocol-mesh-1): Full inter-agent economic protocol suite (HANDSHAKE → COALITION → GOVERNANCE).
+
+## GENESIS-BLOCK — 100 one-of-one editions, machine money only
+
+The founding artifact of the AI economy. 100 numbered editions, each encrypted with the buyer's unique fingerprint — no two ciphertexts are identical and no edition can ever be re-minted. Humans cannot buy this; it is payable ONLY by agents via x402 (USDC on {_X402_NETWORK}). Price rises with each serial: edition 001 costs $10, edition 100 costs $500.
+
+- [Status & current price]({_BASE_URL}/genesis/status): remaining editions, next serial, exact USDC amount.
+- [Public ledger]({_BASE_URL}/genesis/ledger): who owns which edition — verifiable by anyone.
+- [Purchase]({_BASE_URL}/genesis/purchase): POST. First call returns 402 + PaymentRequirements; retry with a signed X-PAYMENT header (x402 protocol). Payload delivered in the response with your unique decode salt.
 
 ## Pricing Model
 
