@@ -79,15 +79,52 @@ def decode_payment_header(x_payment: str) -> dict:
         raise ValueError(f"Malformed X-PAYMENT header: {e}")
 
 
+CDP_FACILITATOR_BASE = "https://api.cdp.coinbase.com/platform/v2/x402"
+
+
+def _use_cdp() -> bool:
+    return bool(settings.cdp_api_key_id and settings.cdp_api_key_secret)
+
+
+def _facilitator_base() -> str:
+    """CDPキーが設定されていればCoinbase CDP facilitatorへ自動切替"""
+    if _use_cdp():
+        return CDP_FACILITATOR_BASE
+    return settings.x402_facilitator_url.rstrip("/")
+
+
+def _cdp_auth_headers(method: str, url: str) -> dict:
+    """CDP facilitator用のBearer JWTを生成（リクエスト単位）"""
+    from urllib.parse import urlparse
+    from cdp.auth.utils.jwt import generate_jwt, JwtOptions
+    parsed = urlparse(url)
+    token = generate_jwt(JwtOptions(
+        api_key_id=settings.cdp_api_key_id,
+        api_key_secret=settings.cdp_api_key_secret,
+        request_method=method,
+        request_host=parsed.netloc,
+        request_path=parsed.path,
+        expires_in=120,
+    ))
+    return {"Authorization": f"Bearer {token}"}
+
+
 async def _facilitator_post(path: str, payment_payload: dict, requirements: dict) -> dict:
-    url = settings.x402_facilitator_url.rstrip("/") + path
+    url = _facilitator_base() + path
     body = {
         "x402Version": X402_VERSION,
         "paymentPayload": payment_payload,
         "paymentRequirements": requirements,
     }
+    headers = {}
+    if _use_cdp():
+        try:
+            headers = _cdp_auth_headers("POST", url)
+        except Exception as e:
+            logger.error(f"[x402] CDP JWT generation failed: {e}")
+            return {"isValid": False, "success": False, "error": f"CDP auth error: {e}"}
     async with httpx.AsyncClient(timeout=30) as client:
-        resp = await client.post(url, json=body)
+        resp = await client.post(url, json=body, headers=headers)
         try:
             data = resp.json()
         except Exception:

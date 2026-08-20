@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     x402_pay_to_address: str = ""          # 受取ウォレット(Base EVMアドレス)。未設定ならGENESIS販売は準備中扱い
     x402_network: str = "base"             # "base" (mainnet) | "base-sepolia" (testnet)
     x402_facilitator_url: str = "https://x402.org/facilitator"
+    # Coinbase CDP facilitator (Base mainnet決済 + x402 Bazaar自動掲載)
+    # 両方設定すると facilitator が CDP に自動切替
+    cdp_api_key_id: str = ""
+    cdp_api_key_secret: str = ""
     x402_max_timeout_seconds: int = 300
 
     # GENESIS series (100 one-of-one editions, x402-only)

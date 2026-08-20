@@ -29,6 +29,7 @@ dependencies = [
     "asyncpg>=0.29.0",
     "tweepy>=4.14.0",
     "apscheduler>=3.10.0",
+    "cdp-sdk>=1.30.0",
 ]
 
 [project.optional-dependencies]
