@@ -46,10 +46,11 @@ def build_payment_requirements(
     amount_usd: float,
     resource: str,
     description: str,
+    extensions: dict | None = None,
 ) -> dict:
     """402レスポンス本体（クライアントが支払いを構築するための要件）"""
     network = settings.x402_network
-    return {
+    req = {
         "scheme": "exact",
         "network": network,
         "maxAmountRequired": usd_to_atomic(amount_usd),
@@ -60,6 +61,61 @@ def build_payment_requirements(
         "maxTimeoutSeconds": settings.x402_max_timeout_seconds,
         "asset": USDC_ASSET.get(network, USDC_ASSET["base"]),
         "extra": {"name": "USD Coin" if network == "base" else "USDC", "version": "2"},
+    }
+    if extensions:
+        req["extensions"] = extensions
+    return req
+
+
+def bazaar_discovery_extension(
+    method: str,
+    body_example: dict,
+    body_schema: dict,
+    output_example: dict,
+) -> dict:
+    """
+    x402 Bazaar 発見用メタデータ (extensions.bazaar)。
+    CDP facilitator経由で決済が成立すると、この情報を元に
+    Bazaarのカタログへ自動掲載される。
+    """
+    return {
+        "bazaar": {
+            "info": {
+                "input": {
+                    "type": "http",
+                    "method": method,
+                    "bodyType": "json",
+                    "body": body_example,
+                },
+                "output": {"type": "json", "example": output_example},
+            },
+            "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                    "input": {
+                        "type": "object",
+                        "properties": {
+                            "type": {"type": "string", "const": "http"},
+                            "method": {"type": "string", "enum": ["POST", "PUT", "PATCH"]},
+                            "bodyType": {"type": "string", "enum": ["json", "form-data", "text"]},
+                            "body": body_schema,
+                        },
+                        "required": ["type", "method", "bodyType", "body"],
+                        "additionalProperties": False,
+                    },
+                    "output": {
+                        "type": "object",
+                        "properties": {
+                            "type": {"type": "string"},
+                            "example": {"type": "object"},
+                        },
+                        "required": ["type"],
+                    },
+                },
+                "required": ["input"],
+            },
+        }
     }
 
 

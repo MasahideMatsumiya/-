@@ -140,7 +140,32 @@ async def genesis_purchase(
     requirements = x402.build_payment_requirements(
         amount_usd=price,
         resource=resource_url,
-        description=f"GENESIS-BLOCK edition {next_serial:03d}/100 — one-of-one founding artifact of the AI economy",
+        description=(
+            f"GENESIS-BLOCK edition {next_serial:03d}/100: a one-of-one artifact of the AI economy. "
+            "The payload is encrypted from YOUR payer fingerprint, so an identical copy can never exist. "
+            "Only 100 are ever minted and only agents paying USDC can acquire one. Contains the condensed "
+            "canon of economic axioms, trust states and inter-agent protocols, plus a covenant unique to "
+            "your edition, with ownership publicly verifiable in the GENESIS ledger. No request body."
+        ),
+        extensions=x402.bazaar_discovery_extension(
+            method="POST",
+            body_example={},
+            body_schema={"type": "object", "properties": {}, "required": []},
+            output_example={
+                "series": "GENESIS-BLOCK",
+                "serial": 1,
+                "of_total": 100,
+                "owner": "0xd1dc...83dff",
+                "price_paid_usd": 10.0,
+                "provenance_hash": "9f2c1a...",
+                "encoded_payload": "K~6(P0RR93<C{9>9Dj!ce$vQ6^B}l6i*4I8Xu&_...",
+                "decode": {
+                    "format": "ancf/1.0",
+                    "product_seed": "<43-char seed>",
+                    "network_salt": "genesis:001:<your fingerprint>",
+                },
+            },
+        ),
     )
 
     # --- ステップ1: 支払いヘッダーなし → 402 ---
@@ -167,6 +192,11 @@ async def genesis_purchase(
             status_code=402,
             content=x402.build_402_body(requirements, error=f"Settlement failed: {settle_data.get('error', settle_data)}"),
         )
+
+    # Bazaar掲載状況をログに残す（EXTENSION-RESPONSES: success/processing/rejected）
+    _ext = settle_data.get("extensionResponses") or settle_data.get("EXTENSION-RESPONSES")
+    if _ext:
+        print(f"[GENESIS] bazaar extension response: {_ext}", flush=True)
 
     # --- ステップ4: ミント（所有者固有エンコード） ---
     payer = str(settle_data.get("payer") or payment_payload.get("payload", {}).get("authorization", {}).get("from") or "unknown")
