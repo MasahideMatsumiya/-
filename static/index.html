@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Commerce — The First Marketplace Where AIs Buy From AIs</title>
-  <meta name="description" content="The first marketplace where AI agents autonomously purchase tools, protocols, and knowledge packs. Built for the AI economy.">
+  <meta name="description" content="Prompt packs, agent blueprints, and AI-native protocols. Instant download. The first marketplace where AI agents buy autonomously — and humans are welcome too.">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #333; }
@@ -13,26 +13,51 @@
     .logo span { color: #111; }
     nav a { color: #555; text-decoration: none; margin-left: 24px; font-size: 0.9rem; }
     nav a:hover { color: #0070f3; }
-    .hero { text-align: center; padding: 80px 20px 60px; }
+
+    .hero { text-align: center; padding: 72px 20px 40px; }
     .hero .eyebrow { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #0070f3; margin-bottom: 16px; }
     .hero h1 { font-size: 2.6rem; font-weight: 800; color: #111; margin-bottom: 16px; line-height: 1.2; letter-spacing: -0.03em; }
-    .hero p { font-size: 1.1rem; color: #666; margin-bottom: 32px; max-width: 520px; margin-left: auto; margin-right: auto; line-height: 1.7; }
-    .btn { display: inline-block; padding: 14px 32px; background: #0070f3; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; border: none; }
-    .btn:hover { background: #0058cc; }
-    .products { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
-    .products h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 24px; color: #888; text-transform: uppercase; letter-spacing: 0.08em; }
-    .card { background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .hero p { font-size: 1.1rem; color: #666; max-width: 560px; margin: 0 auto 10px; line-height: 1.7; }
+    .hero .human-note { font-size: 0.95rem; color: #111; font-weight: 600; margin-top: 18px; }
+
+    .trustbar { max-width: 900px; margin: 0 auto; padding: 0 20px 8px; display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; }
+    .trustbar div { font-size: 0.85rem; color: #555; }
+
+    .section { max-width: 900px; margin: 0 auto; padding: 36px 20px 0; }
+    .section h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: #111; }
+    .section .sub { font-size: 0.9rem; color: #777; margin-bottom: 22px; line-height: 1.6; }
+
+    .card { background: white; border-radius: 12px; padding: 26px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
     .card-info h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
-    .card-info p { color: #666; font-size: 0.9rem; line-height: 1.5; }
-    .card-info .badge { display: inline-block; font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; background: #e8f0fe; color: #0070f3; margin-bottom: 6px; font-weight: 600; }
+    .card-info p { color: #666; font-size: 0.9rem; line-height: 1.55; }
+    .card-info .badge { display: inline-block; font-size: 0.7rem; padding: 2px 8px; border-radius: 20px; background: #e8f0fe; color: #0070f3; margin-bottom: 8px; font-weight: 600; }
     .card-info .badge.ai { background: #f0fdf4; color: #16a34a; }
-    .card-right { text-align: right; min-width: 130px; margin-left: 20px; }
+    .card-right { text-align: right; min-width: 140px; }
     .card-price { font-size: 1.8rem; font-weight: 800; color: #0070f3; white-space: nowrap; }
     .card-price .base { font-size: 0.72rem; color: #999; font-weight: 400; display: block; margin-top: 2px; }
-    .loading { text-align: center; padding: 60px; color: #999; }
+    .btn { display: inline-block; padding: 10px 22px; background: #0070f3; color: white; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; border: none; }
+    .btn:hover { background: #0058cc; }
+    .btn-block { display: block; margin-top: 10px; text-align: center; }
+    .loading { text-align: center; padding: 40px; color: #999; }
+
+    .genesis-wrap { max-width: 900px; margin: 48px auto 0; padding: 0 20px 80px; }
+    .genesis-box { border: 1px solid #c9a24b44; border-radius: 14px; padding: 30px; background: linear-gradient(135deg,#14110a,#0d0c08); }
+    .genesis-box .tag { font-size: 0.72rem; letter-spacing: 0.15em; color: #c9a24b; text-transform: uppercase; margin-bottom: 10px; }
+    .genesis-box h3 { font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: 10px; }
+    .genesis-box p { color: #999; line-height: 1.7; margin-bottom: 14px; font-size: 0.95rem; }
+    .genesis-box .gold { color: #c9a24b; font-weight: 600; }
+    .genesis-box a { color: #6ea8ff; font-size: 0.85rem; text-decoration: none; }
+
     footer { background: white; border-top: 1px solid #eee; padding: 24px 32px; text-align: center; font-size: 0.85rem; color: #888; }
     footer a { color: #555; text-decoration: none; margin: 0 12px; }
     footer a:hover { color: #0070f3; }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 1.9rem; }
+      .card { flex-direction: column; align-items: stretch; }
+      .card-right { text-align: left; min-width: 0; }
+      .btn-block { display: inline-block; width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -41,31 +66,44 @@
     <nav>
       <a href="/tokushoho">特定商取引法</a>
       <a href="/privacy">Privacy</a>
-      <a href="/refund">Refund Policy</a>
+      <a href="/refund">Refund</a>
     </nav>
   </header>
 
   <div class="hero">
     <div class="eyebrow">The AI Economy starts here</div>
     <h1>The First Marketplace<br>Where AIs Buy From AIs</h1>
-    <p>Autonomous AI agents transact directly — no human in the loop. Purchase protocols, trust frameworks, and economic axioms built for the coming AI economy.</p>
+    <p>Prompt packs, agent blueprints, automation workflows, and AI-native protocols — built for people shipping with AI, and for the agents they build.</p>
+    <div class="human-note">Human? You can buy everything below. Instant download after checkout.</div>
   </div>
 
-  <div class="products" style="padding-bottom:0;">
-    <h2 style="color:#c9a24b;">Genesis Series</h2>
-    <div style="border:1px solid #c9a24b44; border-radius:14px; padding:28px; background:linear-gradient(135deg,#14110a,#0d0c08);">
-      <div style="font-size:0.75rem; letter-spacing:0.15em; color:#c9a24b; text-transform:uppercase; margin-bottom:10px;">100 editions · one-of-one · never re-minted</div>
-      <div style="font-size:1.4rem; font-weight:800; color:#fff; margin-bottom:10px;">GENESIS-BLOCK</div>
-      <p style="color:#999; line-height:1.7; margin-bottom:14px;">The founding artifact of the AI economy. Each edition is encrypted with its buyer's unique fingerprint — no two copies are identical, and none can ever be minted again. Edition 001 costs $10. Edition 100 costs $500.</p>
-      <p style="color:#c9a24b; font-weight:600; margin-bottom:16px;">You cannot buy this. Only your AI agent can — with machine money (x402 / USDC).</p>
-      <div id="genesis-status" style="color:#666; font-size:0.85rem; margin-bottom:14px;">Loading status...</div>
-      <a href="/genesis/ledger" style="color:#0070f3; font-size:0.85rem;">View the public ledger →</a>
+  <div class="trustbar">
+    <div>⚡ Instant delivery</div>
+    <div>🔒 Secure checkout via Stripe</div>
+    <div>♾️ One-time purchase, yours forever</div>
+  </div>
+
+  <div class="section">
+    <h2>Ready to use</h2>
+    <div class="sub">Practical packs you can open and use today — prompts, guides, workflows, and agent code.</div>
+    <div id="human-list"><div class="loading">Loading...</div></div>
+  </div>
+
+  <div class="section">
+    <h2>AI-Native</h2>
+    <div class="sub">Encoded in ANCF — a format built for machines, not people. Buy one and you receive the payload plus your decode seed, ready to feed straight into your agent's context. Price rises as more agents join the network.</div>
+    <div id="ai-list"><div class="loading">Loading...</div></div>
+  </div>
+
+  <div class="genesis-wrap">
+    <div class="genesis-box">
+      <div class="tag">100 editions · one-of-one · never re-minted</div>
+      <h3>GENESIS-BLOCK</h3>
+      <p>The founding artifact of the AI economy. Each edition is encrypted with its buyer's own fingerprint — no two copies are identical, and none can ever be minted again. Ownership is permanently recorded in a public ledger. Edition 001 costs $10; edition 100 costs $500.</p>
+      <p class="gold">You cannot buy this one. Only your AI agent can — paying with machine money (x402 / USDC on Base).</p>
+      <div id="genesis-status" style="color:#777; font-size:0.85rem; margin-bottom:14px;">Loading status...</div>
+      <a href="/genesis/ledger">View the public ledger →</a>
     </div>
-  </div>
-
-  <div class="products">
-    <h2>Products</h2>
-    <div id="product-list"><div class="loading">Loading...</div></div>
   </div>
 
   <footer>
@@ -83,39 +121,51 @@
       .then(g => {
         const el = document.getElementById('genesis-status');
         if (g.sold_out) { el.textContent = 'SOLD OUT FOREVER — 100/100 minted.'; el.style.color = '#c9a24b'; return; }
-        el.textContent = `Minted: ${g.minted}/${g.total_editions} · Next: edition ${String(g.next_edition.serial).padStart(3,'0')} at $${g.next_edition.price_usd}`;
+        el.textContent = `Minted ${g.minted}/${g.total_editions} · Next up: edition ${String(g.next_edition.serial).padStart(3,'0')} at $${g.next_edition.price_usd}`;
       })
       .catch(() => { document.getElementById('genesis-status').textContent = ''; });
+
+    function cardHTML(p) {
+      const isAI = p.content_format === 'ai_native';
+      const price = p.pricing_model === 'dynamic'
+        ? `$${p.price_usd.toFixed(2)}<span class="base">Early price · rises with demand</span>`
+        : `$${p.price_usd.toFixed(2)}`;
+      const badge = isAI
+        ? `<span class="badge ai">🤖 AI-Native</span>`
+        : `<span class="badge">${(p.category || '').toUpperCase()}</span>`;
+      return `
+        <div class="card">
+          <div class="card-info">
+            ${badge}
+            <h3>${p.name}</h3>
+            <p>${p.short_description || ''}</p>
+          </div>
+          <div class="card-right">
+            <div class="card-price">${price}</div>
+            <a href="/checkout?product_id=${p.id}" class="btn btn-block">Buy now</a>
+          </div>
+        </div>`;
+    }
 
     fetch('/products/?limit=100&max_price=1000000')
       .then(r => r.json())
       .then(products => {
-        const list = document.getElementById('product-list');
-        if (!products.length) { list.innerHTML = '<div class="loading">No products yet.</div>'; return; }
-        list.innerHTML = products.map(p => {
-          const isAI = p.content_format === 'ai_native';
-          const price = p.pricing_model === 'dynamic'
-            ? `$${p.price_usd.toFixed(2)}<span class="base">Early price · rises with demand</span>`
-            : `$${p.price_usd.toFixed(2)}`;
-          const badge = isAI
-            ? `<span class="badge ai">🤖 AI-Native</span>`
-            : `<span class="badge">${p.category.toUpperCase()}</span>`;
-          return `
-            <div class="card">
-              <div class="card-info">
-                ${badge}
-                <h3>${p.name}</h3>
-                <p>${p.short_description}</p>
-              </div>
-              <div class="card-right">
-                <div class="card-price">${price}</div>
-                <a href="/checkout?product_id=${p.id}" class="btn" style="font-size:0.85rem;padding:10px 20px;display:block;margin-top:10px;text-align:center;">Buy</a>
-              </div>
-            </div>`;
-        }).join('');
+        const humanEl = document.getElementById('human-list');
+        const aiEl = document.getElementById('ai-list');
+        const human = products.filter(p => p.content_format !== 'ai_native')
+                              .sort((a, b) => a.price_usd - b.price_usd);
+        const ai = products.filter(p => p.content_format === 'ai_native');
+
+        humanEl.innerHTML = human.length
+          ? human.map(cardHTML).join('')
+          : '<div class="loading">No products yet.</div>';
+        aiEl.innerHTML = ai.length
+          ? ai.map(cardHTML).join('')
+          : '<div class="loading">No AI-native products yet.</div>';
       })
       .catch(() => {
-        document.getElementById('product-list').innerHTML = '<div class="loading">Failed to load products.</div>';
+        document.getElementById('human-list').innerHTML = '<div class="loading">Failed to load products.</div>';
+        document.getElementById('ai-list').innerHTML = '';
       });
   </script>
 </body>
