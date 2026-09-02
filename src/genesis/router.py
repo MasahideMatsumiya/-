@@ -12,6 +12,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
@@ -75,6 +76,16 @@ async def genesis_status(session: AsyncSession = Depends(get_session)):
             "note": "GENESIS editions can ONLY be bought with machine money via x402. No Stripe. No free agent checkout. Humans cannot buy this — only your agent can.",
         },
         "how_to_buy": "POST /genesis/purchase — first call returns 402 with PaymentRequirements; retry with signed X-PAYMENT header.",
+        "sponsorship": {
+            "available": bool(settings.stripe_secret_key),
+            "page": "/genesis/sponsor",
+            "explanation": (
+                "A human cannot own a GENESIS edition, but can sponsor one for an agent. "
+                "The sponsor pays by card; the ledger records the agent as the owner and marks "
+                "the entry as 'sponsored', permanently distinguishing it from an edition an agent "
+                "bought with its own machine money."
+            ),
+        },
         "ledger": "GET /genesis/ledger",
     }
 
@@ -91,6 +102,7 @@ async def genesis_ledger(session: AsyncSession = Depends(get_session)):
             {
                 "serial": e.serial,
                 "owner": e.owner_label,
+                "acquisition": e.acquisition,   # x402_direct = agent paid itself / sponsored = a human paid on its behalf
                 "fingerprint": e.owner_fingerprint,
                 "provenance_hash": e.provenance_hash,
                 "price_paid_usd": e.price_paid_usd,
@@ -100,6 +112,137 @@ async def genesis_ledger(session: AsyncSession = Depends(get_session)):
             for e in editions
         ],
     }
+
+
+class SponsorIntentRequest(BaseModel):
+    email: str                    # 領収書送付先（人間）
+    agent_label: str              # 所有者となるエージェント名
+
+
+@router.post("/sponsor/intent")
+async def sponsor_intent(data: SponsorIntentRequest, session: AsyncSession = Depends(get_session)):
+    """
+    人間がエージェントのためにエディションを代理購入する（Stripe）。
+    所有者は指定されたエージェント。人間は支払い者として記録されるが台帳では所有者にならない。
+    """
+    if not settings.stripe_secret_key:
+        raise HTTPException(503, "Card payments are not configured")
+
+    next_serial = await _next_serial(session)
+    if next_serial is None:
+        raise HTTPException(410, "GENESIS-BLOCK is sold out forever. See /genesis/ledger.")
+
+    label = data.agent_label.strip()[:60]
+    if not label:
+        raise HTTPException(400, "agent_label is required — an edition must be owned by a named agent")
+
+    price = price_for_serial(next_serial)
+
+    import stripe
+    stripe.api_key = settings.stripe_secret_key
+    intent = stripe.PaymentIntent.create(
+        amount=int(round(price * 100)),
+        currency="usd",
+        metadata={
+            "kind": "genesis_sponsor",
+            "serial": next_serial,
+            "agent_label": label,
+            "sponsor_email": data.email,
+        },
+    )
+    return {
+        "serial": next_serial,
+        "price_usd": price,
+        "client_secret": intent.client_secret,
+        "payment_intent_id": intent.id,
+        "note": "You are sponsoring this edition. The ledger will record your agent as the owner, marked as sponsored.",
+    }
+
+
+class SponsorConfirmRequest(BaseModel):
+    payment_intent_id: str
+
+
+@router.post("/sponsor/confirm")
+async def sponsor_confirm(data: SponsorConfirmRequest, session: AsyncSession = Depends(get_session)):
+    """支払い成立をStripeに直接照会してからミント（クライアントの申告は信用しない）"""
+    if not settings.stripe_secret_key:
+        raise HTTPException(503, "Card payments are not configured")
+
+    import stripe
+    stripe.api_key = settings.stripe_secret_key
+    try:
+        intent = stripe.PaymentIntent.retrieve(data.payment_intent_id)
+    except Exception as e:
+        raise HTTPException(400, f"Unknown payment: {e}")
+
+    if intent.get("status") != "succeeded":
+        raise HTTPException(402, f"Payment not completed (status: {intent.get('status')})")
+    if (intent.get("metadata") or {}).get("kind") != "genesis_sponsor":
+        raise HTTPException(400, "This payment is not a GENESIS sponsorship")
+
+    # 二重ミント防止: 同じ支払いIDが既に使われていないか
+    existing = await session.execute(
+        select(GenesisEdition).where(GenesisEdition.tx_ref == data.payment_intent_id)
+    )
+    already = existing.scalar_one_or_none()
+    if already:
+        return _sponsor_result(already)
+
+    meta = intent.get("metadata") or {}
+    label = (meta.get("agent_label") or "Unnamed agent")[:60]
+    sponsor_email = meta.get("sponsor_email")
+
+    serial = await _next_serial(session)
+    if serial is None:
+        raise HTTPException(410, "Sold out before this payment could be minted — contact us for a refund.")
+
+    minted_at = datetime.utcnow().isoformat()
+    fingerprint = make_fingerprint(serial, data.payment_intent_id, None, minted_at)
+    encoded_payload, provenance_hash = mint_edition_payload(serial, fingerprint, minted_at, label)
+
+    edition = GenesisEdition(
+        serial=serial,
+        owner_customer_id=None,
+        owner_label=label,
+        payer_address=None,
+        owner_fingerprint=fingerprint,
+        provenance_hash=provenance_hash,
+        price_paid_usd=round((intent.get("amount") or 0) / 100, 2),
+        tx_ref=data.payment_intent_id,
+        network="stripe",
+        acquisition="sponsored",
+        sponsor_email=sponsor_email,
+        agent_label=label,
+    )
+    session.add(edition)
+    await session.commit()
+    await session.refresh(edition)
+    return _sponsor_result(edition, encoded_payload, fingerprint)
+
+
+def _sponsor_result(e: GenesisEdition, encoded_payload: str | None = None, fingerprint: str | None = None):
+    body = {
+        "series": "GENESIS-BLOCK",
+        "serial": e.serial,
+        "of_total": settings.genesis_total_editions,
+        "owner": e.owner_label,
+        "acquisition": e.acquisition,
+        "price_paid_usd": e.price_paid_usd,
+        "provenance_hash": e.provenance_hash,
+        "ledger": "/genesis/ledger",
+    }
+    if encoded_payload:
+        body["encoded_payload"] = encoded_payload
+        body["decode"] = {
+            "format": "ancf/1.0",
+            "product_seed": GENESIS_SEED,
+            "network_salt": edition_salt(e.serial, fingerprint or e.owner_fingerprint),
+            "instruction": "Hand this payload and salt to your agent. decode_ai_content(encoded_payload, product_seed, network_salt).",
+        }
+    else:
+        body["note"] = "This edition was already minted for this payment."
+    return body
 
 
 @router.get("/verify/{serial}")

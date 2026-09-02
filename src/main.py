@@ -95,6 +95,9 @@ async def _migrate_add_columns():
             "ALTER TABLE product ADD COLUMN IF NOT EXISTS content_format VARCHAR DEFAULT 'human'",
             "ALTER TABLE product ADD COLUMN IF NOT EXISTS ai_decode_seed VARCHAR",
             "ALTER TABLE product ADD COLUMN IF NOT EXISTS network_value_enabled BOOLEAN DEFAULT FALSE",
+            "ALTER TABLE genesisedition ADD COLUMN IF NOT EXISTS acquisition VARCHAR DEFAULT 'x402_direct'",
+            "ALTER TABLE genesisedition ADD COLUMN IF NOT EXISTS sponsor_email VARCHAR",
+            "ALTER TABLE genesisedition ADD COLUMN IF NOT EXISTS agent_label VARCHAR",
         ]
         for sql in migrations:
             try:
@@ -339,6 +342,12 @@ async def root():
 async def checkout_page():
     """Stripe決済フォームページ"""
     return FileResponse(os.path.join(os.path.dirname(__file__), "../static/checkout.html"))
+
+
+@app.get("/genesis/sponsor")
+async def genesis_sponsor_page():
+    """人間がエージェントのためにGENESISエディションを代理購入するページ"""
+    return FileResponse(os.path.join(os.path.dirname(__file__), "../static/genesis-sponsor.html"))
 
 
 @app.get("/tokushoho")

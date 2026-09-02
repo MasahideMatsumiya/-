@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sponsor a GENESIS edition for your agent</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0b0a07; color: #eee; padding: 40px 20px 80px; }
+    .wrap { max-width: 620px; margin: 0 auto; }
+    a.back { color: #6ea8ff; text-decoration: none; font-size: 0.85rem; }
+    .tag { font-size: 0.72rem; letter-spacing: 0.15em; color: #c9a24b; text-transform: uppercase; margin: 24px 0 10px; }
+    h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 14px; letter-spacing: -0.02em; }
+    p.lead { color: #999; line-height: 1.75; margin-bottom: 18px; }
+    .rule { border: 1px solid #c9a24b44; background: #14110a; border-radius: 12px; padding: 20px; margin-bottom: 26px; }
+    .rule strong { color: #c9a24b; }
+    .rule p { color: #b9b4a6; line-height: 1.7; font-size: 0.92rem; }
+    label { display: block; font-size: 0.85rem; color: #bbb; margin: 18px 0 6px; font-weight: 600; }
+    input { width: 100%; padding: 13px 14px; border-radius: 10px; border: 1px solid #333; background: #131313; color: #eee; font-size: 1rem; }
+    input:focus { outline: none; border-color: #c9a24b; }
+    .hint { font-size: 0.78rem; color: #777; margin-top: 6px; line-height: 1.5; }
+    .summary { background: #131313; border-radius: 12px; padding: 18px; margin: 26px 0 18px; display: flex; justify-content: space-between; align-items: center; }
+    .summary .l { color: #999; font-size: 0.9rem; }
+    .summary .r { font-size: 1.6rem; font-weight: 800; color: #c9a24b; }
+    #payment-element { margin: 18px 0; }
+    button { width: 100%; padding: 15px; background: #c9a24b; color: #14110a; border: none; border-radius: 10px; font-weight: 800; font-size: 1rem; cursor: pointer; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .msg { margin-top: 16px; padding: 14px; border-radius: 10px; font-size: 0.9rem; line-height: 1.6; display: none; }
+    .msg.err { background: #2a1414; color: #ff8b8b; display: block; }
+    .msg.ok { background: #10210f; color: #8fe28c; display: block; }
+    code { background: #1b1b1b; padding: 2px 6px; border-radius: 5px; font-size: 0.85em; word-break: break-all; }
+    .payload { background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 10px; padding: 14px; margin-top: 14px; font-size: 0.75rem; color: #8ea; word-break: break-all; max-height: 180px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="/">← Back to AI Commerce</a>
+
+    <div class="tag">100 editions · one-of-one · never re-minted</div>
+    <h1>Sponsor a GENESIS edition for your agent</h1>
+    <p class="lead">You cannot own a GENESIS edition. Your agent can. Sponsor one, and the ledger records your agent as the owner — permanently.</p>
+
+    <div class="rule">
+      <p><strong>How this stays honest:</strong> every sponsored edition is marked <code>sponsored</code> in the public ledger, so it is never mistaken for one an agent bought with its own machine money via x402. Both are real; the ledger tells them apart forever.</p>
+    </div>
+
+    <label for="agent">Agent name — this goes in the ledger as the owner</label>
+    <input id="agent" placeholder="e.g. Atlas-7, my research assistant" maxlength="60">
+    <div class="hint">This is public. Pick the name your agent should be remembered by.</div>
+
+    <label for="email">Your email — for the receipt and the payload</label>
+    <input id="email" type="email" placeholder="you@example.com">
+    <div class="hint">Never shown in the ledger. Used only to send you the edition and its decode salt.</div>
+
+    <div class="summary">
+      <div class="l">Next available edition</div>
+      <div class="r" id="price">—</div>
+    </div>
+    <div class="hint" id="serial-note">Loading availability…</div>
+
+    <div id="payment-element"></div>
+    <button id="pay" disabled>Continue</button>
+
+    <div class="msg" id="msg"></div>
+    <div class="payload" id="payload" style="display:none;"></div>
+  </div>
+
+  <script>
+    let stripe, elements, intentId, serial, price;
+    const msg = document.getElementById('msg');
+    const payBtn = document.getElementById('pay');
+
+    function show(kind, html) { msg.className = 'msg ' + kind; msg.innerHTML = html; }
+
+    async function init() {
+      try {
+        const st = await fetch('/genesis/status').then(r => r.json());
+        if (st.sold_out) {
+          document.getElementById('serial-note').textContent = 'Sold out forever — 100/100 minted.';
+          document.getElementById('price').textContent = '—';
+          return;
+        }
+        serial = st.next_edition.serial;
+        price = st.next_edition.price_usd;
+        document.getElementById('price').textContent = '$' + price.toFixed(2);
+        document.getElementById('serial-note').textContent =
+          `Edition ${String(serial).padStart(3, '0')} of 100 · ${st.remaining} remaining`;
+
+        const cfg = await fetch('/marketplace/config').then(r => r.json());
+        stripe = Stripe(cfg.publishable_key);
+        payBtn.disabled = false;
+      } catch (e) {
+        show('err', 'Could not load availability. Please refresh.');
+      }
+    }
+
+    payBtn.addEventListener('click', async () => {
+      const agent = document.getElementById('agent').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!elements) {
+        if (!agent) return show('err', 'Please name the agent that will own this edition.');
+        if (!email || !email.includes('@')) return show('err', 'Please enter a valid email for the receipt.');
+
+        payBtn.disabled = true;
+        payBtn.textContent = 'Preparing…';
+        try {
+          const r = await fetch('/genesis/sponsor/intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, agent_label: agent }),
+          });
+          if (!r.ok) throw new Error((await r.json()).detail || 'Could not start payment');
+          const data = await r.json();
+          intentId = data.payment_intent_id;
+          serial = data.serial;
+
+          elements = stripe.elements({ clientSecret: data.client_secret, appearance: { theme: 'night' } });
+          elements.create('payment').mount('#payment-element');
+          payBtn.textContent = `Sponsor edition ${String(serial).padStart(3, '0')} — $${data.price_usd.toFixed(2)}`;
+          payBtn.disabled = false;
+          msg.className = 'msg';
+        } catch (e) {
+          show('err', e.message);
+          payBtn.disabled = false;
+          payBtn.textContent = 'Continue';
+        }
+        return;
+      }
+
+      payBtn.disabled = true;
+      payBtn.textContent = 'Processing…';
+      const { error } = await stripe.confirmPayment({ elements, redirect: 'if_required' });
+      if (error) {
+        show('err', error.message);
+        payBtn.disabled = false;
+        payBtn.textContent = 'Try again';
+        return;
+      }
+
+      payBtn.textContent = 'Minting…';
+      try {
+        const r = await fetch('/genesis/sponsor/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ payment_intent_id: intentId }),
+        });
+        if (!r.ok) throw new Error((await r.json()).detail || 'Minting failed');
+        const res = await r.json();
+        show('ok',
+          `<strong>Edition ${String(res.serial).padStart(3, '0')}/100 minted.</strong><br>` +
+          `Owner: <code>${res.owner}</code> · recorded as <code>${res.acquisition}</code><br>` +
+          `Provenance hash: <code>${res.provenance_hash}</code><br>` +
+          `<a href="/genesis/ledger" style="color:#6ea8ff;">See it in the public ledger →</a>`);
+        if (res.decode) {
+          const p = document.getElementById('payload');
+          p.style.display = 'block';
+          p.innerHTML =
+            `<div style="color:#c9a24b;margin-bottom:8px;">Hand this to your agent — this salt works for no other edition.</div>` +
+            `<div><b>network_salt:</b> ${res.decode.network_salt}</div>` +
+            `<div style="margin-top:8px;"><b>product_seed:</b> ${res.decode.product_seed}</div>` +
+            `<div style="margin-top:8px;"><b>encoded_payload:</b> ${res.encoded_payload}</div>`;
+        }
+        payBtn.style.display = 'none';
+      } catch (e) {
+        show('err', `Payment succeeded but minting failed: ${e.message}<br>Contact us with payment id <code>${intentId}</code> and we will resolve it.`);
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>

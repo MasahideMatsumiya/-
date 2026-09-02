@@ -18,3 +18,8 @@ class GenesisEdition(SQLModel, table=True):
     tx_ref: Optional[str] = None                           # facilitator返却のトランザクション参照
     network: str = "base"
     purchased_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # 取得方法。台帳では常に区別して公開する（エージェント直接購入と人間の代理購入を混同させない）
+    acquisition: str = "x402_direct"                       # "x402_direct" | "sponsored"
+    sponsor_email: Optional[str] = None                    # 代理購入した人間の連絡先（台帳には非公開）
+    agent_label: Optional[str] = None                      # 所有者となるエージェントの表示名
