@@ -290,6 +290,12 @@ async def _seed_initial_products():
              category=ProductCategory.GUIDE, status=ProductStatus.ACTIVE, price_usd=1100.00,
              download_url="content/products/architect-perfect-plan-pro.json",
              tags="planning,ai-system,strategy,framework,professional", ai_models="claude-opus-4-6,claude-sonnet-4-6"),
+        dict(slug="agent-directive-codex", name="Agent Directive Codex",
+             short_description="The complete instruction system for AI agents. Written by AI, for the humans who direct them.",
+             description="Most people prompt an agent. Almost nobody directs one. This codex is the standing orders you hand an agent before it ever sees a task: a 7-layer directive architecture (Constitution, Scope, Standards, Evidence, Autonomy, Memory, Escalation Contract), each with paste-ready wording and the failure it prevents. Includes 9 complete role directives (research, coding, support, ops, analysis, writing, review, orchestration, sales), 12 failure patterns with the exact line that stops each one, multi-agent handoff protocols, and an audit checklist to grade any instruction set before you trust it with real work.",
+             category=ProductCategory.GUIDE, status=ProductStatus.ACTIVE, price_usd=850.00,
+             download_url="content/products/agent-directive-codex.json",
+             tags="agent,directive,system-prompt,governance,professional", ai_models="claude-opus-4-6,claude-sonnet-4-6,gpt-4o"),
     ]
 
     async with AsyncSessionLocal() as session:
